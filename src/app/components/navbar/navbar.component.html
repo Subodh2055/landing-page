@@ -1,0 +1,107 @@
+<nav class="navbar navbar-expand-lg" [class.scrolled]="isScrolled">
+  <div class="container">
+    <!-- Left Side - Brand/Logo -->
+    <div class="navbar-brand-container">
+      <a class="navbar-brand" routerLink="/">
+        <div class="brand-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <span class="brand-text">ProductHub</span>
+      </a>
+    </div>
+
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navigation Content -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <!-- Center Navigation -->
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/products" routerLinkActive="active">
+            <i class="fas fa-th-large"></i>
+            <span>Products</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Right Side Actions -->
+      <div class="navbar-actions">
+        <!-- Guest Actions -->
+        <div class="guest-actions" *ngIf="!isAuthenticated()">
+          <a class="btn btn-outline-light btn-sm me-2" routerLink="/login" routerLinkActive="active">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+          </a>
+          <a class="btn btn-primary btn-sm" routerLink="/register" routerLinkActive="active">
+            <i class="fas fa-user-plus"></i>
+            <span>Register</span>
+          </a>
+        </div>
+
+        <!-- User Actions -->
+        <div class="user-actions" *ngIf="isAuthenticated()">
+          <!-- Admin Button -->
+          <a class="btn btn-warning btn-sm me-2" *ngIf="hasRole('admin')" routerLink="/admin" routerLinkActive="active">
+            <i class="fas fa-cog"></i>
+            <span>Admin</span>
+          </a>
+          
+          <!-- User Menu -->
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar">
+                {{ getUserInitials() }}
+              </div>
+              <span class="user-name">{{ currentUser?.username }}</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li>
+                <div class="dropdown-header">
+                  <div class="user-info">
+                    <div class="user-avatar-large">
+                      {{ getUserInitials() }}
+                    </div>
+                    <div class="user-details">
+                      <h6 class="user-name">{{ currentUser?.username }}</h6>
+                      <span class="user-role">{{ currentUser?.role }}</span>
+                    </div>
+                  </div>
+                </div>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item" routerLink="/profile">
+                  <i class="fas fa-user"></i>
+                  <span>Profile</span>
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" routerLink="/settings">
+                  <i class="fas fa-cog"></i>
+                  <span>Settings</span>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item logout" (click)="logout()">
+                  <i class="fas fa-sign-out-alt"></i>
+                  <span>Logout</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

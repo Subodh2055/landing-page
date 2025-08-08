@@ -1,0 +1,289 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="auth-container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="fw-bold text-primary">
+            <i class="fas fa-cog me-2"></i>Product Management
+          </h2>
+          <button class="btn btn-outline-secondary" routerLink="/">
+            <i class="fas fa-arrow-left me-2"></i>Back to Products
+          </button>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="fas fa-plus me-2"></i>Add New Product
+                </h5>
+                <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+                  <div class="mb-3">
+                    <label for="name" class="form-label">Product Name</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      id="name"
+                      formControlName="name"
+                      placeholder="Enter product name">
+                    <div class="text-danger small mt-1" *ngIf="productForm.get('name')?.invalid && productForm.get('name')?.touched">
+                      Product name is required
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea 
+                      class="form-control" 
+                      id="description"
+                      rows="3"
+                      formControlName="description"
+                      placeholder="Enter product description"></textarea>
+                    <div class="text-danger small mt-1" *ngIf="productForm.get('description')?.invalid && productForm.get('description')?.touched">
+                      Description is required
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <div class="input-group">
+                          <span class="input-group-text">$</span>
+                          <input 
+                            type="number" 
+                            class="form-control" 
+                            id="price"
+                            formControlName="price"
+                            step="0.01"
+                            min="0.01"
+                            placeholder="0.00">
+                        </div>
+                        <div class="text-danger small mt-1" *ngIf="productForm.get('price')?.invalid && productForm.get('price')?.touched">
+                          <span *ngIf="productForm.get('price')?.errors?.['required']">Price is required</span>
+                          <span *ngIf="productForm.get('price')?.errors?.['min']">Price must be at least $0.01</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" formControlName="category">
+                          <option value="">Select category</option>
+                          <option value="Electronics">Electronics</option>
+                          <option value="Clothing">Clothing</option>
+                          <option value="Books">Books</option>
+                          <option value="Home & Garden">Home & Garden</option>
+                          <option value="Sports">Sports</option>
+                          <option value="Automotive">Automotive</option>
+                          <option value="Health & Beauty">Health & Beauty</option>
+                          <option value="Toys & Games">Toys & Games</option>
+                          <option value="Food & Beverages">Food & Beverages</option>
+                          <option value="Jewelry">Jewelry</option>
+                        </select>
+                        <div class="text-danger small mt-1" *ngIf="productForm.get('category')?.invalid && productForm.get('category')?.touched">
+                          Category is required
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="imageUpload" class="form-label">Product Image</label>
+                        <div class="image-upload-container">
+                          <input 
+                            type="file" 
+                            class="form-control" 
+                            id="imageUpload"
+                            accept="image/*"
+                            (change)="onImageSelected($event)"
+                            style="display: none;">
+                          <div class="image-preview-container" (click)="triggerFileInput()">
+                            <div class="image-preview" *ngIf="!selectedImage && !productForm.get('imageUrl')?.value">
+                              <i class="fas fa-cloud-upload-alt"></i>
+                              <p>Click to upload image</p>
+                            </div>
+                            <img 
+                              *ngIf="selectedImage || productForm.get('imageUrl')?.value" 
+                              [src]="selectedImage || productForm.get('imageUrl')?.value" 
+                              class="preview-image"
+                              alt="Product preview">
+                            <div class="image-overlay" *ngIf="selectedImage || productForm.get('imageUrl')?.value">
+                              <button type="button" class="btn btn-sm btn-danger" (click)="removeImage()">
+                                <i class="fas fa-trash"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <button 
+                            type="button" 
+                            class="btn btn-outline-primary btn-sm mt-2"
+                            (click)="triggerFileInput()">
+                            <i class="fas fa-upload me-2"></i>Choose Image
+                          </button>
+                        </div>
+                        <div class="text-danger small mt-1" *ngIf="productForm.get('imageUrl')?.invalid && productForm.get('imageUrl')?.touched">
+                          Product image is required
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="role" class="form-label">Access Role</label>
+                        <select class="form-select" id="role" formControlName="role">
+                          <option value="">Select role</option>
+                          <option value="public">Public</option>
+                          <option value="user">User Only</option>
+                          <option value="admin">Admin Only</option>
+                        </select>
+                        <div class="text-danger small mt-1" *ngIf="productForm.get('role')?.invalid && productForm.get('role')?.touched">
+                          Role is required
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="createdAt" class="form-label">Creation Date</label>
+                        <input 
+                          type="date" 
+                          class="form-control" 
+                          id="createdAt"
+                          formControlName="createdAt"
+                          [max]="today">
+                        <div class="text-danger small mt-1" *ngIf="productForm.get('createdAt')?.invalid && productForm.get('createdAt')?.touched">
+                          Creation date is required
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <div class="form-check">
+                          <input 
+                            class="form-check-input" 
+                            type="checkbox" 
+                            id="inStock"
+                            formControlName="inStock">
+                          <label class="form-check-label" for="inStock">
+                            In Stock
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="d-grid">
+                    <button 
+                      type="submit" 
+                      class="btn btn-primary"
+                      [disabled]="productForm.invalid || loading">
+                      <span *ngIf="!loading">
+                        <i class="fas fa-save me-2"></i>Save Product
+                      </span>
+                      <span *ngIf="loading">
+                        <div class="spinner-border spinner-border-sm me-2"></div>
+                        Saving...
+                      </span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="fas fa-download me-2"></i>Data Management
+                </h5>
+                <p class="card-text">Export and import product data</p>
+                
+                                    <div class="d-grid gap-2">
+                      <button class="btn btn-outline-primary" (click)="exportData()">
+                        <i class="fas fa-download me-2"></i>Export to JSON
+                      </button>
+                      <button class="btn btn-outline-success" (click)="importData()">
+                        <i class="fas fa-upload me-2"></i>Import from JSON
+                      </button>
+                      <button class="btn btn-outline-info" (click)="autoSaveToFile()">
+                        <i class="fas fa-save me-2"></i>Auto-Backup
+                      </button>
+                      <button class="btn btn-outline-secondary" (click)="saveToSpecificLocation()">
+                        <i class="fas fa-folder-open me-2"></i>Save to Folder
+                      </button>
+                      <button class="btn btn-outline-warning" (click)="resetData()">
+                        <i class="fas fa-refresh me-2"></i>Reset to Sample Data
+                      </button>
+                      <button class="btn btn-outline-danger" (click)="clearAllData()">
+                        <i class="fas fa-trash me-2"></i>Clear All Data
+                      </button>
+                    </div>
+              </div>
+            </div>
+
+                            <div class="card mt-3">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <i class="fas fa-info-circle me-2"></i>Product Statistics
+                    </h5>
+                    <div class="row text-center">
+                      <div class="col-4">
+                        <h4 class="text-primary">{{ totalProducts }}</h4>
+                        <small class="text-muted">Total</small>
+                      </div>
+                      <div class="col-4">
+                        <h4 class="text-success">{{ inStockProducts }}</h4>
+                        <small class="text-muted">In Stock</small>
+                      </div>
+                      <div class="col-4">
+                        <h4 class="text-warning">{{ outOfStockProducts }}</h4>
+                        <small class="text-muted">Out of Stock</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card mt-3">
+                  <div class="card-body">
+                    <h5 class="card-title">
+                      <i class="fas fa-database me-2"></i>Storage Information
+                    </h5>
+                    <div class="row text-center">
+                      <div class="col-6">
+                        <h6 class="text-info">{{ storageInfo.totalProducts }}</h6>
+                        <small class="text-muted">Products Stored</small>
+                      </div>
+                      <div class="col-6">
+                        <h6 class="text-info">{{ storageInfo.storageSize }} bytes</h6>
+                        <small class="text-muted">Storage Used</small>
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <small class="text-muted">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Data is automatically saved to localStorage and persists between sessions
+                      </small>
+                    </div>
+                  </div>
+                </div>
+          </div>
+        </div>
+
+        <div class="alert alert-success mt-3" *ngIf="successMessage">
+          <i class="fas fa-check-circle me-2"></i>
+          {{ successMessage }}
+        </div>
+
+        <div class="alert alert-danger mt-3" *ngIf="errorMessage">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          {{ errorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

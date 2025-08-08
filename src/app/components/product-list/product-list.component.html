@@ -1,0 +1,133 @@
+<div class="hero-section">
+  <div class="container">
+    <h1 class="fade-in-up">Discover Amazing Products</h1>
+    <p class="fade-in-up">Explore our curated collection of world-class products</p>
+    <div class="fade-in-up" *ngIf="!currentUser">
+      <a routerLink="/login" class="btn btn-light btn-lg me-3">
+        <i class="fas fa-sign-in-alt me-2"></i>Login for More
+      </a>
+      <a routerLink="/register" class="btn btn-outline-light btn-lg">
+        <i class="fas fa-user-plus me-2"></i>Register
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="container mt-5">
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <h2 class="fw-bold text-white">
+        <i class="fas fa-th-large me-2"></i>
+        {{ currentUser ? 'Your Products' : 'Public Products' }}
+      </h2>
+      <p class="text-white-50">
+        {{ currentUser ? 'Access your role-based product collection' : 'Browse our public product catalog' }}
+      </p>
+    </div>
+    <div class="col-md-6 text-end" *ngIf="currentUser && hasRole('admin')">
+      <a routerLink="/admin" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>Add New Product
+      </a>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="row mb-4" *ngIf="!loading && products.length > 0">
+    <div class="col-md-6">
+      <div class="search-container">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Search products by name..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()">
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 text-end">
+      <div class="filter-info">
+        <span class="text-white-50">
+          Showing {{ startIndex + 1 }}-{{ endIndex }} of {{ filteredProducts.length }} products
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="loading">
+    <div class="col-12 text-center">
+      <div class="spinner mx-auto"></div>
+      <p class="text-white mt-3">Loading products...</p>
+    </div>
+  </div>
+
+  <div class="row" *ngIf="!loading && filteredProducts.length === 0">
+    <div class="col-12 text-center">
+      <div class="text-white">
+        <i class="fas fa-search fa-3x mb-3"></i>
+        <h3>No products found</h3>
+        <p *ngIf="searchTerm">No products match your search for "{{ searchTerm }}"</p>
+        <p *ngIf="!searchTerm">Check back later for new products!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3" *ngIf="!loading && paginatedProducts.length > 0">
+    <div class="col-6 col-md-4 col-lg-3" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+      <app-product-card [product]="product"></app-product-card>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="row mt-5" *ngIf="!loading && filteredProducts.length > 0">
+    <div class="col-12">
+      <nav aria-label="Product pagination">
+        <ul class="pagination justify-content-center">
+          <!-- Previous Button -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" href="#" (click)="goToPage(currentPage - 1); $event.preventDefault()">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          
+          <!-- First Page -->
+          <li class="page-item" *ngIf="currentPage > 3">
+            <a class="page-link" href="#" (click)="goToPage(1); $event.preventDefault()">1</a>
+          </li>
+          
+          <!-- Ellipsis -->
+          <li class="page-item disabled" *ngIf="currentPage > 4">
+            <span class="page-link">...</span>
+          </li>
+          
+          <!-- Page Numbers -->
+          <li class="page-item" 
+              *ngFor="let page of getVisiblePages()" 
+              [class.active]="page === currentPage">
+            <a class="page-link" href="#" (click)="goToPage(page); $event.preventDefault()">{{ page }}</a>
+          </li>
+          
+          <!-- Ellipsis -->
+          <li class="page-item disabled" *ngIf="currentPage < totalPages - 3">
+            <span class="page-link">...</span>
+          </li>
+          
+          <!-- Last Page -->
+          <li class="page-item" *ngIf="currentPage < totalPages - 2">
+            <a class="page-link" href="#" (click)="goToPage(totalPages); $event.preventDefault()">{{ totalPages }}</a>
+          </li>
+          
+          <!-- Next Button -->
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" href="#" (click)="goToPage(currentPage + 1); $event.preventDefault()">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>
