@@ -1,70 +1,72 @@
-# World Class Angular Landing Page
+# 🌟 World-Class Angular Landing Page
 
-A beautiful, modern Angular application with JWT authentication, role-based access control, and a complete CRUD system for product management.
+A modern, responsive Angular application featuring JWT authentication, role-based access control, and comprehensive product management with a stunning UI.
 
-## 🌟 Features
+## ✨ Features
 
-### Authentication & Authorization
-- **JWT-based Authentication**: Secure login/register system with token management
-- **Role-based Access Control**: Three user roles (public, user, admin)
-- **Route Guards**: Protected routes based on authentication and roles
-- **Mock Backend**: Simulated authentication service for development
+### 🔐 Authentication & Authorization
+- **JWT-based Authentication** with secure token management
+- **Role-based Access Control** (Public, User, Admin)
+- **Protected Routes** with route guards
+- **Mock Backend Service** for development
 
-### Product Management
-- **Beautiful Product Cards**: Modern card design with hover effects
-- **Role-based Product Access**: 
-  - Public users see public products only
-  - Logged-in users see public + user products
-  - Admin users see all products
-- **CRUD Operations**: Create, Read, Update, Delete products
-- **JSON Storage**: Products stored in localStorage with export/import functionality
+### 🎨 Modern UI/UX
+- **Bootstrap 5** for responsive design
+- **Glass Morphism** effects throughout the application
+- **3D Hover Effects** on product cards with perspective transforms
+- **Custom SCSS** with advanced animations and transitions
+- **Nepal Cultural Background** with Mount Everest imagery
 
-### UI/UX Design
-- **Bootstrap 5**: Modern responsive design
-- **Custom SCSS**: Beautiful gradients and animations
-- **Font Awesome Icons**: Professional iconography
-- **Responsive Design**: Mobile-first approach
-- **Smooth Animations**: Hover effects and transitions
+### 📱 Responsive Design
+- **Mobile-first** approach
+- **2-column product grid** on mobile devices
+- **Adaptive layouts** for all screen sizes
+- **Touch-friendly** interactions
+
+### 🛍️ Product Management
+- **CRUD Operations** (Create, Read, Update, Delete)
+- **Image Upload** with base64 encoding
+- **Advanced Filtering** with sidebar controls
+- **Pagination** (50 products per page)
+- **Search & Sort** functionality
+- **Category Management**
+- **Price Range Filtering**
+- **Stock Status Filtering**
+
+### 🎛️ Advanced Features
+- **Minimizable Sidebar** with toggle functionality
+- **Toast Notifications** for user feedback
+- **Form Validation** with custom error messages
+- **Date Picker** for product creation
+- **localStorage Persistence** for data
+- **JSON Export/Import** functionality
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js (v16 or higher)
 - npm or yarn
+- Angular CLI
 
 ### Installation
+```bash
+# Clone the repository
+git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+cd YOUR_REPO_NAME
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-2. **Start Development Server**
-   ```bash
-   npm start
-   ```
+# Start development server
+npm start
+```
 
-3. **Open Browser**
-   Navigate to `http://localhost:4200`
+### Default Credentials
+- **Email**: `admin@example.com`
+- **Password**: `admin123`
+- **Role**: Admin
 
-## 👥 User Accounts
-
-### Demo Accounts
-- **Admin User**:
-  - Username: `admin`
-  - Password: `admin123`
-  - Role: Admin (full access)
-
-- **Regular User**:
-  - Username: `user`
-  - Password: `user123`
-  - Role: User (limited access)
-
-### Registration
-- New users can register and will be assigned the "user" role by default
-- Only admin users can access the product management panel
-
-## 🛠️ Project Structure
+## 🏗️ Project Structure
 
 ```
 src/
@@ -77,154 +79,133 @@ src/
 │   │   ├── product-card/
 │   │   ├── product-form/
 │   │   └── product-list/
+│   ├── controllers/
+│   │   ├── auth.controller.ts
+│   │   └── product.controller.ts
 │   ├── guards/
 │   │   ├── auth.guard.ts
 │   │   └── role.guard.ts
-│   ├── interceptors/
-│   │   └── auth.interceptor.ts
-│   ├── services/
-│   │   ├── auth.service.ts
-│   │   ├── product.service.ts
-│   │   └── mock-backend.service.ts
-│   └── app.module.ts
-├── styles.scss
-└── index.html
+│   ├── models/
+│   │   ├── product.model.ts
+│   │   └── user.model.ts
+│   └── services/
+│       ├── auth.service.ts
+│       ├── mock-backend.service.ts
+│       └── product.service.ts
+├── assets/
+│   └── images/
+└── styles.scss
 ```
 
-## 🎨 Design Features
+## 🎯 Key Components
 
-### Color Scheme
-- **Primary**: Purple gradient (#667eea to #764ba2)
-- **Secondary**: Pink gradient for product images
-- **Background**: Gradient background with glass morphism effects
+### Authentication Components
+- **Login Component**: Beautiful glass morphism design with gradient backgrounds
+- **Register Component**: Matching design with enhanced form validation
 
-### Components
-- **Navbar**: Fixed navigation with user dropdown
-- **Product Cards**: Hover animations and modern design
-- **Auth Forms**: Clean, centered forms with validation
-- **Admin Panel**: Comprehensive product management interface
+### Product Management
+- **Product List**: Responsive grid with 3D hover effects
+- **Product Form**: Advanced form with image upload and validation
+- **Product Card**: Individual product display with animations
 
-## 📱 Responsive Design
+### Navigation
+- **Navbar**: Fixed navigation with glass morphism effects
+- **Sidebar**: Minimizable filter panel with category and price controls
 
-- **Mobile**: Optimized for small screens
-- **Tablet**: Adaptive layout for medium screens
-- **Desktop**: Full-featured experience
+## 🎨 UI/UX Highlights
 
-## 🔧 Technical Stack
+### Glass Morphism Design
+- Translucent backgrounds with blur effects
+- Gradient overlays and shadows
+- Smooth transitions and animations
 
-- **Angular 17**: Latest Angular framework
+### 3D Hover Effects
+- Product cards lift and rotate on hover
+- Individual element animations
+- Enhanced shadows and scaling
+
+### Responsive Layout
+- Mobile: 2-column product grid
+- Tablet: 3-column layout
+- Desktop: 4-column layout
+
+## 🔧 Development
+
+### Available Scripts
+```bash
+# Development server
+npm start
+
+# Production build
+npm run build
+
+# Run tests
+npm test
+
+# Deploy to GitHub Pages
+npm run deploy
+```
+
+### Build Configuration
+- **Production Build**: Optimized for deployment
+- **Budget Limits**: Increased for complex SCSS files
+- **Asset Optimization**: Compressed images and styles
+
+## 🌐 Deployment
+
+### GitHub Pages
+1. Create a GitHub repository
+2. Update the deploy script in `package.json`:
+   ```json
+   "deploy": "ng deploy --base-href=https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/"
+   ```
+3. Run deployment:
+   ```bash
+   npm run deploy
+   ```
+
+### Manual Deployment
+1. Build the project:
+   ```bash
+   ng build --configuration production
+   ```
+2. Upload the `dist/landing-page` folder to your web server
+
+## 🛠️ Technologies Used
+
+- **Angular 17**: Core framework
 - **Bootstrap 5**: CSS framework
 - **SCSS**: Advanced styling
-- **RxJS**: Reactive programming
 - **TypeScript**: Type-safe development
+- **RxJS**: Reactive programming
+- **ngx-toastr**: Toast notifications
+- **JWT**: Authentication tokens
 
-## 🚀 Build & Deploy
+## 📱 Browser Support
 
-### Development
-```bash
-npm start
-```
-
-### Production Build
-```bash
-npm run build
-```
-
-### Testing
-```bash
-npm test
-```
-
-## 📊 Features Overview
-
-| Feature | Public | User | Admin |
-|---------|--------|------|-------|
-| View Public Products | ✅ | ✅ | ✅ |
-| View User Products | ❌ | ✅ | ✅ |
-| View Admin Products | ❌ | ❌ | ✅ |
-| Add Products | ❌ | ❌ | ✅ |
-| Edit Products | ❌ | ❌ | ✅ |
-| Delete Products | ❌ | ❌ | ✅ |
-| Export/Import Data | ❌ | ❌ | ✅ |
-
-## 🎯 Key Features
-
-1. **Authentication System**
-   - JWT token management
-   - Role-based access control
-   - Secure route protection
-
-2. **Product Management**
-   - Beautiful card-based display
-   - Role-based product filtering
-   - Complete CRUD operations
-
-3. **Data Persistence**
-   - localStorage for data storage
-   - JSON export/import functionality
-   - Sample data included
-
-4. **Modern UI/UX**
-   - Gradient backgrounds
-   - Smooth animations
-   - Responsive design
-   - Professional styling
-
-## 🔐 Security Features
-
-- JWT token authentication
-- Route guards for protected routes
-- Role-based access control
-- Secure token storage in localStorage
-
-## 📈 Performance
-
-- Lazy loading ready
-- Optimized bundle size
-- Efficient change detection
-- Responsive image handling
-
-## 🛠️ Customization
-
-### Adding New Products
-1. Login as admin
-2. Navigate to Admin Panel
-3. Fill out the product form
-4. Save the product
-
-### Modifying Styles
-- Edit `src/styles.scss` for global styles
-- Component-specific styles in each component
-- Bootstrap classes for layout
-
-### Adding New Roles
-1. Update the role guard
-2. Modify product service filtering
-3. Update UI components
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Module not found errors**
-   - Run `npm install` to install dependencies
-
-2. **Authentication not working**
-   - Check browser console for errors
-   - Verify mock backend service is running
-
-3. **Products not loading**
-   - Clear localStorage and refresh
-   - Check product service initialization
-
-## 📝 License
-
-This project is created for educational and demonstration purposes.
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
 
 ## 🤝 Contributing
 
-Feel free to submit issues and enhancement requests!
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
+
+## 🙏 Acknowledgments
+
+- Nepal cultural background imagery
+- Bootstrap team for the excellent CSS framework
+- Angular team for the amazing framework
+- All contributors and supporters
 
 ---
 
-**Enjoy building with this world-class Angular application! 🚀**
+**Made with ❤️ and ☕ by [Your Name]**
