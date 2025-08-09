@@ -5,10 +5,13 @@ export class Product {
     public description: string,
     public price: number,
     public category: string,
-    public imageUrl: string,
+    public image: string,
     public stock: number,
-    public role: 'public' | 'user' | 'admin',
-    public createdAt: Date
+    public rating: number = 0,
+    public reviews: number = 0,
+    public role: 'public' | 'user' | 'admin' = 'public',
+    public createdAt: Date = new Date(),
+    public updatedAt: Date = new Date()
   ) {}
 
   static fromJson(json: any): Product {
@@ -18,10 +21,13 @@ export class Product {
       json.description,
       json.price,
       json.category,
-      json.imageUrl,
+      json.image || json.imageUrl,
       json.stock,
-      json.role,
-      new Date(json.createdAt)
+      json.rating || 0,
+      json.reviews || 0,
+      json.role || 'public',
+      new Date(json.createdAt),
+      new Date(json.updatedAt || json.createdAt)
     );
   }
 
@@ -32,10 +38,13 @@ export class Product {
       description: this.description,
       price: this.price,
       category: this.category,
-      imageUrl: this.imageUrl,
+      image: this.image,
       stock: this.stock,
+      rating: this.rating,
+      reviews: this.reviews,
       role: this.role,
-      createdAt: this.createdAt.toISOString()
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString()
     };
   }
 
@@ -61,5 +70,17 @@ export class Product {
 
   getStockStatus(): string {
     return this.isInStock() ? 'In Stock' : 'Out of Stock';
+  }
+
+  getRatingStars(): string {
+    return '★'.repeat(Math.floor(this.rating)) + '☆'.repeat(5 - Math.floor(this.rating));
+  }
+
+  getFormattedRating(): string {
+    return this.rating.toFixed(1);
+  }
+
+  getImageUrl(): string {
+    return this.image || this.imageUrl || '';
   }
 }

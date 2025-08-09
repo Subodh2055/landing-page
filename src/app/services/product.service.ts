@@ -1,336 +1,248 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-
-const STORAGE_KEY = 'products';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { Product } from '../models/product.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private products: any[] = [];
+  private apiUrl = 'http://localhost:3000'; // JSON Server URL
+  private products: Product[] = [];
 
-  constructor() {
-    this.initializeProducts();
+  constructor(private http: HttpClient) {}
+
+  // Get all products from JSON server
+  getProducts(): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(
+      map(products => {
+        this.products = products;
+        return products;
+      }),
+      catchError(error => {
+        console.error('Error fetching products:', error);
+        return throwError(() => new Error('Failed to fetch products'));
+      })
+    );
   }
 
-  private initializeProducts(): void {
-    const storedProducts = this.loadProductsFromStorage();
-    console.log('Stored products found:', storedProducts.length);
-    
-    if (storedProducts.length === 0) {
-      console.log('No stored products found, generating sample products...');
-      this.products = this.getSampleProducts();
-      console.log('Sample products generated:', this.products.length);
-      this.saveProductsToStorage();
-    } else {
-      console.log('Loading products from storage...');
-      this.products = storedProducts;
-    }
-    
-    console.log('Final products count:', this.products.length);
-    console.log('Sample products:', this.products.slice(0, 3));
+  // Get product by ID
+  getProductById(id: number): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/products/${id}`).pipe(
+      catchError(error => {
+        console.error('Error fetching product:', error);
+        return throwError(() => new Error('Failed to fetch product'));
+      })
+    );
   }
 
-  private loadProductsFromStorage(): any[] {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch (error) {
-      console.error('Error loading products from storage:', error);
-      return [];
-    }
-  }
-
-  private saveProductsToStorage(): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.products));
-    } catch (error) {
-      console.error('Error saving products to storage:', error);
-    }
-  }
-
-  public getSampleProducts(): any[] {
-    const categories = [
-      'Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 
-      'Automotive', 'Health & Beauty', 'Toys & Games', 'Food & Beverages', 'Jewelry'
-    ];
-
-    const sampleProducts: any[] = [];
-    let id = 1;
-
-    // Generate 100 diverse products
-    for (let i = 0; i < 100; i++) {
-      const category = categories[i % categories.length];
-      const price = Math.floor(Math.random() * 1000) + 10;
-      const stock = Math.floor(Math.random() * 100) + 1;
-      
-      const product = {
-        id: id++,
-        name: this.generateProductName(category, i),
-        description: this.generateProductDescription(category, i),
-        price: price,
-        category: category,
-        imageUrl: `https://picsum.photos/400/300?random=${i}`,
-        stock: stock,
-        role: i < 30 ? 'public' : i < 70 ? 'user' : 'admin',
-        createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000)
-      };
-      
-      sampleProducts.push(product);
-    }
-
-    return sampleProducts;
-  }
-
-  private generateProductName(category: string, index: number): string {
-    const names = {
-      'Electronics': ['Smartphone', 'Laptop', 'Tablet', 'Headphones', 'Camera', 'Speaker', 'Monitor', 'Keyboard', 'Mouse', 'Router'],
-      'Clothing': ['T-Shirt', 'Jeans', 'Dress', 'Sweater', 'Jacket', 'Shoes', 'Hat', 'Scarf', 'Socks', 'Belt'],
-      'Home & Garden': ['Chair', 'Table', 'Lamp', 'Plant', 'Vase', 'Cushion', 'Rug', 'Mirror', 'Clock', 'Candle'],
-      'Sports': ['Basketball', 'Football', 'Tennis Racket', 'Golf Club', 'Yoga Mat', 'Dumbbells', 'Bicycle', 'Helmet', 'Gloves', 'Water Bottle'],
-      'Books': ['Novel', 'Textbook', 'Cookbook', 'Biography', 'Poetry', 'Magazine', 'Dictionary', 'Encyclopedia', 'Comic', 'Journal'],
-      'Automotive': ['Car', 'Motorcycle', 'Bicycle', 'Tire', 'Oil', 'Battery', 'Brake Pad', 'Air Filter', 'Spark Plug', 'Windshield Wiper'],
-      'Health & Beauty': ['Shampoo', 'Toothpaste', 'Deodorant', 'Perfume', 'Makeup', 'Sunscreen', 'Vitamins', 'Bandage', 'Thermometer', 'Scale'],
-      'Toys & Games': ['Puzzle', 'Board Game', 'Doll', 'Action Figure', 'Building Blocks', 'Art Set', 'Remote Control Car', 'Plush Toy', 'Card Game', 'Science Kit'],
-      'Food & Beverages': ['Coffee', 'Tea', 'Chocolate', 'Nuts', 'Cereal', 'Pasta', 'Sauce', 'Snacks', 'Juice', 'Water'],
-      'Jewelry': ['Necklace', 'Ring', 'Earrings', 'Bracelet', 'Watch', 'Pendant', 'Anklet', 'Brooch', 'Cufflinks', 'Tiara']
-    };
-
-    const categoryNames = names[category as keyof typeof names] || ['Product'];
-    const baseName = categoryNames[index % categoryNames.length];
-    const adjectives = ['Premium', 'Deluxe', 'Professional', 'Classic', 'Modern', 'Vintage', 'Elegant', 'Sporty', 'Comfortable', 'Stylish'];
-    const adjective = adjectives[index % adjectives.length];
-    
-    return `${adjective} ${baseName} ${String.fromCharCode(65 + (index % 26))}`;
-  }
-
-  private generateProductDescription(category: string, index: number): string {
-    const descriptions = {
-      'Electronics': 'High-quality electronic device with advanced features and modern design.',
-      'Clothing': 'Comfortable and stylish clothing item perfect for everyday wear.',
-      'Home & Garden': 'Beautiful home decor item that adds elegance to any space.',
-      'Sports': 'Professional sports equipment designed for optimal performance.',
-      'Books': 'Engaging and informative book that provides valuable knowledge.',
-      'Automotive': 'Reliable automotive part that ensures vehicle safety and performance.',
-      'Health & Beauty': 'Premium health and beauty product for personal care and wellness.',
-      'Toys & Games': 'Fun and educational toy that provides hours of entertainment.',
-      'Food & Beverages': 'Delicious and nutritious food product with excellent taste.',
-      'Jewelry': 'Elegant jewelry piece that adds sophistication to any outfit.'
-    };
-
-    const baseDescription = descriptions[category as keyof typeof descriptions] || 'Quality product with excellent features.';
-    return `${baseDescription} This item is carefully crafted and designed to meet your needs.`;
-  }
-
-  getCategoryCount(category: string, role?: string): number {
-    let productsToCount = [...this.products];
-    
-    // Filter products based on role
-    if (!role) {
-      // Public access - count only public products
-      productsToCount = this.products.filter(product => product.role === 'public');
-    } else {
-      // User/admin access - count public + role-specific products
-      productsToCount = this.products.filter(product => 
-        product.role === 'public' || product.role === role
-      );
-    }
-    
-    return productsToCount.filter(product => product.category === category).length;
-  }
-
-  getProducts(role?: string): Observable<any[]> {
-    console.log('ProductService: getProducts called with role:', role);
-    console.log('Total products in storage:', this.products.length);
-    
-    let filteredProducts = [...this.products];
-    
-    // If no role is provided (public access), show only public products
-    if (!role) {
-      filteredProducts = this.products.filter(product => product.role === 'public');
-      console.log('Public products found:', filteredProducts.length);
-    } else {
-      // If role is provided, show public products + products for that specific role
-      filteredProducts = this.products.filter(product => 
-        product.role === 'public' || product.role === role
-      );
-      console.log('Products for role', role, 'found:', filteredProducts.length);
-    }
-    
-    console.log('Sample filtered products:', filteredProducts.slice(0, 3));
-    return of(filteredProducts);
-  }
-
-  getProduct(id: number): Observable<any> {
-    const product = this.products.find(p => p.id === id);
-    return of(product);
-  }
-
-  createProduct(productData: any): Observable<any> {
+  // Add new product
+  addProduct(product: Omit<Product, 'id'>): Observable<Product> {
     const newProduct = {
-      ...productData,
+      ...product,
       id: this.getNextId(),
-      createdAt: new Date()
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     };
-    
-    this.products.push(newProduct);
-    this.saveProductsToStorage();
-    return of(newProduct);
+
+    return this.http.post<Product>(`${this.apiUrl}/products`, newProduct).pipe(
+      map(addedProduct => {
+        this.products.push(addedProduct);
+        return addedProduct;
+      }),
+      catchError(error => {
+        console.error('Error adding product:', error);
+        return throwError(() => new Error('Failed to add product'));
+      })
+    );
   }
 
-  updateProduct(id: number, productData: any): Observable<any> {
-    const index = this.products.findIndex(p => p.id === id);
-    if (index !== -1) {
-      this.products[index] = { ...this.products[index], ...productData };
-      this.saveProductsToStorage();
-      return of(this.products[index]);
-    }
-    throw new Error('Product not found');
+  // Update product
+  updateProduct(id: number, product: Partial<Product>): Observable<Product> {
+    const updatedProduct = {
+      ...product,
+      updatedAt: new Date().toISOString()
+    };
+
+    return this.http.patch<Product>(`${this.apiUrl}/products/${id}`, updatedProduct).pipe(
+      map(updatedProduct => {
+        const index = this.products.findIndex(p => p.id === id);
+        if (index !== -1) {
+          this.products[index] = updatedProduct;
+        }
+        return updatedProduct;
+      }),
+      catchError(error => {
+        console.error('Error updating product:', error);
+        return throwError(() => new Error('Failed to update product'));
+      })
+    );
   }
 
-  deleteProduct(id: number): Observable<boolean> {
-    const index = this.products.findIndex(p => p.id === id);
-    if (index !== -1) {
-      this.products.splice(index, 1);
-      this.saveProductsToStorage();
-      return of(true);
+  // Delete product
+  deleteProduct(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/products/${id}`).pipe(
+      map(() => {
+        this.products = this.products.filter(p => p.id !== id);
+      }),
+      catchError(error => {
+        console.error('Error deleting product:', error);
+        return throwError(() => new Error('Failed to delete product'));
+      })
+    );
+  }
+
+  // Search products
+  searchProducts(query: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products?q=${query}`).pipe(
+      catchError(error => {
+        console.error('Error searching products:', error);
+        return throwError(() => new Error('Failed to search products'));
+      })
+    );
+  }
+
+  // Get products by category
+  getProductsByCategory(category: string): Observable<Product[]> {
+    return this.http.get<Product[]>(`${this.apiUrl}/products?category=${category}`).pipe(
+      catchError(error => {
+        console.error('Error fetching products by category:', error);
+        return throwError(() => new Error('Failed to fetch products by category'));
+      })
+    );
+  }
+
+  // Get categories
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/categories`).pipe(
+      catchError(error => {
+        console.error('Error fetching categories:', error);
+        return throwError(() => new Error('Failed to fetch categories'));
+      })
+    );
+  }
+
+  // Export products to JSON
+  exportProducts(): Observable<string> {
+    return this.getProducts().pipe(
+      map(products => {
+        const dataStr = JSON.stringify(products, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `products_${new Date().toISOString().split('T')[0]}.json`;
+        link.click();
+        URL.revokeObjectURL(url);
+        return 'Products exported successfully';
+      }),
+      catchError(error => {
+        console.error('Error exporting products:', error);
+        return throwError(() => new Error('Failed to export products'));
+      })
+    );
+  }
+
+  // Import products from JSON
+  importProducts(file: File): Observable<string> {
+    return new Observable(observer => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        try {
+          const products = JSON.parse(e.target.result);
+          if (Array.isArray(products)) {
+            // Add each product to the server
+            const importPromises = products.map(product => 
+              this.addProduct(product).toPromise()
+            );
+            
+            Promise.all(importPromises)
+              .then(() => {
+                observer.next('Products imported successfully');
+                observer.complete();
+              })
+              .catch(error => {
+                observer.error(new Error('Failed to import products'));
+              });
+          } else {
+            observer.error(new Error('Invalid file format'));
+          }
+        } catch (error) {
+          observer.error(new Error('Invalid JSON file'));
+        }
+      };
+      reader.onerror = () => {
+        observer.error(new Error('Failed to read file'));
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  // Get filtered products
+  getFilteredProducts(filters: any): Observable<Product[]> {
+    let url = `${this.apiUrl}/products`;
+    const params = new URLSearchParams();
+
+    if (filters.category) {
+      params.append('category', filters.category);
     }
-    return of(false);
+    if (filters.minPrice) {
+      params.append('price_gte', filters.minPrice.toString());
+    }
+    if (filters.maxPrice) {
+      params.append('price_lte', filters.maxPrice.toString());
+    }
+    if (filters.search) {
+      params.append('q', filters.search);
+    }
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    return this.http.get<Product[]>(url).pipe(
+      map(products => {
+        // Apply additional filters that can't be done via URL
+        return products.filter(product => {
+          if (filters.inStock && product.stock <= 0) return false;
+          if (filters.rating && product.rating < filters.rating) return false;
+          return true;
+        });
+      }),
+      catchError(error => {
+        console.error('Error fetching filtered products:', error);
+        return throwError(() => new Error('Failed to fetch filtered products'));
+      })
+    );
+  }
+
+  // Get paginated products
+  getPaginatedProducts(page: number = 1, limit: number = 50): Observable<{products: Product[], total: number, totalPages: number}> {
+    const start = (page - 1) * limit;
+    const end = start + limit;
+
+    return this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(
+      map(products => {
+        const total = products.length;
+        const totalPages = Math.ceil(total / limit);
+        const paginatedProducts = products.slice(start, end);
+        
+        return {
+          products: paginatedProducts,
+          total,
+          totalPages
+        };
+      }),
+      catchError(error => {
+        console.error('Error fetching paginated products:', error);
+        return throwError(() => new Error('Failed to fetch paginated products'));
+      })
+    );
   }
 
   private getNextId(): number {
-    return Math.max(...this.products.map(p => p.id), 0) + 1;
-  }
-
-  exportToJson(): Observable<string> {
-    return of(JSON.stringify(this.products, null, 2));
-  }
-
-  importFromJson(jsonData: string): Observable<boolean> {
-    try {
-      const importedProducts = JSON.parse(jsonData);
-      if (Array.isArray(importedProducts)) {
-        this.products = importedProducts;
-        this.saveProductsToStorage();
-        return of(true);
-      }
-      return of(false);
-    } catch (error) {
-      return of(false);
-    }
-  }
-
-  // Clear all products from localStorage
-  clearAllProducts(): Observable<boolean> {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-      this.products = [];
-      return of(true);
-    } catch (error) {
-      return of(false);
-    }
-  }
-
-  // Get storage info
-  getStorageInfo(): { totalProducts: number; storageSize: number } {
-    const totalProducts = this.products.length;
-    
-    // Calculate storage size in bytes
-    const productsJson = JSON.stringify(this.products);
-    const storageSizeBytes = productsJson.length;
-    
-    return {
-      totalProducts,
-      storageSize: storageSizeBytes
-    };
-  }
-
-  // Check if localStorage is available
-  isLocalStorageAvailable(): boolean {
-    try {
-      const test = 'test';
-      localStorage.setItem(test, test);
-      localStorage.removeItem(test);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Auto-save to file
-  autoSaveToFile(): Observable<boolean> {
-    try {
-      const products = this.loadProductsFromStorage();
-      const jsonData = JSON.stringify(products, null, 2);
-      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      const filename = `products_backup_${timestamp}.json`;
-      
-      const blob = new Blob([jsonData], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      window.URL.revokeObjectURL(url);
-      
-      return of(true);
-    } catch (error) {
-      return of(false);
-    }
-  }
-
-  // Save to specific file path (requires user permission)
-  saveToSpecificFile(): Observable<boolean> {
-    return new Observable(observer => {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      input.webkitdirectory = true; // This property is non-standard and might not work as expected for directory selection
-      
-      input.onchange = (event: any) => {
-        const file = event.target.files[0]; // This will be a file, not a directory
-        if (file) {
-          const products = this.loadProductsFromStorage();
-          const jsonData = JSON.stringify(products, null, 2);
-          
-          // Use File System Access API if available
-          if ('showSaveFilePicker' in window) {
-            (window as any).showSaveFilePicker({
-              suggestedName: 'products.json',
-              types: [{
-                description: 'JSON Files',
-                accept: { 'application/json': ['.json'] }
-              }]
-            }).then((fileHandle: any) => {
-              fileHandle.createWritable().then((writable: any) => {
-                writable.write(jsonData);
-                writable.close();
-                observer.next(true);
-                observer.complete();
-              });
-            }).catch(() => {
-              observer.next(false);
-              observer.complete();
-            });
-          } else {
-            // Fallback to download
-            const blob = new Blob([jsonData], { type: 'application/json' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'products.json';
-            a.click();
-            window.URL.revokeObjectURL(url);
-            observer.next(true);
-            observer.complete();
-          }
-        } else {
-          observer.next(false);
-          observer.complete();
-        }
-      };
-      
-      input.click();
-    });
+    const maxId = Math.max(...this.products.map(p => p.id), 0);
+    return maxId + 1;
   }
 }

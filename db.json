@@ -1,0 +1,312 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "mobileNumber": "+1234567890",
+      "role": "admin",
+      "password": "admin123",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "username": "user",
+      "email": "user@example.com",
+      "mobileNumber": "+9876543210",
+      "role": "user",
+      "password": "user123",
+      "createdAt": "2024-01-02T00:00:00.000Z"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "iPhone 15 Pro",
+      "description": "Latest iPhone with advanced camera system and A17 Pro chip",
+      "price": 999.99,
+      "category": "Electronics",
+      "image": "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&h=400&fit=crop",
+      "stock": 50,
+      "rating": 4.8,
+      "reviews": 1250,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "MacBook Air M2",
+      "description": "Ultra-thin laptop with M2 chip for incredible performance",
+      "price": 1199.99,
+      "category": "Electronics",
+      "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&h=400&fit=crop",
+      "stock": 30,
+      "rating": 4.9,
+      "reviews": 890,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Samsung Galaxy S24",
+      "description": "Android flagship with AI features and stunning display",
+      "price": 899.99,
+      "category": "Electronics",
+      "image": "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop",
+      "stock": 45,
+      "rating": 4.7,
+      "reviews": 1100,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "name": "Nike Air Max 270",
+      "description": "Comfortable running shoes with Air Max technology",
+      "price": 129.99,
+      "category": "Sports",
+      "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop",
+      "stock": 100,
+      "rating": 4.6,
+      "reviews": 750,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "name": "Adidas Ultraboost 22",
+      "description": "Premium running shoes with responsive cushioning",
+      "price": 179.99,
+      "category": "Sports",
+      "image": "https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&h=400&fit=crop",
+      "stock": 75,
+      "rating": 4.8,
+      "reviews": 620,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "name": "Sony WH-1000XM5",
+      "description": "Wireless noise-canceling headphones with premium sound",
+      "price": 349.99,
+      "category": "Electronics",
+      "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop",
+      "stock": 25,
+      "rating": 4.9,
+      "reviews": 450,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "name": "Levi's 501 Original Jeans",
+      "description": "Classic straight-fit jeans with timeless style",
+      "price": 89.99,
+      "category": "Fashion",
+      "image": "https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&h=400&fit=crop",
+      "stock": 200,
+      "rating": 4.5,
+      "reviews": 1200,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "name": "Zara Oversized Blazer",
+      "description": "Trendy oversized blazer perfect for any occasion",
+      "price": 129.99,
+      "category": "Fashion",
+      "image": "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?w=400&h=400&fit=crop",
+      "stock": 60,
+      "rating": 4.4,
+      "reviews": 380,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "name": "KitchenAid Stand Mixer",
+      "description": "Professional stand mixer for all your baking needs",
+      "price": 399.99,
+      "category": "Home & Garden",
+      "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop",
+      "stock": 40,
+      "rating": 4.9,
+      "reviews": 890,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "name": "IKEA MALM Bed Frame",
+      "description": "Modern bed frame with clean lines and storage",
+      "price": 299.99,
+      "category": "Home & Garden",
+      "image": "https://images.unsplash.com/photo-1505693314120-0d443867891c?w=400&h=400&fit=crop",
+      "stock": 35,
+      "rating": 4.6,
+      "reviews": 520,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "name": "Canon EOS R6",
+      "description": "Full-frame mirrorless camera with advanced autofocus",
+      "price": 2499.99,
+      "category": "Electronics",
+      "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&h=400&fit=crop",
+      "stock": 15,
+      "rating": 4.9,
+      "reviews": 320,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "name": "GoPro Hero 11 Black",
+      "description": "Action camera with 5.3K video and HyperSmooth 5.0",
+      "price": 449.99,
+      "category": "Electronics",
+      "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
+      "stock": 80,
+      "rating": 4.7,
+      "reviews": 650,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "name": "Yoga Mat Premium",
+      "description": "Non-slip yoga mat with alignment lines",
+      "price": 49.99,
+      "category": "Sports",
+      "image": "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop",
+      "stock": 150,
+      "rating": 4.5,
+      "reviews": 420,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "name": "Dumbbell Set 20kg",
+      "description": "Professional dumbbell set for home workouts",
+      "price": 199.99,
+      "category": "Sports",
+      "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
+      "stock": 30,
+      "rating": 4.8,
+      "reviews": 280,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 15,
+      "name": "Ray-Ban Aviator Classic",
+      "description": "Timeless aviator sunglasses with UV protection",
+      "price": 159.99,
+      "category": "Fashion",
+      "image": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop",
+      "stock": 90,
+      "rating": 4.7,
+      "reviews": 580,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 16,
+      "name": "Rolex Submariner",
+      "description": "Luxury dive watch with automatic movement",
+      "price": 8999.99,
+      "category": "Fashion",
+      "image": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop",
+      "stock": 5,
+      "rating": 5.0,
+      "reviews": 120,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 17,
+      "name": "Philips Hue Smart Bulb",
+      "description": "WiFi-enabled smart bulb with 16 million colors",
+      "price": 59.99,
+      "category": "Home & Garden",
+      "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop",
+      "stock": 120,
+      "rating": 4.6,
+      "reviews": 890,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 18,
+      "name": "Dyson V15 Detect",
+      "description": "Cordless vacuum with laser dust detection",
+      "price": 699.99,
+      "category": "Home & Garden",
+      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop",
+      "stock": 25,
+      "rating": 4.9,
+      "reviews": 450,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 19,
+      "name": "Instant Pot Duo 7-in-1",
+      "description": "Electric pressure cooker with multiple cooking functions",
+      "price": 89.99,
+      "category": "Home & Garden",
+      "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop",
+      "stock": 80,
+      "rating": 4.8,
+      "reviews": 1200,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    },
+    {
+      "id": 20,
+      "name": "Nespresso Vertuo Plus",
+      "description": "Coffee machine with barcode recognition",
+      "price": 199.99,
+      "category": "Home & Garden",
+      "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop",
+      "stock": 60,
+      "rating": 4.7,
+      "reviews": 750,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Electronics",
+      "description": "Electronic devices and gadgets",
+      "image": "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&h=400&fit=crop"
+    },
+    {
+      "id": 2,
+      "name": "Fashion",
+      "description": "Clothing, accessories, and jewelry",
+      "image": "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop"
+    },
+    {
+      "id": 3,
+      "name": "Sports",
+      "description": "Sports equipment and fitness gear",
+      "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop"
+    },
+    {
+      "id": 4,
+      "name": "Home & Garden",
+      "description": "Home improvement and garden supplies",
+      "image": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop"
+    }
+  ],
+  "orders": [],
+  "cart": []
+}
