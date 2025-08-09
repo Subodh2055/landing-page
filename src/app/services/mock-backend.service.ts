@@ -11,6 +11,7 @@ export class MockBackendService {
       id: 1,
       username: 'admin',
       email: 'admin@example.com',
+      mobileNumber: '+1234567890',
       role: 'admin',
       password: 'admin123'
     },
@@ -18,6 +19,7 @@ export class MockBackendService {
       id: 2,
       username: 'user',
       email: 'user@example.com',
+      mobileNumber: '+9876543210',
       role: 'user',
       password: 'user123'
     }
@@ -40,17 +42,30 @@ export class MockBackendService {
     return throwError(() => new Error('Invalid credentials'));
   }
 
-  register(userData: { username: string; email: string; password: string }): Observable<any> {
+  register(userData: { username: string; email: string; password: string; mobileNumber: string }): Observable<any> {
     // Check if username already exists
     const existingUser = this.users.find(u => u.username === userData.username);
     if (existingUser) {
       return throwError(() => new Error('Username already exists'));
     }
 
+    // Check if email already exists
+    const existingEmail = this.users.find(u => u.email === userData.email);
+    if (existingEmail) {
+      return throwError(() => new Error('Email already exists'));
+    }
+
+    // Check if mobile number already exists
+    const existingMobile = this.users.find(u => u.mobileNumber === userData.mobileNumber);
+    if (existingMobile) {
+      return throwError(() => new Error('Mobile number already exists'));
+    }
+
     const newUser = {
       id: this.users.length + 1,
       username: userData.username,
       email: userData.email,
+      mobileNumber: userData.mobileNumber,
       role: 'user', // Default role for new registrations
       password: userData.password
     };

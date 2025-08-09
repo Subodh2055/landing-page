@@ -24,9 +24,9 @@ export class AuthController {
     });
   }
 
-  register(username: string, email: string, password: string, role: string): Observable<User> {
+  register(username: string, email: string, password: string, role: string, mobileNumber: string): Observable<User> {
     return new Observable(observer => {
-      this.authService.register(username, email, password, role).subscribe({
+      this.authService.register(username, email, password, role, mobileNumber).subscribe({
         next: (response: any) => {
           const user = User.fromJson(response);
           observer.next(user);
@@ -81,7 +81,7 @@ export class AuthController {
     };
   }
 
-  validateRegistration(username: string, email: string, password: string, confirmPassword: string): { isValid: boolean; errors: string[] } {
+  validateRegistration(username: string, email: string, password: string, confirmPassword: string, mobileNumber?: string): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
     if (!username || username.trim() === '') {
@@ -94,6 +94,12 @@ export class AuthController {
       errors.push('Email is required');
     } else if (!this.isValidEmail(email)) {
       errors.push('Please enter a valid email address');
+    }
+
+    if (!mobileNumber || mobileNumber.trim() === '') {
+      errors.push('Mobile number is required');
+    } else if (!this.isValidMobileNumber(mobileNumber)) {
+      errors.push('Please enter a valid mobile number');
     }
 
     if (!password || password.trim() === '') {
@@ -117,5 +123,10 @@ export class AuthController {
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
+  }
+
+  private isValidMobileNumber(mobileNumber: string): boolean {
+    const mobileRegex = /^[+]?[1-9]\d{1,14}$/;
+    return mobileRegex.test(mobileNumber);
   }
 }

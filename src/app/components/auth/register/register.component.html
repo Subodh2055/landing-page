@@ -1,6 +1,4 @@
 <div class="register-container">
-  <div class="floating-shapes"></div>
-  
   <div class="container">
     <div class="row justify-content-center align-items-center min-vh-100">
       <div class="col-lg-6 col-md-8 col-sm-12">
@@ -51,6 +49,26 @@
                 <i class="fas fa-exclamation-circle"></i>
                 <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
                 <span *ngIf="registerForm.get('email')?.errors?.['email']">Please enter a valid email</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mobileNumber">Mobile Number</label>
+              <div class="input-wrapper">
+                <i class="fas fa-phone input-icon"></i>
+                <input 
+                  type="tel" 
+                  id="mobileNumber"
+                  formControlName="mobileNumber"
+                  placeholder="Enter your mobile number"
+                  autocomplete="tel"
+                  [class.ng-invalid]="registerForm.get('mobileNumber')?.invalid && registerForm.get('mobileNumber')?.touched"
+                  [class.ng-touched]="registerForm.get('mobileNumber')?.touched">
+              </div>
+              <div class="error-message" *ngIf="registerForm.get('mobileNumber')?.invalid && registerForm.get('mobileNumber')?.touched">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="registerForm.get('mobileNumber')?.errors?.['required']">Mobile number is required</span>
+                <span *ngIf="registerForm.get('mobileNumber')?.errors?.['pattern']">Please enter a valid mobile number</span>
               </div>
             </div>
 

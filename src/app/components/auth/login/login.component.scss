@@ -1,6 +1,6 @@
 .login-container {
   min-height: 100vh;
-  background: #f1f3f6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   position: relative;
   overflow: hidden;
   padding-top: 80px;
@@ -65,18 +65,20 @@
 
 .login-card {
   position: relative;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
   padding: 2rem;
   max-width: 400px;
   width: 100%;
   margin: 0 auto;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   
   &:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
   }
   
   @media (max-width: 768px) {
@@ -116,12 +118,14 @@
   .auth-icon {
     width: 50px;
     height: 50px;
-    background: #2874f0;
-    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     
     @media (max-width: 768px) {
       width: 45px;
@@ -152,7 +156,7 @@
   h2 {
     font-size: 1.5rem;
     font-weight: 500;
-    color: #212121;
+    color: white;
     margin-bottom: 0.5rem;
     
     @media (max-width: 768px) {
@@ -167,7 +171,7 @@
   }
   
   p {
-    color: #666;
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.9rem;
     margin: 0;
     
@@ -202,7 +206,7 @@
   label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #212121;
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
     font-size: 0.9rem;
     
@@ -225,7 +229,7 @@
       left: 1rem;
       top: 50%;
       transform: translateY(-50%);
-      color: #666;
+      color: rgba(255, 255, 255, 0.7);
       transition: all 0.3s ease;
       z-index: 2;
       
@@ -243,12 +247,13 @@
     input {
       width: 100%;
       padding: 0.75rem 1rem 0.75rem 2.5rem;
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 2px;
-      color: #212121;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
       font-size: 0.9rem;
       transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
       
       @media (max-width: 768px) {
         padding: 0.6rem 0.8rem 0.6rem 2.2rem;
@@ -261,40 +266,28 @@
       }
       
       &::placeholder {
-        color: #999;
+        color: rgba(255, 255, 255, 0.6);
       }
       
       &:focus {
         outline: none;
-        border-color: #2874f0;
-        box-shadow: 0 0 0 2px rgba(40, 116, 240, 0.1);
-        
-        & + .input-icon {
-          color: #2874f0;
-        }
+        border-color: rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
       }
       
       &:valid {
-        border-color: #388e3c;
-        
-        & + .input-icon {
-          color: #388e3c;
-        }
+        border-color: rgba(76, 175, 80, 0.5);
       }
       
       &.ng-invalid.ng-touched {
-        border-color: #f44336;
-        
-        & + .input-icon {
-          color: #f44336;
-        }
+        border-color: rgba(244, 67, 54, 0.5);
       }
     }
   }
   
-  // Validation error styling
   .error-message {
-    color: #f44336;
+    color: #ff6b6b;
     font-size: 0.8rem;
     margin-top: 0.25rem;
     display: flex;
@@ -333,14 +326,15 @@
 .submit-button {
   width: 100%;
   padding: 0.75rem;
-  background: #2874f0;
-  border: none;
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   color: white;
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
   
   @media (max-width: 768px) {
     padding: 0.6rem;
@@ -353,11 +347,12 @@
   }
   
   &:hover {
-    background: #1a5bb8;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
   }
   
   &:active {
-    transform: none;
+    transform: translateY(0);
   }
   
   &:disabled {
@@ -396,7 +391,7 @@
 .auth-footer {
   text-align: center;
   margin-top: 1rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   
   @media (max-width: 768px) {
     margin-top: 0.75rem;
@@ -407,13 +402,11 @@
   }
   
   a {
-    color: #2874f0;
+    color: white;
     text-decoration: none;
     font-weight: 500;
-    transition: all 0.3s ease;
     
     &:hover {
-      color: #1a5bb8;
       text-decoration: underline;
     }
   }
@@ -438,7 +431,7 @@
     height: 60px;
     border: 4px solid rgba(255, 255, 255, 0.3);
     border-radius: 50%;
-    border-top-color: #667eea;
+    border-top-color: white;
     animation: spin 1s ease-in-out infinite;
     
     @media (max-width: 768px) {

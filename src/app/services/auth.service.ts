@@ -39,9 +39,9 @@ export class AuthService {
     });
   }
 
-  register(username: string, email: string, password: string, role: string): Observable<any> {
+  register(username: string, email: string, password: string, role: string, mobileNumber: string): Observable<any> {
     return new Observable(observer => {
-      this.mockBackend.register({ username, email, password }).subscribe({
+      this.mockBackend.register({ username, email, password, mobileNumber }).subscribe({
         next: (response: any) => {
           observer.next(response);
           observer.complete();
