@@ -1,0 +1,117 @@
+<div class="sidebar" [class.mobile-sidebar]="isMobile" [class.desktop-sidebar]="!isMobile">
+  <div class="sidebar-header">
+    <div class="header-left">
+      <h4><i class="fas fa-filter me-2"></i>Filters</h4>
+      <button class="btn btn-sm"
+              [class.btn-outline-primary]="!isMobile"
+              [class.btn-outline-light]="isMobile"
+              (click)="onClearAll()">
+        Clear All
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Filter -->
+  <div class="filter-section">
+    <h5><i class="fas fa-tags me-2"></i>Categories</h5>
+    <div class="category-list">
+      <div class="form-check" *ngFor="let category of availableCategories">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [id]="(isMobile ? 'mobile' : 'desktop') + '-category-' + category"
+          [value]="category"
+          [checked]="selectedCategories[category]"
+          (change)="onCategoryChange(category, $any($event.target).checked)">
+        <label class="form-check-label" [for]="(isMobile ? 'mobile' : 'desktop') + '-category-' + category">
+          {{ category }}
+          <span class="category-count">({{ getCategoryCount(category) }})</span>
+        </label>
+      </div>
+      <!-- Fallback if no categories -->
+      <div *ngIf="availableCategories.length === 0" class="text-muted">
+        <p>No categories available</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Price Range Filter -->
+  <div class="filter-section">
+    <h5><i class="fas fa-dollar-sign me-2"></i>Price Range</h5>
+    <div class="price-range">
+      <div class="price-inputs">
+        <div class="input-group mb-2">
+          <span class="input-group-text">₹</span>
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Min"
+            [(ngModel)]="priceRange.min"
+            (input)="onPriceRangeChange()">
+        </div>
+        <div class="input-group">
+          <span class="input-group-text">₹</span>
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Max"
+            [(ngModel)]="priceRange.max"
+            (input)="onPriceRangeChange()">
+        </div>
+      </div>
+      <div class="price-display">
+        <span>₹{{ priceRange.min || 0 }} - ₹{{ priceRange.max || maxPrice }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Filter -->
+  <div class="filter-section">
+    <h5><i class="fas fa-box me-2"></i>Stock Status</h5>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        [id]="(isMobile ? 'mobile' : 'desktop') + '-inStock'"
+        [checked]="inStockOnly"
+        (change)="onStockChange($any($event.target).checked)">
+      <label class="form-check-label" [for]="(isMobile ? 'mobile' : 'desktop') + '-inStock'">
+        In Stock Only
+      </label>
+    </div>
+  </div>
+
+  <!-- Sort Options -->
+  <div class="filter-section">
+    <h5><i class="fas fa-sort me-2"></i>Sort By</h5>
+    <select class="form-select"
+            [ngModel]="sortBy"
+            (change)="onSortChange($any($event.target).value)">
+      <option value="name">Name A-Z</option>
+      <option value="name-desc">Name Z-A</option>
+      <option value="price">Price Low to High</option>
+      <option value="price-desc">Price High to Low</option>
+      <option value="date">Newest First</option>
+      <option value="date-desc">Oldest First</option>
+    </select>
+  </div>
+
+  <!-- Filter Summary -->
+  <div class="filter-summary" *ngIf="hasActiveFilters">
+    <h6><i class="fas fa-info-circle me-2"></i>Active Filters</h6>
+    <div class="active-filters">
+      <span class="filter-tag" *ngFor="let category of getSelectedCategories()">
+        {{ category }}
+        <i class="fas fa-times" (click)="onRemoveCategory(category)"></i>
+      </span>
+      <span class="filter-tag" *ngIf="priceRange.min || priceRange.max">
+        Price: ₹{{ priceRange.min || 0 }} - ₹{{ priceRange.max || maxPrice }}
+        <i class="fas fa-times" (click)="onClearPrice()"></i>
+      </span>
+      <span class="filter-tag" *ngIf="inStockOnly">
+        In Stock Only
+        <i class="fas fa-times" (click)="onRemoveStock()"></i>
+      </span>
+    </div>
+  </div>
+</div>

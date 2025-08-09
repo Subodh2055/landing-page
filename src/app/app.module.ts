@@ -1,18 +1,21 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RouterModule, Routes } from '@angular/router';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ToastrModule } from 'ngx-toastr';
 
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ProductListComponent } from './components/product-list/product-list.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
+import { ProductFormComponent } from './components/product-form/product-form.component';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RegisterComponent } from './components/auth/register/register.component';
-import { ProductFormComponent } from './components/product-form/product-form.component';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { MobileViewComponent } from './components/product-list/mobile-view/mobile-view.component';
+import { DesktopViewComponent } from './components/product-list/desktop-view/desktop-view.component';
 
 import { AuthService } from './services/auth.service';
 import { ProductService } from './services/product.service';
@@ -24,21 +27,11 @@ import { AuthController } from './controllers/auth.controller';
 import { ProductController } from './controllers/product.controller';
 
 const routes: Routes = [
-  { path: '', component: ProductListComponent },
+  { path: '', redirectTo: '/products', pathMatch: 'full' },
+  { path: 'products', component: ProductListComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { 
-    path: 'products/add', 
-    component: ProductFormComponent, 
-    canActivate: [AuthGuard]
-  },
-  { 
-    path: 'admin', 
-    component: ProductFormComponent, 
-    canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['admin'] }
-  },
-  { path: '**', redirectTo: '' }
+  { path: 'admin', component: ProductFormComponent, canActivate: [AuthGuard, RoleGuard], data: { roles: ['admin'] } }
 ];
 
 @NgModule({
@@ -47,24 +40,25 @@ const routes: Routes = [
     NavbarComponent,
     ProductListComponent,
     ProductCardComponent,
+    ProductFormComponent,
     LoginComponent,
     RegisterComponent,
-    ProductFormComponent
+    SidebarComponent,
+    MobileViewComponent,
+    DesktopViewComponent
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
-    BrowserAnimationsModule,
+    RouterModule.forRoot(routes),
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-top-right',
-      preventDuplicates: true,
-      progressBar: true,
-      closeButton: true
-    }),
-    RouterModule.forRoot(routes)
+      preventDuplicates: true
+    })
   ],
   providers: [
     AuthService,

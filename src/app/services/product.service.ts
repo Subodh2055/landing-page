@@ -15,12 +15,20 @@ export class ProductService {
 
   private initializeProducts(): void {
     const storedProducts = this.loadProductsFromStorage();
+    console.log('Stored products found:', storedProducts.length);
+    
     if (storedProducts.length === 0) {
+      console.log('No stored products found, generating sample products...');
       this.products = this.getSampleProducts();
+      console.log('Sample products generated:', this.products.length);
       this.saveProductsToStorage();
     } else {
+      console.log('Loading products from storage...');
       this.products = storedProducts;
     }
+    
+    console.log('Final products count:', this.products.length);
+    console.log('Sample products:', this.products.slice(0, 3));
   }
 
   private loadProductsFromStorage(): any[] {
@@ -114,15 +122,42 @@ export class ProductService {
     return `${baseDescription} This item is carefully crafted and designed to meet your needs.`;
   }
 
-  getProducts(role?: string): Observable<any[]> {
-    let filteredProducts = [...this.products];
+  getCategoryCount(category: string, role?: string): number {
+    let productsToCount = [...this.products];
     
-    if (role) {
-      filteredProducts = this.products.filter(product => 
+    // Filter products based on role
+    if (!role) {
+      // Public access - count only public products
+      productsToCount = this.products.filter(product => product.role === 'public');
+    } else {
+      // User/admin access - count public + role-specific products
+      productsToCount = this.products.filter(product => 
         product.role === 'public' || product.role === role
       );
     }
     
+    return productsToCount.filter(product => product.category === category).length;
+  }
+
+  getProducts(role?: string): Observable<any[]> {
+    console.log('ProductService: getProducts called with role:', role);
+    console.log('Total products in storage:', this.products.length);
+    
+    let filteredProducts = [...this.products];
+    
+    // If no role is provided (public access), show only public products
+    if (!role) {
+      filteredProducts = this.products.filter(product => product.role === 'public');
+      console.log('Public products found:', filteredProducts.length);
+    } else {
+      // If role is provided, show public products + products for that specific role
+      filteredProducts = this.products.filter(product => 
+        product.role === 'public' || product.role === role
+      );
+      console.log('Products for role', role, 'found:', filteredProducts.length);
+    }
+    
+    console.log('Sample filtered products:', filteredProducts.slice(0, 3));
     return of(filteredProducts);
   }
 

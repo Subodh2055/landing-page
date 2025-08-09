@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductController } from '../../controllers/product.controller';
 import { Product } from '../../models/product.model';
 import { AuthController } from '../../controllers/auth.controller';
 import { User } from '../../models/user.model';
+import { MobileFilterService } from '../../services/mobile-filter.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
   templateUrl: './product-list.component.html',
   styleUrls: ['./product-list.component.scss']
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   paginatedProducts: Product[] = [];
@@ -33,20 +35,41 @@ export class ProductListComponent implements OnInit {
   maxPrice = 0;
   inStockOnly = false;
   sortBy = 'name';
+  showMobileFilters = false;
+
+  private mobileFilterSubscription: Subscription;
 
   constructor(
     private productController: ProductController,
-    private authController: AuthController
-  ) {}
+    private authController: AuthController,
+    private mobileFilterService: MobileFilterService
+  ) {
+    // Subscribe to mobile filter toggle events
+    this.mobileFilterSubscription = this.mobileFilterService.filterToggle$.subscribe(() => {
+      console.log('ProductList: Received mobile filter toggle event');
+      this.toggleMobileFilters();
+    });
+  }
 
   ngOnInit(): void {
     this.currentUser = this.authController.getCurrentUser();
     this.loadProducts();
   }
 
+  ngOnDestroy(): void {
+    // Restore body scrolling when component is destroyed
+    document.body.style.overflow = '';
+    
+    // Unsubscribe from mobile filter service
+    if (this.mobileFilterSubscription) {
+      this.mobileFilterSubscription.unsubscribe();
+    }
+  }
+
   private loadProducts(): void {
     this.loading = true;
     const role = this.currentUser?.role;
+    
     this.productController.getProducts(role).subscribe({
       next: (products: Product[]) => {
         this.products = products;
@@ -153,6 +176,11 @@ export class ProductListComponent implements OnInit {
   onFilterChange(): void {
     this.currentPage = 1;
     this.filterProducts();
+    
+    // Add a small delay to prevent too many rapid updates
+    setTimeout(() => {
+      this.updatePagination();
+    }, 100);
   }
 
   goToPage(page: number): void {
@@ -181,7 +209,16 @@ export class ProductListComponent implements OnInit {
   }
 
   getCategoryCount(category: string): number {
-    return this.products.filter(p => p.category === category).length;
+    const role = this.currentUser?.role;
+    return this.productController.getCategoryCount(category, role);
+  }
+
+  getCategoryCounts(): { [key: string]: number } {
+    const counts: { [key: string]: number } = {};
+    this.availableCategories.forEach(category => {
+      counts[category] = this.getCategoryCount(category);
+    });
+    return counts;
   }
 
   getSelectedCategories(): string[] {
@@ -217,7 +254,49 @@ export class ProductListComponent implements OnInit {
   }
 
   hasRole(role: string): boolean {
-    return this.authController.hasRole(role);
+    return this.currentUser?.hasRole(role) || false;
+  }
+
+  toggleMobileFilters(): void {
+    this.showMobileFilters = !this.showMobileFilters;
+    
+    if (this.showMobileFilters) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  closeMobileFilters(): void {
+    this.showMobileFilters = false;
+    document.body.style.overflow = '';
+  }
+
+  getActiveFilterCount(): number {
+    let count = 0;
+    if (this.getSelectedCategories().length > 0) count++;
+    if (this.priceRange.min > 0 || this.priceRange.max < this.maxPrice) count++;
+    if (this.inStockOnly) count++;
+    return count;
+  }
+
+  // Mobile-specific filter methods
+  showMobileFilterModal(): void {
+    this.toggleMobileFilters();
+  }
+
+  applyMobileFilters(): void {
+    // Apply filters and close sidebar
+    console.log('Apply mobile filters');
+    this.onFilterChange();
+    this.closeMobileFilters();
+  }
+
+  clearMobileFilters(): void {
+    // Clear all mobile filters
+    console.log('Clear mobile filters');
+    this.clearFilters();
+    this.closeMobileFilters();
   }
 
   trackByProduct(index: number, product: Product): number {
@@ -230,5 +309,31 @@ export class ProductListComponent implements OnInit {
 
   deleteProduct(product: Product): void {
     console.log('Delete product:', product);
+  }
+
+  // Sidebar event handlers
+  onCategoryChange(event: { category: string; checked: boolean }): void {
+    this.selectedCategories[event.category] = event.checked;
+    this.onFilterChange();
+  }
+
+  onPriceRangeChange(priceRange: { min: number; max: number }): void {
+    this.priceRange = priceRange;
+    this.onFilterChange();
+  }
+
+  onStockChange(checked: boolean): void {
+    this.inStockOnly = checked;
+    this.onFilterChange();
+  }
+
+  onSortChange(sortBy: string): void {
+    this.sortBy = sortBy;
+    this.onFilterChange();
+  }
+
+  removeStockFilter(): void {
+    this.inStockOnly = false;
+    this.onFilterChange();
   }
 }

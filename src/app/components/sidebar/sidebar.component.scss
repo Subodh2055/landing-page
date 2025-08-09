@@ -1,0 +1,502 @@
+/* Desktop Sidebar */
+.desktop-sidebar {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0e0e0;
+    
+    h4 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #333;
+      
+      i {
+        color: #2874f0;
+      }
+    }
+    
+    .btn {
+      font-size: 0.85rem;
+      padding: 0.35rem 0.75rem;
+      border-color: #2874f0;
+      color: #2874f0;
+      border-radius: 4px;
+      background: white;
+      
+      &:hover {
+        background: #2874f0;
+        color: white;
+        border-color: #2874f0;
+      }
+    }
+  }
+  
+  .filter-section {
+    margin-bottom: 1.5rem;
+    
+    h5 {
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      
+      i {
+        color: #2874f0;
+      }
+    }
+    
+    .category-list {
+      max-height: 200px;
+      overflow-y: auto;
+      
+      .form-check {
+        margin-bottom: 0.75rem;
+        
+        .form-check-input {
+          background-color: white;
+          border: 2px solid #e0e0e0;
+          border-radius: 3px;
+          width: 18px;
+          height: 18px;
+          
+          &:checked {
+            background-color: #2874f0;
+            border-color: #2874f0;
+          }
+          
+          &:focus {
+            box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+          }
+        }
+        
+        .form-check-label {
+          color: #333;
+          font-weight: 500;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.9rem;
+          padding: 0.5rem 0;
+          
+          .category-count {
+            color: #666;
+            font-size: 0.8rem;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+    
+    .price-range {
+      .price-inputs {
+        margin-bottom: 1rem;
+        
+        .input-group {
+          margin-bottom: 0.5rem;
+          
+          .input-group-text {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.9rem;
+            min-width: 50px;
+          }
+          
+          .form-control {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.9rem;
+            height: 40px;
+            color: #333;
+            
+            &::placeholder {
+              color: #999;
+            }
+            
+            &:focus {
+              background: white;
+              border-color: #2874f0;
+              box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+              color: #333;
+            }
+          }
+        }
+      }
+      
+      .price-display {
+        text-align: center;
+        
+        span {
+          color: #333;
+          font-weight: 500;
+          background: #f8f9fa;
+          padding: 0.5rem 1rem;
+          border-radius: 4px;
+          border: 1px solid #e0e0e0;
+          font-size: 0.9rem;
+        }
+      }
+    }
+    
+    .form-check {
+      .form-check-input {
+        background-color: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 3px;
+        width: 18px;
+        height: 18px;
+        
+        &:checked {
+          background-color: #2874f0;
+          border-color: #2874f0;
+        }
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+        }
+      }
+      
+      .form-check-label {
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 0.9rem;
+        padding: 0.5rem 0;
+      }
+    }
+    
+    .form-select {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      color: #333;
+      font-weight: 500;
+      font-size: 0.9rem;
+      height: 40px;
+      
+      option {
+        background: white;
+        color: #333;
+      }
+      
+      &:focus {
+        background: white;
+        border-color: #2874f0;
+        box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+        color: #333;
+      }
+    }
+  }
+  
+  .filter-summary {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+    
+    h6 {
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      
+      i {
+        color: #2874f0;
+      }
+    }
+    
+    .active-filters {
+      .filter-tag {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #bbdefb;
+        
+        i {
+          cursor: pointer;
+          font-size: 0.7rem;
+          margin-left: 0.3rem;
+          
+          &:hover {
+            color: #d32f2f;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Mobile Sidebar - Component Level */
+.mobile-sidebar {
+  /* Ensure the component is visible in mobile mode */
+  display: block !important;
+  width: 100%;
+  height: 100%;
+  background: white;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  
+  .sidebar-header {
+    background: #f8f9fa;
+    color: #333;
+    padding: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 60px;
+    flex-shrink: 0;
+    
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      
+      h4 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        
+        i {
+          color: #2874f0;
+        }
+      }
+      
+      .btn {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+        border-color: #2874f0;
+        color: #2874f0;
+        border-radius: 4px;
+        background: white;
+        
+        &:hover {
+          background: #2874f0;
+          color: white;
+          border-color: #2874f0;
+        }
+      }
+    }
+  }
+  
+  .filter-section {
+    padding: 1.2rem;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    background: white;
+    
+    h5 {
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      
+      i {
+        color: #2874f0;
+      }
+    }
+    
+    .category-list {
+      max-height: 250px;
+      overflow-y: auto;
+      
+      .form-check {
+        margin-bottom: 0.75rem;
+        
+        .form-check-input {
+          background-color: white;
+          border: 2px solid #e0e0e0;
+          border-radius: 3px;
+          width: 16px;
+          height: 16px;
+          
+          &:checked {
+            background-color: #2874f0;
+            border-color: #2874f0;
+          }
+          
+          &:focus {
+            box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+          }
+        }
+        
+        .form-check-label {
+          color: #333;
+          font-weight: 500;
+          cursor: pointer;
+          font-size: 0.85rem;
+          padding: 0.4rem 0;
+          
+          .category-count {
+            color: #666;
+            font-size: 0.75rem;
+            font-weight: 400;
+          }
+        }
+      }
+    }
+    
+    .price-range {
+      .price-inputs {
+        margin-bottom: 1rem;
+        
+        .input-group {
+          margin-bottom: 0.5rem;
+          
+          .input-group-text {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.85rem;
+            min-width: 50px;
+          }
+          
+          .form-control {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.85rem;
+            height: 38px;
+            color: #333;
+            
+            &::placeholder {
+              color: #999;
+              font-size: 0.8rem;
+            }
+            
+            &:focus {
+              background: white;
+              border-color: #2874f0;
+              box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+              color: #333;
+            }
+          }
+        }
+      }
+      
+      .price-display {
+        text-align: center;
+        padding: 0.75rem;
+        background: #f8f9fa;
+        border-radius: 4px;
+        color: #333;
+        font-weight: 500;
+        font-size: 0.85rem;
+      }
+    }
+    
+    .form-check {
+      .form-check-input {
+        background-color: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 3px;
+        width: 16px;
+        height: 16px;
+        
+        &:checked {
+          background-color: #2874f0;
+          border-color: #2874f0;
+        }
+        
+        &:focus {
+          box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+        }
+      }
+      
+      .form-check-label {
+        color: #333;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 0.4rem 0;
+      }
+    }
+    
+    .form-select {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      color: #333;
+      font-weight: 500;
+      font-size: 0.85rem;
+      height: 38px;
+      
+      option {
+        background: white;
+        color: #333;
+        font-size: 0.85rem;
+      }
+      
+      &:focus {
+        background: white;
+        border-color: #2874f0;
+        box-shadow: 0 0 0 3px rgba(40, 116, 240, 0.2);
+        color: #333;
+      }
+    }
+  }
+  
+  .filter-summary {
+    padding: 1.2rem;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    background: white;
+    
+    h6 {
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      
+      i {
+        color: #2874f0;
+      }
+    }
+    
+    .active-filters {
+      .filter-tag {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 0.3rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid #bbdefb;
+        
+        i {
+          cursor: pointer;
+          font-size: 0.7rem;
+          margin-left: 0.3rem;
+          
+          &:hover {
+            color: #d32f2f;
+          }
+        }
+      }
+    }
+  }
+}

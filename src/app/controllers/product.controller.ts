@@ -9,6 +9,10 @@ import { Product } from '../models/product.model';
 export class ProductController {
   constructor(private productService: ProductService) {}
 
+  getCategoryCount(category: string, role?: string): number {
+    return this.productService.getCategoryCount(category, role);
+  }
+
   getProducts(role?: string): Observable<Product[]> {
     return new Observable(observer => {
       this.productService.getProducts(role).subscribe({

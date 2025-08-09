@@ -1,0 +1,103 @@
+/* Desktop Header */
+.row.mb-4.d-none.d-lg-flex {
+  margin-top: 80px; /* Account for fixed navbar */
+}
+
+/* Product Grid - Better spacing */
+.row.g-3 {
+  margin: 0 -0.75rem;
+  
+  .col-6, .col-md-4, .col-lg-3 {
+    padding: 0 0.75rem;
+  }
+}
+
+/* Search Container - Better styling */
+.search-container {
+  .input-group {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+    
+    .input-group-text {
+      background: #2874f0;
+      border: none;
+      color: white;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      min-width: 50px;
+    }
+    
+    .form-control {
+      border: none;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      background: white;
+      
+      &::placeholder {
+        color: #999;
+      }
+      
+      &:focus {
+        box-shadow: none;
+        background: white;
+      }
+    }
+  }
+}
+
+/* Filter Info - Better styling */
+.filter-info {
+  span {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
+  }
+}
+
+/* Spinner - Better styling */
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #2874f0;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Pagination - Better styling */
+.pagination {
+  .page-link {
+    border-radius: 6px;
+    margin: 0 0.25rem;
+    border: 1px solid #e0e0e0;
+    color: #2874f0;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      background: #f8f9fa;
+      border-color: #2874f0;
+      transform: translateY(-1px);
+    }
+  }
+  
+  .page-item.active .page-link {
+    background: #2874f0;
+    border-color: #2874f0;
+    color: white;
+  }
+  
+  .page-item.disabled .page-link {
+    color: #999;
+    background: #f8f9fa;
+    border-color: #e0e0e0;
+  }
+}

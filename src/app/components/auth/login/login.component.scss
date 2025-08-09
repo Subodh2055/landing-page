@@ -4,6 +4,14 @@
   position: relative;
   overflow: hidden;
   padding-top: 80px;
+  
+  @media (max-width: 768px) {
+    padding-top: 70px;
+  }
+  
+  @media (max-width: 576px) {
+    padding-top: 65px;
+  }
 }
 
 @keyframes gradientShift {
@@ -70,6 +78,22 @@
   &:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   }
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin: 1rem;
+    max-width: 100%;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 1.25rem;
+    margin: 0.75rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
 }
 
 @keyframes borderGlow {
@@ -81,6 +105,14 @@
   text-align: center;
   margin-bottom: 2rem;
   
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-bottom: 1.25rem;
+  }
+  
   .auth-icon {
     width: 50px;
     height: 50px;
@@ -91,9 +123,29 @@
     justify-content: center;
     margin: 0 auto 1rem;
     
+    @media (max-width: 768px) {
+      width: 45px;
+      height: 45px;
+      margin-bottom: 0.75rem;
+    }
+    
+    @media (max-width: 576px) {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 0.5rem;
+    }
+    
     i {
       font-size: 1.25rem;
       color: white;
+      
+      @media (max-width: 768px) {
+        font-size: 1.1rem;
+      }
+      
+      @media (max-width: 576px) {
+        font-size: 1rem;
+      }
     }
   }
   
@@ -102,12 +154,30 @@
     font-weight: 500;
     color: #212121;
     margin-bottom: 0.5rem;
+    
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+      margin-bottom: 0.4rem;
+    }
+    
+    @media (max-width: 576px) {
+      font-size: 1.1rem;
+      margin-bottom: 0.3rem;
+    }
   }
   
   p {
     color: #666;
     font-size: 0.9rem;
     margin: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 0.85rem;
+    }
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+    }
   }
 }
 
@@ -125,12 +195,26 @@
   margin-bottom: 1rem;
   position: relative;
   
+  @media (max-width: 576px) {
+    margin-bottom: 0.75rem;
+  }
+  
   label {
     display: block;
     margin-bottom: 0.5rem;
     color: #212121;
     font-weight: 500;
     font-size: 0.9rem;
+    
+    @media (max-width: 768px) {
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+    }
+    
+    @media (max-width: 576px) {
+      font-size: 0.8rem;
+      margin-bottom: 0.3rem;
+    }
   }
   
   .input-wrapper {
@@ -144,6 +228,16 @@
       color: #666;
       transition: all 0.3s ease;
       z-index: 2;
+      
+      @media (max-width: 768px) {
+        left: 0.75rem;
+        font-size: 0.9rem;
+      }
+      
+      @media (max-width: 576px) {
+        left: 0.6rem;
+        font-size: 0.85rem;
+      }
     }
     
     input {
@@ -155,6 +249,16 @@
       color: #212121;
       font-size: 0.9rem;
       transition: all 0.3s ease;
+      
+      @media (max-width: 768px) {
+        padding: 0.6rem 0.8rem 0.6rem 2.2rem;
+        font-size: 0.85rem;
+      }
+      
+      @media (max-width: 576px) {
+        padding: 0.5rem 0.7rem 0.5rem 2rem;
+        font-size: 0.8rem;
+      }
       
       &::placeholder {
         color: #999;
@@ -197,8 +301,26 @@
     align-items: center;
     gap: 0.25rem;
     
+    @media (max-width: 768px) {
+      font-size: 0.75rem;
+      margin-top: 0.2rem;
+    }
+    
+    @media (max-width: 576px) {
+      font-size: 0.7rem;
+      margin-top: 0.15rem;
+    }
+    
     i {
       font-size: 0.75rem;
+      
+      @media (max-width: 768px) {
+        font-size: 0.7rem;
+      }
+      
+      @media (max-width: 576px) {
+        font-size: 0.65rem;
+      }
     }
   }
 }
@@ -219,6 +341,16 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+  
+  @media (max-width: 576px) {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
   
   &:hover {
     background: #1a5bb8;
@@ -242,6 +374,18 @@
     border-top-color: white;
     animation: spin 1s ease-in-out infinite;
     margin-right: 0.5rem;
+    
+    @media (max-width: 768px) {
+      width: 14px;
+      height: 14px;
+      margin-right: 0.4rem;
+    }
+    
+    @media (max-width: 576px) {
+      width: 12px;
+      height: 12px;
+      margin-right: 0.3rem;
+    }
   }
 }
 
@@ -254,6 +398,14 @@
   margin-top: 1rem;
   color: #666;
   
+  @media (max-width: 768px) {
+    margin-top: 0.75rem;
+  }
+  
+  @media (max-width: 576px) {
+    margin-top: 0.5rem;
+  }
+  
   a {
     color: #2874f0;
     text-decoration: none;
@@ -263,28 +415,6 @@
     &:hover {
       color: #1a5bb8;
       text-decoration: underline;
-    }
-  }
-}
-
-// Responsive design
-@media (max-width: 768px) {
-  .login-card {
-    padding: 2rem;
-    margin: 1rem;
-    max-width: 100%;
-  }
-  
-  .auth-header h2 {
-    font-size: 2rem;
-  }
-  
-  .auth-icon {
-    width: 60px;
-    height: 60px;
-    
-    i {
-      font-size: 1.5rem;
     }
   }
 }
@@ -310,6 +440,18 @@
     border-radius: 50%;
     border-top-color: #667eea;
     animation: spin 1s ease-in-out infinite;
+    
+    @media (max-width: 768px) {
+      width: 50px;
+      height: 50px;
+      border-width: 3px;
+    }
+    
+    @media (max-width: 576px) {
+      width: 40px;
+      height: 40px;
+      border-width: 2px;
+    }
   }
 }
 
@@ -331,9 +473,27 @@
     justify-content: center;
     animation: successPulse 0.6s ease-out;
     
+    @media (max-width: 768px) {
+      width: 80px;
+      height: 80px;
+    }
+    
+    @media (max-width: 576px) {
+      width: 60px;
+      height: 60px;
+    }
+    
     i {
       font-size: 3rem;
       color: white;
+      
+      @media (max-width: 768px) {
+        font-size: 2.5rem;
+      }
+      
+      @media (max-width: 576px) {
+        font-size: 2rem;
+      }
     }
   }
 }

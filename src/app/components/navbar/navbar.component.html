@@ -1,8 +1,13 @@
 <nav class="navbar navbar-expand-lg" [class.scrolled]="isScrolled">
   <div class="container">
-    <!-- Left Side - Brand/Logo -->
+    <!-- Mobile Filter Button -->
+    <button class="navbar-toggler d-lg-none" type="button" (click)="onMobileFilterToggle()" aria-label="Toggle filters">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Brand -->
     <div class="navbar-brand-container">
-      <a class="navbar-brand" routerLink="/">
+      <a class="navbar-brand" routerLink="/products">
         <div class="brand-icon">
           <i class="fas fa-shopping-bag"></i>
         </div>
@@ -10,97 +15,71 @@
       </a>
     </div>
 
-    <!-- Mobile Toggle -->
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Navigation Content -->
+    <!-- Desktop Navigation -->
     <div class="collapse navbar-collapse" id="navbarNav">
-      <!-- Center Navigation -->
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-          </a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/products" routerLinkActive="active">
-            <i class="fas fa-th-large"></i>
-            <span>Products</span>
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item" *ngIf="isAuthenticated() && hasRole('admin')">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">
+            <i class="fas fa-cog me-1"></i>Admin
           </a>
         </li>
       </ul>
-
-      <!-- Right Side Actions -->
-      <div class="navbar-actions">
+      
+      <!-- Desktop Actions -->
+      <div class="navbar-actions d-none d-lg-flex">
         <!-- Guest Actions -->
-        <div class="guest-actions" *ngIf="!isAuthenticated()">
-          <a class="btn btn-outline-light btn-sm me-2" routerLink="/login" routerLinkActive="active">
-            <i class="fas fa-sign-in-alt"></i>
-            <span>Login</span>
+        <div *ngIf="!isAuthenticated()" class="guest-actions">
+          <a routerLink="/login" class="btn btn-outline-light me-2">
+            <i class="fas fa-sign-in-alt me-1"></i>Login
           </a>
-          <a class="btn btn-primary btn-sm" routerLink="/register" routerLinkActive="active">
-            <i class="fas fa-user-plus"></i>
-            <span>Register</span>
+          <a routerLink="/register" class="btn btn-primary">
+            <i class="fas fa-user-plus me-1"></i>Register
           </a>
         </div>
-
+        
         <!-- User Actions -->
-        <div class="user-actions" *ngIf="isAuthenticated()">
-          <!-- Admin Button -->
-          <a class="btn btn-warning btn-sm me-2" *ngIf="hasRole('admin')" routerLink="/admin" routerLinkActive="active">
-            <i class="fas fa-cog"></i>
-            <span>Admin</span>
-          </a>
-          
-          <!-- User Menu -->
-          <div class="dropdown">
-            <button class="btn btn-light dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <div *ngIf="isAuthenticated()" class="user-actions">
+          <div class="user-menu dropdown">
+            <button class="btn btn-link dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <div class="user-avatar">
-                {{ getUserInitials() }}
+                <span>{{ getUserInitials() }}</span>
               </div>
               <span class="user-name">{{ currentUser?.username }}</span>
-              <i class="fas fa-chevron-down"></i>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li>
-                <div class="dropdown-header">
-                  <div class="user-info">
-                    <div class="user-avatar-large">
-                      {{ getUserInitials() }}
-                    </div>
-                    <div class="user-details">
-                      <h6 class="user-name">{{ currentUser?.username }}</h6>
-                      <span class="user-role">{{ currentUser?.role }}</span>
-                    </div>
-                  </div>
-                </div>
-              </li>
+            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+              <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
               <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item" routerLink="/profile">
-                  <i class="fas fa-user"></i>
-                  <span>Profile</span>
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item" routerLink="/settings">
-                  <i class="fas fa-cog"></i>
-                  <span>Settings</span>
-                </a>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
-                <a class="dropdown-item logout" (click)="logout()">
-                  <i class="fas fa-sign-out-alt"></i>
-                  <span>Logout</span>
-                </a>
-              </li>
+              <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
             </ul>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Mobile Actions -->
+    <div class="mobile-actions d-lg-none">
+      <div class="action-buttons">
+        <a routerLink="/login" class="btn btn-link" title="Login" *ngIf="!isAuthenticated()">
+          <i class="fas fa-sign-in-alt"></i>
+        </a>
+        <a routerLink="/register" class="btn btn-link" title="Register" *ngIf="!isAuthenticated()">
+          <i class="fas fa-user-plus"></i>
+        </a>
+        <div class="dropdown" *ngIf="isAuthenticated()">
+          <button class="btn btn-link dropdown-toggle" type="button" id="mobileUserDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="User Menu">
+            <i class="fas fa-user"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="mobileUserDropdown">
+            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+        <a routerLink="/admin" class="btn btn-link" title="Admin" *ngIf="isAuthenticated() && hasRole('admin')">
+          <i class="fas fa-cog"></i>
+        </a>
       </div>
     </div>
   </div>
