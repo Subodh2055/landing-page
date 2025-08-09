@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { map, catchError, timeout } from 'rxjs/operators';
 import { Product } from '../models/product.model';
 
 @Injectable({
@@ -10,30 +10,79 @@ import { Product } from '../models/product.model';
 export class ProductService {
   private apiUrl = 'http://localhost:3000'; // JSON Server URL
   private products: Product[] = [];
+  private useLocalStorage = false;
+  private readonly STORAGE_KEY = 'products_data';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.initializeData();
+  }
 
-  // Get all products from JSON server
+  private initializeData(): void {
+    // Try to load from localStorage first
+    const storedData = this.loadFromLocalStorage();
+    if (storedData.length > 0) {
+      this.products = storedData;
+      this.useLocalStorage = true;
+    }
+  }
+
+  private loadFromLocalStorage(): Product[] {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      return stored ? JSON.parse(stored).map((p: any) => Product.fromJson(p)) : [];
+    } catch (error) {
+      console.error('Error loading from localStorage:', error);
+      return [];
+    }
+  }
+
+  private saveToLocalStorage(): void {
+    try {
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.products));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  }
+
+  private handleApiError(error: any, fallbackData?: any[]): Observable<any> {
+    console.warn('API Error, falling back to localStorage:', error);
+    this.useLocalStorage = true;
+    
+    if (fallbackData) {
+      return of(fallbackData);
+    }
+    
+    return throwError(() => new Error('Service unavailable, using local storage'));
+  }
+
+  // Get all products from JSON server with fallback
   getProducts(): Observable<Product[]> {
+    if (this.useLocalStorage) {
+      return of(this.products);
+    }
+
     return this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(
+      timeout(5000), // 5 second timeout
       map(products => {
-        this.products = products;
-        return products;
+        this.products = products.map(p => Product.fromJson(p));
+        this.saveToLocalStorage();
+        return this.products;
       }),
-      catchError(error => {
-        console.error('Error fetching products:', error);
-        return throwError(() => new Error('Failed to fetch products'));
-      })
+      catchError(error => this.handleApiError(error, this.products))
     );
   }
 
   // Get product by ID
   getProductById(id: number): Observable<Product> {
+    if (this.useLocalStorage) {
+      const product = this.products.find(p => p.id === id);
+      return product ? of(product) : throwError(() => new Error('Product not found'));
+    }
+
     return this.http.get<Product>(`${this.apiUrl}/products/${id}`).pipe(
-      catchError(error => {
-        console.error('Error fetching product:', error);
-        return throwError(() => new Error('Failed to fetch product'));
-      })
+      timeout(5000),
+      map(product => Product.fromJson(product)),
+      catchError(error => this.handleApiError(error))
     );
   }
 
@@ -46,15 +95,21 @@ export class ProductService {
       updatedAt: new Date().toISOString()
     };
 
+    if (this.useLocalStorage) {
+      this.products.push(Product.fromJson(newProduct));
+      this.saveToLocalStorage();
+      return of(Product.fromJson(newProduct));
+    }
+
     return this.http.post<Product>(`${this.apiUrl}/products`, newProduct).pipe(
+      timeout(5000),
       map(addedProduct => {
-        this.products.push(addedProduct);
-        return addedProduct;
+        const product = Product.fromJson(addedProduct);
+        this.products.push(product);
+        this.saveToLocalStorage();
+        return product;
       }),
-      catchError(error => {
-        console.error('Error adding product:', error);
-        return throwError(() => new Error('Failed to add product'));
-      })
+      catchError(error => this.handleApiError(error))
     );
   }
 
@@ -65,61 +120,95 @@ export class ProductService {
       updatedAt: new Date().toISOString()
     };
 
+    if (this.useLocalStorage) {
+      const index = this.products.findIndex(p => p.id === id);
+      if (index !== -1) {
+        const updatedProductObj = {
+          ...this.products[index],
+          ...updatedProduct,
+          updatedAt: new Date(updatedProduct.updatedAt || new Date())
+        };
+        this.products[index] = Product.fromJson(updatedProductObj);
+        this.saveToLocalStorage();
+        return of(this.products[index]);
+      }
+      return throwError(() => new Error('Product not found'));
+    }
+
     return this.http.patch<Product>(`${this.apiUrl}/products/${id}`, updatedProduct).pipe(
+      timeout(5000),
       map(updatedProduct => {
+        const product = Product.fromJson(updatedProduct);
         const index = this.products.findIndex(p => p.id === id);
         if (index !== -1) {
-          this.products[index] = updatedProduct;
+          this.products[index] = product;
         }
-        return updatedProduct;
+        this.saveToLocalStorage();
+        return product;
       }),
-      catchError(error => {
-        console.error('Error updating product:', error);
-        return throwError(() => new Error('Failed to update product'));
-      })
+      catchError(error => this.handleApiError(error))
     );
   }
 
   // Delete product
   deleteProduct(id: number): Observable<void> {
+    if (this.useLocalStorage) {
+      this.products = this.products.filter(p => p.id !== id);
+      this.saveToLocalStorage();
+      return of(void 0);
+    }
+
     return this.http.delete<void>(`${this.apiUrl}/products/${id}`).pipe(
+      timeout(5000),
       map(() => {
         this.products = this.products.filter(p => p.id !== id);
+        this.saveToLocalStorage();
       }),
-      catchError(error => {
-        console.error('Error deleting product:', error);
-        return throwError(() => new Error('Failed to delete product'));
-      })
+      catchError(error => this.handleApiError(error))
     );
   }
 
   // Search products
   searchProducts(query: string): Observable<Product[]> {
+    if (this.useLocalStorage) {
+      const filtered = this.products.filter(product =>
+        product.name.toLowerCase().includes(query.toLowerCase()) ||
+        product.description.toLowerCase().includes(query.toLowerCase())
+      );
+      return of(filtered);
+    }
+
     return this.http.get<Product[]>(`${this.apiUrl}/products?q=${query}`).pipe(
-      catchError(error => {
-        console.error('Error searching products:', error);
-        return throwError(() => new Error('Failed to search products'));
-      })
+      timeout(5000),
+      map(products => products.map(p => Product.fromJson(p))),
+      catchError(error => this.handleApiError(error))
     );
   }
 
   // Get products by category
   getProductsByCategory(category: string): Observable<Product[]> {
+    if (this.useLocalStorage) {
+      const filtered = this.products.filter(product => product.category === category);
+      return of(filtered);
+    }
+
     return this.http.get<Product[]>(`${this.apiUrl}/products?category=${category}`).pipe(
-      catchError(error => {
-        console.error('Error fetching products by category:', error);
-        return throwError(() => new Error('Failed to fetch products by category'));
-      })
+      timeout(5000),
+      map(products => products.map(p => Product.fromJson(p))),
+      catchError(error => this.handleApiError(error))
     );
   }
 
   // Get categories
   getCategories(): Observable<any[]> {
+    if (this.useLocalStorage) {
+      const categories = [...new Set(this.products.map(p => p.category))];
+      return of(categories.map((name, id) => ({ id: id + 1, name })));
+    }
+
     return this.http.get<any[]>(`${this.apiUrl}/categories`).pipe(
-      catchError(error => {
-        console.error('Error fetching categories:', error);
-        return throwError(() => new Error('Failed to fetch categories'));
-      })
+      timeout(5000),
+      catchError(error => this.handleApiError(error))
     );
   }
 
@@ -181,6 +270,34 @@ export class ProductService {
 
   // Get filtered products
   getFilteredProducts(filters: any): Observable<Product[]> {
+    if (this.useLocalStorage) {
+      let filtered = [...this.products];
+
+      if (filters.category) {
+        filtered = filtered.filter(p => p.category === filters.category);
+      }
+      if (filters.minPrice) {
+        filtered = filtered.filter(p => p.price >= filters.minPrice);
+      }
+      if (filters.maxPrice) {
+        filtered = filtered.filter(p => p.price <= filters.maxPrice);
+      }
+      if (filters.search) {
+        filtered = filtered.filter(p =>
+          p.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+          p.description.toLowerCase().includes(filters.search.toLowerCase())
+        );
+      }
+      if (filters.inStock) {
+        filtered = filtered.filter(p => p.stock > 0);
+      }
+      if (filters.rating) {
+        filtered = filtered.filter(p => p.rating >= filters.rating);
+      }
+
+      return of(filtered);
+    }
+
     let url = `${this.apiUrl}/products`;
     const params = new URLSearchParams();
 
@@ -202,31 +319,44 @@ export class ProductService {
     }
 
     return this.http.get<Product[]>(url).pipe(
+      timeout(5000),
       map(products => {
         // Apply additional filters that can't be done via URL
         return products.filter(product => {
           if (filters.inStock && product.stock <= 0) return false;
           if (filters.rating && product.rating < filters.rating) return false;
           return true;
-        });
+        }).map(p => Product.fromJson(p));
       }),
-      catchError(error => {
-        console.error('Error fetching filtered products:', error);
-        return throwError(() => new Error('Failed to fetch filtered products'));
-      })
+      catchError(error => this.handleApiError(error))
     );
   }
 
   // Get paginated products
   getPaginatedProducts(page: number = 1, limit: number = 50): Observable<{products: Product[], total: number, totalPages: number}> {
+    if (this.useLocalStorage) {
+      const total = this.products.length;
+      const totalPages = Math.ceil(total / limit);
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      const paginatedProducts = this.products.slice(start, end);
+      
+      return of({
+        products: paginatedProducts,
+        total,
+        totalPages
+      });
+    }
+
     const start = (page - 1) * limit;
     const end = start + limit;
 
     return this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(
+      timeout(5000),
       map(products => {
         const total = products.length;
         const totalPages = Math.ceil(total / limit);
-        const paginatedProducts = products.slice(start, end);
+        const paginatedProducts = products.slice(start, end).map(p => Product.fromJson(p));
         
         return {
           products: paginatedProducts,
@@ -234,15 +364,22 @@ export class ProductService {
           totalPages
         };
       }),
-      catchError(error => {
-        console.error('Error fetching paginated products:', error);
-        return throwError(() => new Error('Failed to fetch paginated products'));
-      })
+      catchError(error => this.handleApiError(error))
     );
   }
 
   private getNextId(): number {
     const maxId = Math.max(...this.products.map(p => p.id), 0);
     return maxId + 1;
+  }
+
+  // Check if using localStorage
+  isUsingLocalStorage(): boolean {
+    return this.useLocalStorage;
+  }
+
+  // Force refresh from server
+  refreshFromServer(): void {
+    this.useLocalStorage = false;
   }
 }

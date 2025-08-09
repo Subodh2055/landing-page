@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DataInitializerService } from './services/data-initializer.service';
 
 @Component({
   selector: 'app-root',
@@ -6,14 +7,17 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-  title = 'Landing Page';
+  title = 'landing-page';
 
-  constructor() {
-    console.log('AppComponent constructor called');
-  }
+  constructor(private dataInitializer: DataInitializerService) {}
 
   ngOnInit(): void {
-    console.log('AppComponent ngOnInit called');
+    // Initialize default data for deployed application
+    this.dataInitializer.initializeDefaultData();
+    
+    // Log storage info for debugging
+    const storageInfo = this.dataInitializer.getStorageInfo();
+    console.log('Storage Info:', storageInfo);
   }
 
   onMobileFilterToggle(): void {
