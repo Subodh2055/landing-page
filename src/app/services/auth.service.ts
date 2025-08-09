@@ -86,11 +86,12 @@ export class AuthService {
     return throwError(() => new Error('Service unavailable, using local storage'));
   }
 
-  login(email: string, password: string): Observable<any> {
+  login(identifier: string, password: string): Observable<any> {
+    // identifier can be either username or email
     if (this.useLocalStorage) {
       const users = this.loadUsersFromLocalStorage();
       const user = users.find(u => 
-        (u.username === email || u.email === email) && 
+        (u.username === identifier || u.email === identifier) && 
         u.password === password
       );
 
@@ -106,7 +107,16 @@ export class AuthService {
         localStorage.setItem('auth_token', token);
         return of(response);
       } else {
-        return throwError(() => new Error('Invalid credentials'));
+        // Check if user exists but password is wrong
+        const userExists = users.find(u => 
+          u.username === identifier || u.email === identifier
+        );
+        
+        if (userExists) {
+          return throwError(() => new Error('Invalid password. Please check your password and try again.'));
+        } else {
+          return throwError(() => new Error('User not found. Please check your username/email and try again.'));
+        }
       }
     }
 
@@ -114,7 +124,7 @@ export class AuthService {
       timeout(5000),
       map(users => {
         const user = users.find(u => 
-          (u.username === email || u.email === email) && 
+          (u.username === identifier || u.email === identifier) && 
           u.password === password
         );
 
@@ -130,7 +140,16 @@ export class AuthService {
           localStorage.setItem('auth_token', token);
           return response;
         } else {
-          throw new Error('Invalid credentials');
+          // Check if user exists but password is wrong
+          const userExists = users.find(u => 
+            u.username === identifier || u.email === identifier
+          );
+          
+          if (userExists) {
+            throw new Error('Invalid password. Please check your password and try again.');
+          } else {
+            throw new Error('User not found. Please check your username/email and try again.');
+          }
         }
       }),
       catchError(error => this.handleApiError(error))

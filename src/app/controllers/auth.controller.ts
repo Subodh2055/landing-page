@@ -9,9 +9,9 @@ import { User } from '../models/user.model';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  login(email: string, password: string): Observable<User> {
+  login(identifier: string, password: string): Observable<User> {
     return new Observable(observer => {
-      this.authService.login(email, password).subscribe({
+      this.authService.login(identifier, password).subscribe({
         next: (response: any) => {
           const user = User.fromJson(response);
           observer.next(user);
@@ -60,13 +60,11 @@ export class AuthController {
     return this.authService.getToken();
   }
 
-  validateCredentials(email: string, password: string): { isValid: boolean; errors: string[] } {
+  validateCredentials(identifier: string, password: string): { isValid: boolean; errors: string[] } {
     const errors: string[] = [];
 
-    if (!email || email.trim() === '') {
-      errors.push('Email is required');
-    } else if (!this.isValidEmail(email)) {
-      errors.push('Please enter a valid email address');
+    if (!identifier || identifier.trim() === '') {
+      errors.push('Username or Email is required');
     }
 
     if (!password || password.trim() === '') {

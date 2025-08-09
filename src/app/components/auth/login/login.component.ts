@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
 
   private buildForm(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      identifier: ['', [Validators.required]], // Can be username or email
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -36,8 +36,8 @@ export class LoginComponent implements OnInit {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.loading = true;
-      const { email, password } = this.loginForm.value;
-      
+      const { identifier, password } = this.loginForm.value;
+
       // Show loading toast
       this.toastr.info('Authenticating your credentials...', 'Please Wait', {
         timeOut: 0,
@@ -45,9 +45,9 @@ export class LoginComponent implements OnInit {
         closeButton: false,
         progressBar: true
       });
-      
+
       // Validate credentials using controller
-      const validation = this.authController.validateCredentials(email, password);
+      const validation = this.authController.validateCredentials(identifier, password);
       if (!validation.isValid) {
         this.toastr.clear();
         this.toastr.error(validation.errors.join(', '), 'Invalid Input', {
@@ -58,21 +58,21 @@ export class LoginComponent implements OnInit {
         this.loading = false;
         return;
       }
-      
-      this.authController.login(email, password).subscribe({
+
+      this.authController.login(identifier, password).subscribe({
         next: (user: User) => {
           this.loading = false;
           this.showSuccess = true;
-          
+
           // Clear loading toast
           this.toastr.clear();
-          
+
           // Hide success animation after 2 seconds
           setTimeout(() => {
             this.showSuccess = false;
             this.toastr.success(
-              `Welcome back, ${user.username}! You have successfully logged in.`, 
-              'Login Successful', 
+              `Welcome back, ${user.username}! You have successfully logged in.`,
+              'Login Successful',
               {
                 timeOut: 4000,
                 progressBar: true,
@@ -86,18 +86,18 @@ export class LoginComponent implements OnInit {
         error: (error) => {
           this.loading = false;
           this.toastr.clear();
-          
+
           // Provide specific error messages based on the error
           let errorMessage = 'Login failed. Please try again.';
           let errorTitle = 'Login Error';
-          
+
           if (error.message) {
-            if (error.message.includes('Invalid credentials')) {
-              errorMessage = 'The email or password you entered is incorrect. Please check your credentials and try again.';
-              errorTitle = 'Invalid Credentials';
+            if (error.message.includes('Invalid password')) {
+              errorMessage = 'The password you entered is incorrect. Please check your password and try again.';
+              errorTitle = 'Invalid Password';
             } else if (error.message.includes('User not found')) {
-              errorMessage = 'No account found with this email address. Please register or check your email.';
-              errorTitle = 'Account Not Found';
+              errorMessage = 'No account found with this username/email. Please check your credentials or register a new account.';
+              errorTitle = 'User Not Found';
             } else if (error.message.includes('Network')) {
               errorMessage = 'Network connection issue. Please check your internet connection and try again.';
               errorTitle = 'Connection Error';
@@ -105,7 +105,7 @@ export class LoginComponent implements OnInit {
               errorMessage = error.message;
             }
           }
-          
+
           this.toastr.error(errorMessage, errorTitle, {
             timeOut: 6000,
             progressBar: true,
@@ -118,7 +118,7 @@ export class LoginComponent implements OnInit {
       // Show form validation errors
       const errors = this.getFormErrors();
       this.toastr.warning(
-        `Please fix the following issues: ${errors.join(', ')}`, 
+        `Please fix the following issues: ${errors.join(', ')}`,
         'Form Validation Error',
         {
           timeOut: 5000,
@@ -131,14 +131,12 @@ export class LoginComponent implements OnInit {
 
   private getFormErrors(): string[] {
     const errors: string[] = [];
-    const emailControl = this.loginForm.get('email');
+    const identifierControl = this.loginForm.get('identifier');
     const passwordControl = this.loginForm.get('password');
 
-    if (emailControl?.errors) {
-      if (emailControl.errors['required']) {
-        errors.push('Email is required');
-      } else if (emailControl.errors['email']) {
-        errors.push('Please enter a valid email address');
+    if (identifierControl?.errors) {
+      if (identifierControl.errors['required']) {
+        errors.push('Username or Email is required');
       }
     }
 
