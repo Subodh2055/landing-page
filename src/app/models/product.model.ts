@@ -10,6 +10,7 @@ export class Product {
     public rating: number = 0,
     public reviews: number = 0,
     public role: 'public' | 'user' | 'admin' = 'public',
+    public originalPrice?: number,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}
@@ -26,6 +27,7 @@ export class Product {
       json.rating || 0,
       json.reviews || 0,
       json.role || 'public',
+      json.originalPrice,
       new Date(json.createdAt),
       new Date(json.updatedAt || json.createdAt)
     );
@@ -43,6 +45,7 @@ export class Product {
       rating: this.rating,
       reviews: this.reviews,
       role: this.role,
+      originalPrice: this.originalPrice,
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString()
     };
@@ -81,6 +84,15 @@ export class Product {
   }
 
   getImageUrl(): string {
-    return this.image || this.imageUrl || '';
+    return this.image || '';
+  }
+
+  hasDiscount(): boolean {
+    return this.originalPrice ? this.originalPrice > this.price : false;
+  }
+
+  getDiscountPercentage(): number {
+    if (!this.hasDiscount()) return 0;
+    return Math.round(((this.originalPrice! - this.price) / this.originalPrice!) * 100);
   }
 }
