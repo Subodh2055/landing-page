@@ -1,0 +1,142 @@
+<div class="wishlist-container">
+  <!-- Header Section -->
+  <div class="wishlist-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="wishlist-title">
+          <i class="fas fa-heart me-3"></i>
+          My Wishlist
+        </h1>
+        <p class="wishlist-subtitle">
+          Save your favorite products for later
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-primary me-2" (click)="navigateToProducts()">
+          <i class="fas fa-shopping-bag me-1"></i>
+          Continue Shopping
+        </button>
+        <button class="btn btn-outline-danger" (click)="clearWishlist()" *ngIf="totalItems > 0">
+          <i class="fas fa-trash me-1"></i>
+          Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading your wishlist...</p>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && totalItems === 0">
+    <div class="empty-content">
+      <i class="fas fa-heart-broken fa-4x mb-4"></i>
+      <h3>Your wishlist is empty</h3>
+      <p>Start adding products to your wishlist to save them for later!</p>
+      <button class="btn btn-primary" (click)="navigateToProducts()">
+        <i class="fas fa-shopping-bag me-1"></i>
+        Browse Products
+      </button>
+    </div>
+  </div>
+
+  <!-- Wishlist Content -->
+  <div class="wishlist-content" *ngIf="!loading && totalItems > 0">
+    <!-- Summary Card -->
+    <div class="summary-card">
+      <div class="summary-content">
+        <div class="summary-item">
+          <span class="summary-label">Total Items:</span>
+          <span class="summary-value">{{ totalItems }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Value:</span>
+          <span class="summary-value">{{ getFormattedTotal() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wishlist Items -->
+    <div class="wishlist-items">
+      <div class="wishlist-item" *ngFor="let item of wishlistItems; trackBy: trackByProduct">
+        <div class="item-image">
+          <img [src]="item.getImageUrl()" [alt]="item.name" (click)="navigateToProduct(item.id)">
+          <div class="item-overlay">
+            <button class="btn btn-sm btn-primary" (click)="navigateToProduct(item.id)">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="item-details">
+          <div class="item-info">
+            <h4 class="item-name" (click)="navigateToProduct(item.id)">{{ item.name }}</h4>
+            <p class="item-category">{{ item.category }}</p>
+            <div class="item-rating">
+              <span class="stars">{{ item.getRatingStars() }}</span>
+              <span class="rating-text">({{ item.getFormattedRating() }})</span>
+            </div>
+          </div>
+          
+          <div class="item-price">
+            <div class="price-info">
+              <span class="current-price">{{ item.getFormattedPrice() }}</span>
+              <span class="original-price" *ngIf="item.hasDiscount()">
+                ₹{{ item.originalPrice?.toFixed(2) }}
+              </span>
+            </div>
+            <div class="discount-badge" *ngIf="item.hasDiscount()">
+              -{{ item.getDiscountPercentage() }}%
+            </div>
+          </div>
+          
+          <div class="item-stock">
+            <span class="stock-status" [class]="item.isInStock() ? 'in-stock' : 'out-of-stock'">
+              {{ item.getStockStatus() }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="item-actions">
+          <button class="btn btn-success btn-sm me-2" 
+                  (click)="addToCart(item)"
+                  [disabled]="!item.isInStock()">
+            <i class="fas fa-cart-plus me-1"></i>
+            Add to Cart
+          </button>
+          <button class="btn btn-primary btn-sm me-2" 
+                  (click)="moveToCart(item.id)"
+                  [disabled]="!item.isInStock()">
+            <i class="fas fa-exchange-alt me-1"></i>
+            Move to Cart
+          </button>
+          <button class="btn btn-outline-danger btn-sm" (click)="removeFromWishlist(item.id)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <div class="action-card">
+        <h5>Quick Actions</h5>
+        <div class="action-buttons">
+          <button class="btn btn-outline-primary" (click)="navigateToProducts()">
+            <i class="fas fa-search me-1"></i>
+            Find More Products
+          </button>
+          <button class="btn btn-outline-success" (click)="navigateToCart()">
+            <i class="fas fa-shopping-cart me-1"></i>
+            View Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

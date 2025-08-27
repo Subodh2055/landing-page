@@ -17,7 +17,7 @@ export class PwaService {
 
   private initializePWA(): void {
     // Check for updates
-    if (this.swUpdate.isEnabled) {
+    if (this.swUpdate && this.swUpdate.isEnabled) {
       this.swUpdate.available.subscribe(() => {
         this.updateAvailable$.next(true);
       });
@@ -39,7 +39,7 @@ export class PwaService {
 
   // Check for app updates
   checkForUpdate(): Promise<void> {
-    if (this.swUpdate.isEnabled) {
+    if (this.swUpdate && this.swUpdate.isEnabled) {
       return this.swUpdate.checkForUpdate();
     }
     return Promise.resolve();
@@ -47,7 +47,7 @@ export class PwaService {
 
   // Activate update
   activateUpdate(): Promise<void> {
-    if (this.swUpdate.isEnabled) {
+    if (this.swUpdate && this.swUpdate.isEnabled) {
       return this.swUpdate.activateUpdate();
     }
     return Promise.resolve();
@@ -55,7 +55,7 @@ export class PwaService {
 
   // Subscribe to push notifications
   subscribeToNotifications(): Promise<PushSubscription | null> {
-    if (this.swPush.isEnabled) {
+    if (this.swPush && this.swPush.isEnabled) {
       return this.swPush.requestSubscription({
         serverPublicKey: 'YOUR_VAPID_PUBLIC_KEY' // Replace with your VAPID public key
       });

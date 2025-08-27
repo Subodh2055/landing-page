@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
-  "categories": ["shopping", "business"],
+  "categories": ["shopping", "business", "productivity"],
   "icons": [
     {
       "src": "assets/icons/icon-72x72.png",
