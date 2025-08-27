@@ -1,0 +1,44 @@
+<div class="skeleton-loader" [ngClass]="type">
+  <ng-container *ngFor="let item of items">
+    <!-- Card Skeleton -->
+    <div class="skeleton-card" *ngIf="type === 'card'">
+      <div class="skeleton-image"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text short"></div>
+      </div>
+    </div>
+
+    <!-- List Skeleton -->
+    <div class="skeleton-list-item" *ngIf="type === 'list'">
+      <div class="skeleton-avatar"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+      </div>
+    </div>
+
+    <!-- Table Skeleton -->
+    <div class="skeleton-table-row" *ngIf="type === 'table'">
+      <div class="skeleton-cell"></div>
+      <div class="skeleton-cell"></div>
+      <div class="skeleton-cell"></div>
+      <div class="skeleton-cell"></div>
+      <div class="skeleton-cell"></div>
+    </div>
+
+    <!-- Chart Skeleton -->
+    <div class="skeleton-chart" *ngIf="type === 'chart'">
+      <div class="skeleton-chart-bars">
+        <div class="skeleton-bar" *ngFor="let i of [1,2,3,4,5,6,7]"></div>
+      </div>
+      <div class="skeleton-chart-labels">
+        <div class="skeleton-label" *ngFor="let i of [1,2,3,4,5,6,7]"></div>
+      </div>
+    </div>
+
+    <!-- Generic Skeleton -->
+    <div class="skeleton-generic" *ngIf="type === 'generic'" [style.height]="height" [style.width]="width"></div>
+  </ng-container>
+</div>

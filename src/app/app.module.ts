@@ -16,6 +16,9 @@ import { CardModule } from 'primeng/card';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 
+// Shared Module
+import { SharedModule } from './shared/shared.module';
+
 // Components
 import { AppComponent } from './app.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
@@ -32,10 +35,9 @@ import { SplashScreenComponent } from './components/splash-screen/splash-screen.
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FormsModule,
-    ReactiveFormsModule,
     HttpClientModule,
     AppRoutingModule,
+    SharedModule,
     ToastrModule.forRoot({
       timeOut: 3000,
       positionClass: 'toast-top-right',

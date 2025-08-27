@@ -41,7 +41,7 @@
           <i class="fas fa-box"></i>
         </div>
         <div class="stat-content">
-                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.totalProducts || 0) }}</h3>
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats.totalProducts || 0) }}</h3>
           <p class="stat-label">Total Products</p>
           <div class="stat-trend positive">
             <i class="fas fa-arrow-up"></i>
@@ -55,7 +55,7 @@
           <i class="fas fa-users"></i>
         </div>
         <div class="stat-content">
-                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.totalUsers || 0) }}</h3>
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats.totalUsers || 0) }}</h3>
           <p class="stat-label">Total Users</p>
           <div class="stat-trend positive">
             <i class="fas fa-arrow-up"></i>
@@ -69,7 +69,7 @@
           <i class="fas fa-shopping-cart"></i>
         </div>
         <div class="stat-content">
-                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.totalOrders || 0) }}</h3>
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats.totalOrders || 0) }}</h3>
           <p class="stat-label">Total Orders</p>
           <div class="stat-trend positive">
             <i class="fas fa-arrow-up"></i>
@@ -83,7 +83,7 @@
           <i class="fas fa-dollar-sign"></i>
         </div>
         <div class="stat-content">
-                     <h3 class="stat-value">{{ formatCurrency(dashboardStats?.totalRevenue || 0) }}</h3>
+                     <h3 class="stat-value">{{ formatCurrency(dashboardStats.totalRevenue || 0) }}</h3>
           <p class="stat-label">Total Revenue</p>
           <div class="stat-trend positive">
             <i class="fas fa-arrow-up"></i>
@@ -97,7 +97,7 @@
           <i class="fas fa-store"></i>
         </div>
         <div class="stat-content">
-                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.activeSellers || 0) }}</h3>
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats.activeSellers || 0) }}</h3>
           <p class="stat-label">Active Sellers</p>
           <div class="stat-trend positive">
             <i class="fas fa-arrow-up"></i>
@@ -111,7 +111,7 @@
           <i class="fas fa-exclamation-triangle"></i>
         </div>
         <div class="stat-content">
-                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.lowStockProducts || 0) }}</h3>
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats.lowStockProducts || 0) }}</h3>
           <p class="stat-label">Low Stock Items</p>
           <div class="stat-trend negative">
             <i class="fas fa-arrow-down"></i>
@@ -297,7 +297,7 @@
             <i class="fas fa-clock me-2"></i>
             Pending Approvals
           </h3>
-                     <span class="badge bg-warning">{{ dashboardStats?.pendingApprovals || 0 }}</span>
+                                           <span class="badge bg-warning">{{ dashboardStats.pendingApprovals || 0 }}</span>
         </div>
         <div class="card-body">
           <div class="approval-list" *ngIf="dashboardStats.pendingApprovals > 0">

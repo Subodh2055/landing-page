@@ -246,18 +246,30 @@
     </div>
   </div>
   
-  <!-- Mobile Product Grid -->
-  <div class="row g-2 d-lg-none" *ngIf="!loading && paginatedProducts.length > 0">
-    <div class="col-12 col-sm-6" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
-      <app-product-card [product]="product"></app-product-card>
+  <!-- Mobile Product Grid with Infinite Scroll -->
+  <div class="mobile-products-container" 
+       appInfiniteScroll 
+       [threshold]="100"
+       [disabled]="loading || currentPage >= totalPages"
+       (scrolled)="loadMoreProducts()">
+    <div class="row g-2 d-lg-none" *ngIf="!loading && paginatedProducts.length > 0">
+      <div class="col-12 col-sm-6" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+        <app-product-card [product]="product"></app-product-card>
+      </div>
+    </div>
+    
+    <!-- Loading more indicator -->
+    <div class="row d-lg-none" *ngIf="loading && paginatedProducts.length > 0">
+      <div class="col-12 text-center">
+        <app-skeleton-loader type="card" [count]="2"></app-skeleton-loader>
+      </div>
     </div>
   </div>
 
   <!-- Mobile Loading State -->
-  <div class="row d-lg-none" *ngIf="loading">
-    <div class="col-12 text-center">
-      <div class="spinner mx-auto"></div>
-      <p class="text-dark mt-3">Loading products...</p>
+  <div class="row d-lg-none" *ngIf="loading && !paginatedProducts.length">
+    <div class="col-12">
+      <app-skeleton-loader type="card" [count]="6"></app-skeleton-loader>
     </div>
   </div>
 

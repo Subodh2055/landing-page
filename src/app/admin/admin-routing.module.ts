@@ -1,37 +1,37 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthGuard } from '../guards/auth.guard';
+
+import { AdminDashboardComponent } from '../components/admin/admin-dashboard/admin-dashboard.component';
+import { UserManagementComponent } from '../components/admin/user-management/user-management.component';
 
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
-    pathMatch: 'full'
+    component: AdminDashboardComponent
   },
   {
     path: 'dashboard',
-    loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'seller-panel',
-    loadChildren: () => import('./seller-panel/seller-panel.module').then(m => m.SellerPanelModule),
-    canActivate: [AuthGuard]
-  },
-  {
-    path: 'products',
-    loadChildren: () => import('./product-management/product-management.module').then(m => m.ProductManagementModule),
-    canActivate: [AuthGuard]
+    component: AdminDashboardComponent
   },
   {
     path: 'users',
-    loadChildren: () => import('./user-management/user-management.module').then(m => m.UserManagementModule),
-    canActivate: [AuthGuard]
+    component: UserManagementComponent
   },
   {
     path: 'analytics',
-    loadChildren: () => import('./analytics/analytics.module').then(m => m.AnalyticsModule),
-    canActivate: [AuthGuard]
+    loadChildren: () => import('./analytics/analytics.module').then(m => m.AnalyticsModule)
+  },
+  {
+    path: 'products',
+    loadChildren: () => import('./product-management/product-management.module').then(m => m.ProductManagementModule)
+  },
+  {
+    path: 'seller',
+    loadChildren: () => import('./seller-panel/seller-panel.module').then(m => m.SellerPanelModule)
+  },
+  {
+    path: '**',
+    redirectTo: ''
   }
 ];
 

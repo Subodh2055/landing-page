@@ -123,7 +123,7 @@
               <div class="chart-bars">
                 <div class="chart-bar" 
                      *ngFor="let data of revenueChartData; let i = index"
-                     [style.height.%]="(data.revenue / maxRevenue) * 100"
+                     [style.height]="((data.revenue / maxRevenue) * 100) + '%'"
                      [title]="data.date + ': ' + formatCurrency(data.revenue)">
                   <div class="bar-tooltip">
                     <strong>{{ data.date }}</strong><br>
@@ -150,8 +150,8 @@
               <div class="chart-bars">
                 <div class="chart-bar" 
                      *ngFor="let data of ordersChartData; let i = index"
-                     [style.height.%]="(data.orders / maxOrders) * 100"
-                     [title]="data.date + ': ' + data.orders + ' orders">
+                     [style.height]="((data.orders / maxOrders) * 100) + '%'"
+                     [title]="data.date + ': ' + data.orders + ' orders'">
                   <div class="bar-tooltip">
                     <strong>{{ data.date }}</strong><br>
                     {{ data.orders }} orders
@@ -246,7 +246,7 @@
                 </div>
                 <div class="progress">
                   <div class="progress-bar" 
-                       [style.width.%]="category.percentage"
+                       [style.width]="category.percentage + '%'"
                        [style.background-color]="category.color">
                   </div>
                 </div>
@@ -271,7 +271,7 @@
                   <span class="demo-value">{{ demo.value }}</span>
                 </div>
                 <div class="demo-bar">
-                  <div class="bar-fill" [style.width.%]="demo.percentage"></div>
+                  <div class="bar-fill" [style.width]="demo.percentage + '%'"></div>
                 </div>
                 <span class="demo-percentage">{{ demo.percentage }}%</span>
               </div>
@@ -293,7 +293,7 @@
                   <h6>{{ stage.name }}</h6>
                   <p>{{ stage.count }} users</p>
                 </div>
-                <div class="stage-bar" [style.width.%]="stage.percentage">
+                <div class="stage-bar" [style.width]="stage.percentage + '%'">
                   <div class="bar-fill"></div>
                 </div>
                 <div class="stage-percentage">{{ stage.percentage }}%</div>

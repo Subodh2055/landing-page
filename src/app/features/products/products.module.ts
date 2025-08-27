@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule, Routes } from '@angular/router';
+import { SharedModule } from '../../shared/shared.module';
 import { ProductListComponent } from '../../components/product-list/product-list.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { SidebarComponent } from '../../components/sidebar/sidebar.component';
@@ -26,9 +25,7 @@ const routes: Routes = [
     SearchComponent
   ],
   imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    SharedModule,
     RouterModule.forChild(routes)
   ]
 })

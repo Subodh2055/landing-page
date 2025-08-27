@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+import { SharedModule } from '../../shared/shared.module';
 import { SellerPanelComponent } from '../../components/admin/seller-panel/seller-panel.component';
 
 const routes: Routes = [
@@ -15,7 +15,7 @@ const routes: Routes = [
     SellerPanelComponent
   ],
   imports: [
-    CommonModule,
+    SharedModule,
     RouterModule.forChild(routes)
   ]
 })

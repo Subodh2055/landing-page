@@ -205,6 +205,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
     }
   }
 
+  loadMoreProducts(): void {
+    if (this.currentPage < this.totalPages && !this.loading) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
   getVisiblePages(): number[] {
     const pages: number[] = [];
     const maxVisible = 5;

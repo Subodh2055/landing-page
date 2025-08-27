@@ -455,6 +455,8 @@ export class ProductManagementComponent implements OnInit, OnDestroy {
     return pages;
   }
 
+
+
   // Utility Methods
   formatCurrency(amount: number): string {
     return new Intl.NumberFormat('en-US', {
