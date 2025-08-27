@@ -9,10 +9,10 @@ export class SplashScreenService {
   public showSplash$: Observable<boolean> = this.showSplashSubject.asObservable();
 
   constructor() {
-    // Auto-hide splash screen after 5 seconds as fallback
+    // Auto-hide splash screen after 3 seconds as fallback
     setTimeout(() => {
       this.hideSplash();
-    }, 5000);
+    }, 3000);
   }
 
   showSplash(): void {

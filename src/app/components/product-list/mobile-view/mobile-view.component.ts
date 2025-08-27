@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from '../../../models/product.model';
 
 @Component({
@@ -7,6 +8,7 @@ import { Product } from '../../../models/product.model';
   styleUrls: ['./mobile-view.component.scss']
 })
 export class MobileViewComponent implements OnDestroy {
+  constructor(private router: Router) {}
   @Input() products: Product[] = [];
   @Input() paginatedProducts: Product[] = [];
   @Input() loading: boolean = false;
@@ -98,5 +100,9 @@ export class MobileViewComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     // Cleanup if needed
+  }
+
+  navigateToAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 }

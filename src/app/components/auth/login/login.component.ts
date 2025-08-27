@@ -38,6 +38,10 @@ export class LoginComponent implements OnInit {
     this.showPassword = !this.showPassword;
   }
 
+  navigateToRegister(): void {
+    this.router.navigate(['/auth/register']);
+  }
+
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.loading = true;

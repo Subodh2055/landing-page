@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DataInitializerService } from './services/data-initializer.service';
 import { SplashScreenService } from './services/splash-screen.service';
+import { AuthService } from './services/auth.service';
+import { AuthStateService } from './services/auth-state.service';
 
 @Component({
   selector: 'app-root',
@@ -12,7 +14,9 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dataInitializer: DataInitializerService,
-    private splashScreenService: SplashScreenService
+    private splashScreenService: SplashScreenService,
+    private authService: AuthService,
+    private authStateService: AuthStateService
   ) {}
 
   ngOnInit(): void {
@@ -26,10 +30,21 @@ export class AppComponent implements OnInit {
     const storageInfo = this.dataInitializer.getStorageInfo();
     console.log('Storage Info:', storageInfo);
     
+    // Log authentication state for debugging
+    const isAuthenticated = this.authService.isAuthenticated();
+    const currentUser = this.authService.getCurrentUser();
+    const token = this.authService.getToken();
+    
+    console.log('Authentication State:', {
+      isAuthenticated,
+      currentUser: currentUser ? currentUser.username : null,
+      hasToken: !!token
+    });
+    
     // Hide splash screen after initialization
     setTimeout(() => {
       this.splashScreenService.hideSplash();
-    }, 3000);
+    }, 2000);
   }
 
   onMobileFilterToggle(): void {

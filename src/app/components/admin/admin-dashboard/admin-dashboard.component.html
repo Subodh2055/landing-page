@@ -1,0 +1,341 @@
+<div class="admin-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="dashboard-title">
+          <i class="fas fa-tachometer-alt me-3"></i>
+          Admin Dashboard
+        </h1>
+        <p class="dashboard-subtitle">
+          Welcome back, {{ currentUser?.username }}! Here's your business overview.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-primary me-2" (click)="refreshDashboard()">
+          <i class="fas fa-sync-alt me-1"></i>
+          Refresh
+        </button>
+        <button class="btn btn-outline-success" (click)="exportDashboardData()">
+          <i class="fas fa-download me-1"></i>
+          Export Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading dashboard data...</p>
+    </div>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div class="dashboard-content" *ngIf="!loading && dashboardStats">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+      <div class="stat-card primary">
+        <div class="stat-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.totalProducts || 0) }}</h3>
+          <p class="stat-label">Total Products</p>
+          <div class="stat-trend positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+12% from last month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card success">
+        <div class="stat-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-content">
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.totalUsers || 0) }}</h3>
+          <p class="stat-label">Total Users</p>
+          <div class="stat-trend positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+8% from last month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card info">
+        <div class="stat-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="stat-content">
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.totalOrders || 0) }}</h3>
+          <p class="stat-label">Total Orders</p>
+          <div class="stat-trend positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+15% from last month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card warning">
+        <div class="stat-icon">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="stat-content">
+                     <h3 class="stat-value">{{ formatCurrency(dashboardStats?.totalRevenue || 0) }}</h3>
+          <p class="stat-label">Total Revenue</p>
+          <div class="stat-trend positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+22% from last month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card secondary">
+        <div class="stat-icon">
+          <i class="fas fa-store"></i>
+        </div>
+        <div class="stat-content">
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.activeSellers || 0) }}</h3>
+          <p class="stat-label">Active Sellers</p>
+          <div class="stat-trend positive">
+            <i class="fas fa-arrow-up"></i>
+            <span>+5% from last month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card danger">
+        <div class="stat-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+                     <h3 class="stat-value">{{ formatNumber(dashboardStats?.lowStockProducts || 0) }}</h3>
+          <p class="stat-label">Low Stock Items</p>
+          <div class="stat-trend negative">
+            <i class="fas fa-arrow-down"></i>
+            <span>Needs attention</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Quick Actions -->
+      <div class="quick-actions-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-bolt me-2"></i>
+            Quick Actions
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="actions-grid">
+            <div class="action-item" 
+                 *ngFor="let action of quickActions" 
+                 (click)="action.action()">
+              <div class="action-icon" [class]="'bg-' + action.color">
+                <i [class]="action.icon"></i>
+              </div>
+              <span class="action-title">{{ action.title }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Selling Products -->
+      <div class="top-products-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-trophy me-2"></i>
+            Top Selling Products
+          </h3>
+          <button class="btn btn-sm btn-outline-primary" (click)="navigateToProducts()">
+            View All
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="product-list" *ngIf="dashboardStats.topSellingProducts.length > 0">
+            <div class="product-item" 
+                 *ngFor="let product of dashboardStats.topSellingProducts; let i = index">
+              <div class="product-rank">{{ i + 1 }}</div>
+              <div class="product-info">
+                <h4 class="product-name">{{ product.name }}</h4>
+                <p class="product-category">{{ product.category }}</p>
+              </div>
+              <div class="product-stats">
+                <div class="stat">
+                  <span class="stat-label">Sales</span>
+                  <span class="stat-value">{{ formatNumber(product.sales) }}</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-label">Revenue</span>
+                  <span class="stat-value">{{ formatCurrency(product.revenue) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="dashboardStats.topSellingProducts.length === 0">
+            <i class="fas fa-box-open fa-3x mb-3"></i>
+            <p>No products data available</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Revenue Chart -->
+      <div class="revenue-chart-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-chart-line me-2"></i>
+            Weekly Revenue
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <div class="chart-bars">
+              <div class="chart-bar" 
+                   *ngFor="let data of revenueChartData"
+                   [style.height.%]="(data.revenue / 5000) * 100">
+                <div class="bar-tooltip">
+                  <strong>{{ data.day }}</strong><br>
+                  {{ formatCurrency(data.revenue) }}<br>
+                  {{ data.orders }} orders
+                </div>
+              </div>
+            </div>
+            <div class="chart-labels">
+              <span *ngFor="let data of revenueChartData">{{ data.day }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User Growth Chart -->
+      <div class="user-growth-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-user-plus me-2"></i>
+            User Growth
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="chart-container">
+            <div class="chart-bars">
+              <div class="chart-bar" 
+                   *ngFor="let data of userGrowthChartData.slice(0, 6)"
+                   [style.height.%]="(data.users / 150) * 100">
+                <div class="bar-tooltip">
+                  <strong>{{ data.month }}</strong><br>
+                  {{ data.users }} users<br>
+                  +{{ data.growth }}% growth
+                </div>
+              </div>
+            </div>
+            <div class="chart-labels">
+              <span *ngFor="let data of userGrowthChartData.slice(0, 6)">{{ data.month }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="recent-activity-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-history me-2"></i>
+            Recent Activity
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="activity-list">
+            <div class="activity-item">
+              <div class="activity-icon success">
+                <i class="fas fa-plus"></i>
+              </div>
+              <div class="activity-content">
+                <p class="activity-text">New product added: Premium Wireless Headphones</p>
+                <span class="activity-time">2 hours ago</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon info">
+                <i class="fas fa-user"></i>
+              </div>
+              <div class="activity-content">
+                <p class="activity-text">New user registered: john.doe&#64;example.com</p>
+                <span class="activity-time">4 hours ago</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon warning">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <div class="activity-content">
+                <p class="activity-text">Order #1234 completed: $299.99</p>
+                <span class="activity-time">6 hours ago</span>
+              </div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon danger">
+                <i class="fas fa-exclamation"></i>
+              </div>
+              <div class="activity-content">
+                <p class="activity-text">Low stock alert: Gaming Laptop (5 remaining)</p>
+                <span class="activity-time">8 hours ago</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pending Approvals -->
+      <div class="pending-approvals-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-clock me-2"></i>
+            Pending Approvals
+          </h3>
+                     <span class="badge bg-warning">{{ dashboardStats?.pendingApprovals || 0 }}</span>
+        </div>
+        <div class="card-body">
+          <div class="approval-list" *ngIf="dashboardStats.pendingApprovals > 0">
+            <div class="approval-item">
+              <div class="approval-info">
+                <h4 class="approval-title">Product Review</h4>
+                <p class="approval-description">Smart Fitness Watch - TechCorp</p>
+              </div>
+              <div class="approval-actions">
+                <button class="btn btn-sm btn-success me-1">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            <div class="approval-item">
+              <div class="approval-info">
+                <h4 class="approval-title">Seller Application</h4>
+                <p class="approval-description">FashionHub - New seller registration</p>
+              </div>
+              <div class="approval-actions">
+                <button class="btn btn-sm btn-success me-1">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-danger">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="empty-state" *ngIf="dashboardStats.pendingApprovals === 0">
+            <i class="fas fa-check-circle fa-3x mb-3 text-success"></i>
+            <p>No pending approvals</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

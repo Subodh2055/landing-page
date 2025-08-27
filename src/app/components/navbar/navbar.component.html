@@ -3,7 +3,7 @@
   <div class="container">
     <!-- Brand Logo -->
     <div class="brand-container">
-      <a routerLink="/products" class="brand-link">
+      <a (click)="navigateToProducts()" class="brand-link">
         <div class="brand-icon">
           <i class="fas fa-shopping-bag"></i>
         </div>
@@ -14,32 +14,32 @@
     <!-- Desktop Navigation -->
     <div class="desktop-nav d-none d-lg-flex">
       <!-- Cart Icon with Badge -->
-      <button 
-        class="cart-btn" 
-        routerLink="/cart" 
-        title="Shopping Cart">
-        <i class="fas fa-shopping-cart"></i>
-        <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
-      </button>
+              <button 
+          class="cart-btn"
+          (click)="navigateToCart()"
+          title="Shopping Cart">
+          <i class="fas fa-shopping-cart"></i>
+          <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
+        </button>
       
       <!-- Guest Actions -->
-      <div *ngIf="!isAuthenticated()" class="guest-actions">
+      <div *ngIf="!isAuthenticated" class="guest-actions">
         <button 
           class="login-btn"
-          routerLink="/login">
+          (click)="navigateToLogin()">
           <i class="fas fa-sign-in-alt"></i>
           <span>Login</span>
         </button>
         <button 
           class="register-btn"
-          routerLink="/register">
+          (click)="navigateToRegister()">
           <i class="fas fa-user-plus"></i>
           <span>Register</span>
         </button>
       </div>
       
       <!-- User Actions -->
-      <div *ngIf="isAuthenticated()" class="user-actions">
+      <div *ngIf="isAuthenticated" class="user-actions">
         <!-- Splash Screen Button -->
         <button 
           class="splash-btn"
@@ -53,7 +53,7 @@
         <button 
           *ngIf="hasRole('admin')"
           class="admin-btn"
-          routerLink="/admin">
+          (click)="navigateToAdmin()">
           <i class="fas fa-cog"></i>
           <span>Admin</span>
         </button>
@@ -95,7 +95,7 @@
       <!-- Cart Icon -->
       <button 
         class="mobile-cart-btn"
-        routerLink="/cart"
+        (click)="navigateToCart()"
         title="Shopping Cart">
         <i class="fas fa-shopping-cart"></i>
         <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
@@ -103,24 +103,24 @@
       
       <!-- Guest Mobile Actions -->
       <button 
-        *ngIf="!isAuthenticated()"
+        *ngIf="!isAuthenticated"
         class="mobile-login-btn"
-        routerLink="/login"
+        (click)="navigateToLogin()"
         title="Login">
         <i class="fas fa-sign-in-alt"></i>
       </button>
       
       <!-- User Mobile Actions -->
       <button 
-        *ngIf="isAuthenticated() && hasRole('admin')"
+        *ngIf="isAuthenticated && hasRole('admin')"
         class="mobile-admin-btn"
-        routerLink="/admin"
+        (click)="navigateToAdmin()"
         title="Admin Panel">
         <i class="fas fa-cog"></i>
       </button>
       
       <!-- Mobile User Menu -->
-      <div *ngIf="isAuthenticated()" class="mobile-user-menu">
+      <div *ngIf="isAuthenticated" class="mobile-user-menu">
         <button 
           class="mobile-user-btn"
           (click)="toggleMobileUserMenu()"

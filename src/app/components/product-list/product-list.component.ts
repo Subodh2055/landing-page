@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { ProductController } from '../../controllers/product.controller';
 import { Product } from '../../models/product.model';
 import { AuthController } from '../../controllers/auth.controller';
@@ -45,7 +46,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private productController: ProductController,
     private authController: AuthController,
     private mobileFilterService: MobileFilterService,
-    private authStateService: AuthStateService
+    private authStateService: AuthStateService,
+    private router: Router
   ) {
     // Subscribe to mobile filter toggle events
     this.mobileFilterSubscription = this.mobileFilterService.filterToggle$.subscribe(() => {
@@ -348,5 +350,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
   removeStockFilter(): void {
     this.inStockOnly = false;
     this.onFilterChange();
+  }
+
+  navigateToAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 }

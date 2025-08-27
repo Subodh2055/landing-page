@@ -1,0 +1,361 @@
+<div class="analytics-dashboard">
+  <!-- Header Section -->
+  <div class="analytics-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="analytics-title">
+          <i class="fas fa-chart-line me-3"></i>
+          Analytics Dashboard
+        </h1>
+        <p class="analytics-subtitle">
+          Comprehensive insights into your business performance and trends.
+        </p>
+      </div>
+      <div class="header-actions">
+        <div class="date-range-picker">
+          <select class="form-select" [(ngModel)]="selectedTimeRange" (change)="onTimeRangeChange()">
+            <option value="7">Last 7 Days</option>
+            <option value="30">Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+          </select>
+        </div>
+        <button class="btn btn-outline-primary" (click)="exportAnalytics()">
+          <i class="fas fa-download me-1"></i>
+          Export Report
+        </button>
+        <button class="btn btn-primary" (click)="refreshAnalytics()">
+          <i class="fas fa-sync-alt me-1"></i>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Key Metrics Overview -->
+  <div class="metrics-overview">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="metric-card primary">
+          <div class="metric-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">{{ formatCurrency(analyticsData.totalRevenue) }}</h3>
+            <p class="metric-label">Total Revenue</p>
+            <div class="metric-trend" [class]="analyticsData.revenueGrowth >= 0 ? 'positive' : 'negative'">
+              <i [class]="analyticsData.revenueGrowth >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+              <span>{{ Math.abs(analyticsData.revenueGrowth) }}% from last period</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="metric-card success">
+          <div class="metric-icon">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">{{ analyticsData.totalOrders }}</h3>
+            <p class="metric-label">Total Orders</p>
+            <div class="metric-trend" [class]="analyticsData.orderGrowth >= 0 ? 'positive' : 'negative'">
+              <i [class]="analyticsData.orderGrowth >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+              <span>{{ Math.abs(analyticsData.orderGrowth) }}% from last period</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="metric-card warning">
+          <div class="metric-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">{{ analyticsData.totalCustomers }}</h3>
+            <p class="metric-label">Total Customers</p>
+            <div class="metric-trend" [class]="analyticsData.customerGrowth >= 0 ? 'positive' : 'negative'">
+              <i [class]="analyticsData.customerGrowth >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+              <span>{{ Math.abs(analyticsData.customerGrowth) }}% from last period</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="metric-card info">
+          <div class="metric-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="metric-content">
+            <h3 class="metric-value">{{ analyticsData.avgOrderValue | number:'1.2-2' }}</h3>
+            <p class="metric-label">Average Order Value</p>
+            <div class="metric-trend" [class]="analyticsData.aovGrowth >= 0 ? 'positive' : 'negative'">
+              <i [class]="analyticsData.aovGrowth >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+              <span>{{ Math.abs(analyticsData.aovGrowth) }}% from last period</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <div class="row g-4">
+      <!-- Revenue Chart -->
+      <div class="col-lg-8">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h5>Revenue Trends</h5>
+            <div class="chart-actions">
+              <button class="btn btn-sm btn-outline-secondary" (click)="toggleChartType('revenue')">
+                <i class="fas fa-chart-line"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-secondary" (click)="toggleChartType('revenue')">
+                <i class="fas fa-chart-bar"></i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-container">
+            <div class="revenue-chart">
+              <div class="chart-bars">
+                <div class="chart-bar" 
+                     *ngFor="let data of revenueChartData; let i = index"
+                     [style.height.%]="(data.revenue / maxRevenue) * 100"
+                     [title]="data.date + ': ' + formatCurrency(data.revenue)">
+                  <div class="bar-tooltip">
+                    <strong>{{ data.date }}</strong><br>
+                    {{ formatCurrency(data.revenue) }}
+                  </div>
+                </div>
+              </div>
+              <div class="chart-labels">
+                <span *ngFor="let data of revenueChartData">{{ data.date }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders Chart -->
+      <div class="col-lg-4">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h5>Order Volume</h5>
+          </div>
+          <div class="chart-container">
+            <div class="orders-chart">
+              <div class="chart-bars">
+                <div class="chart-bar" 
+                     *ngFor="let data of ordersChartData; let i = index"
+                     [style.height.%]="(data.orders / maxOrders) * 100"
+                     [title]="data.date + ': ' + data.orders + ' orders">
+                  <div class="bar-tooltip">
+                    <strong>{{ data.date }}</strong><br>
+                    {{ data.orders }} orders
+                  </div>
+                </div>
+              </div>
+              <div class="chart-labels">
+                <span *ngFor="let data of ordersChartData">{{ data.date }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Growth Chart -->
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h5>Customer Growth</h5>
+          </div>
+          <div class="chart-container">
+            <div class="customer-chart">
+              <div class="chart-line">
+                <svg width="100%" height="200">
+                  <polyline 
+                    [attr.points]="customerChartPoints"
+                    fill="none"
+                    stroke="#667eea"
+                    stroke-width="3">
+                  </polyline>
+                </svg>
+              </div>
+              <div class="chart-labels">
+                <span *ngFor="let data of customerChartData">{{ data.date }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Performance -->
+      <div class="col-lg-6">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h5>Top Performing Products</h5>
+          </div>
+          <div class="chart-container">
+            <div class="product-performance">
+              <div class="product-item" *ngFor="let product of topProducts; let i = index">
+                <div class="product-rank">{{ i + 1 }}</div>
+                <div class="product-info">
+                  <h6>{{ product.name }}</h6>
+                  <small>{{ product.category }}</small>
+                </div>
+                <div class="product-stats">
+                  <div class="stat">
+                    <span class="stat-label">Sales</span>
+                    <span class="stat-value">{{ product.sales }}</span>
+                  </div>
+                  <div class="stat">
+                    <span class="stat-label">Revenue</span>
+                    <span class="stat-value">{{ formatCurrency(product.revenue) }}</span>
+                  </div>
+                </div>
+                <div class="product-trend" [class]="product.growth >= 0 ? 'positive' : 'negative'">
+                  <i [class]="product.growth >= 0 ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
+                  <span>{{ Math.abs(product.growth) }}%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Analytics -->
+  <div class="detailed-analytics">
+    <div class="row g-4">
+      <!-- Sales by Category -->
+      <div class="col-lg-6">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h5>Sales by Category</h5>
+          </div>
+          <div class="card-body">
+            <div class="category-sales">
+              <div class="category-item" *ngFor="let category of categorySales">
+                <div class="category-info">
+                  <span class="category-name">{{ category.name }}</span>
+                  <span class="category-percentage">{{ category.percentage }}%</span>
+                </div>
+                <div class="progress">
+                  <div class="progress-bar" 
+                       [style.width.%]="category.percentage"
+                       [style.background-color]="category.color">
+                  </div>
+                </div>
+                <div class="category-amount">{{ formatCurrency(category.amount) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customer Demographics -->
+      <div class="col-lg-6">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h5>Customer Demographics</h5>
+          </div>
+          <div class="card-body">
+            <div class="demographics">
+              <div class="demographic-item" *ngFor="let demo of customerDemographics">
+                <div class="demo-info">
+                  <span class="demo-label">{{ demo.label }}</span>
+                  <span class="demo-value">{{ demo.value }}</span>
+                </div>
+                <div class="demo-bar">
+                  <div class="bar-fill" [style.width.%]="demo.percentage"></div>
+                </div>
+                <span class="demo-percentage">{{ demo.percentage }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversion Funnel -->
+      <div class="col-lg-12">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h5>Conversion Funnel</h5>
+          </div>
+          <div class="card-body">
+            <div class="conversion-funnel">
+              <div class="funnel-stage" *ngFor="let stage of conversionFunnel; let i = index">
+                <div class="stage-info">
+                  <h6>{{ stage.name }}</h6>
+                  <p>{{ stage.count }} users</p>
+                </div>
+                <div class="stage-bar" [style.width.%]="stage.percentage">
+                  <div class="bar-fill"></div>
+                </div>
+                <div class="stage-percentage">{{ stage.percentage }}%</div>
+                <div class="stage-arrow" *ngIf="i < conversionFunnel.length - 1">
+                  <i class="fas fa-arrow-down"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Activity -->
+  <div class="realtime-activity">
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h5>Real-time Activity</h5>
+            <div class="live-indicator">
+              <span class="pulse"></span>
+              <span>Live</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="activity-feed">
+              <div class="activity-item" *ngFor="let activity of realtimeActivities">
+                <div class="activity-icon" [class]="activity.type">
+                  <i [class]="activity.icon"></i>
+                </div>
+                <div class="activity-content">
+                  <p class="activity-text">{{ activity.message }}</p>
+                  <span class="activity-time">{{ activity.time }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="analytics-card">
+          <div class="card-header">
+            <h5>Quick Insights</h5>
+          </div>
+          <div class="card-body">
+            <div class="insights">
+              <div class="insight-item" *ngFor="let insight of quickInsights">
+                <div class="insight-icon" [class]="insight.type">
+                  <i [class]="insight.icon"></i>
+                </div>
+                <div class="insight-content">
+                  <h6>{{ insight.title }}</h6>
+                  <p>{{ insight.description }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

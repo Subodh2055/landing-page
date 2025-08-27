@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { CartService } from '../../services/cart.service';
 import { CartItem } from '../../models/cart-item.model';
 import { Address } from '../../models/address.model';
@@ -35,7 +36,7 @@ export class CartComponent implements OnInit, OnDestroy {
   
   private destroy$ = new Subject<void>();
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadCartItems();
@@ -235,5 +236,9 @@ export class CartComponent implements OnInit, OnDestroy {
 
   trackByItem(index: number, item: CartItem): number {
     return item.id;
+  }
+
+  navigateToProducts(): void {
+    this.router.navigate(['/products']);
   }
 }

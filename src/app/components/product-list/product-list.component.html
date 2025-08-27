@@ -11,7 +11,7 @@
       </p>
     </div>
     <div class="mobile-actions" *ngIf="currentUser && hasRole('admin')">
-      <a routerLink="/admin" class="btn btn-primary btn-sm">
+      <a (click)="navigateToAdmin()" class="btn btn-primary btn-sm">
         <i class="fas fa-plus me-1"></i>Add Product
       </a>
     </div>
@@ -68,7 +68,7 @@
       </p>
     </div>
     <div class="col-md-6 text-end" *ngIf="currentUser && hasRole('admin')">
-      <a routerLink="/admin" class="btn btn-primary">
+      <a (click)="navigateToAdmin()" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>Add New Product
       </a>
     </div>
@@ -129,7 +129,7 @@
 
       <!-- Product Grid -->
       <div class="row g-3" *ngIf="!loading && paginatedProducts.length > 0">
-        <div class="col-6 col-md-4 col-lg-3" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+        <div class="col-12 col-sm-6 col-lg-3 col-xl-2" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
           <app-product-card [product]="product"></app-product-card>
         </div>
       </div>
@@ -246,9 +246,9 @@
     </div>
   </div>
   
-  <!-- Mobile Product Grid - 4 items per row -->
+  <!-- Mobile Product Grid -->
   <div class="row g-2 d-lg-none" *ngIf="!loading && paginatedProducts.length > 0">
-    <div class="col-3" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+    <div class="col-12 col-sm-6" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
       <app-product-card [product]="product"></app-product-card>
     </div>
   </div>

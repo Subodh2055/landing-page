@@ -10,9 +10,9 @@
     </p>
   </div>
   <div class="mobile-actions" *ngIf="currentUser && hasRole('admin')">
-    <a routerLink="/admin" class="btn btn-primary btn-sm">
-      <i class="fas fa-plus me-1"></i>Add Product
-    </a>
+            <a (click)="navigateToAdmin()" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus me-1"></i>Add Product
+        </a>
   </div>
 </div>
 

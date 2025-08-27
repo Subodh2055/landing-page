@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { Product } from '../../../models/product.model';
 
 @Component({
@@ -7,6 +8,7 @@ import { Product } from '../../../models/product.model';
   styleUrls: ['./desktop-view.component.scss']
 })
 export class DesktopViewComponent {
+  constructor(private router: Router) {}
   @Input() products: Product[] = [];
   @Input() paginatedProducts: Product[] = [];
   @Input() loading: boolean = false;
@@ -94,5 +96,9 @@ export class DesktopViewComponent {
 
   onRemoveStockFilter(): void {
     this.removeStockFilter.emit();
+  }
+
+  navigateToAdmin(): void {
+    this.router.navigate(['/admin']);
   }
 }

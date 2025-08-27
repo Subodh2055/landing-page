@@ -61,6 +61,10 @@ export class RegisterComponent implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  navigateToLogin(): void {
+    this.router.navigate(['/auth/login']);
+  }
+
   onSubmit(): void {
     if (this.registerForm.valid) {
       this.loading = true;

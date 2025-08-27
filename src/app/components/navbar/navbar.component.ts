@@ -1,146 +1,151 @@
-import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { Subscription } from 'rxjs';
-import { AuthController } from '../../controllers/auth.controller';
-import { User } from '../../models/user.model';
-import { MobileFilterService } from '../../services/mobile-filter.service';
-import { CartService } from '../../services/cart.service';
-import { AuthStateService } from '../../services/auth-state.service';
 import { SplashScreenService } from '../../services/splash-screen.service';
+import { AuthService } from '../../services/auth.service';
+import { AuthStateService } from '../../services/auth-state.service';
+import { CartService } from '../../services/cart.service';
+import { MobileFilterService } from '../../services/mobile-filter.service';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent implements OnInit, OnDestroy {
-  isScrolled = false;
-  currentUser: User | null = null;
-  cartItemCount = 0;
+export class NavbarComponent implements OnInit {
   showUserMenu = false;
   showMobileUserMenu = false;
-  
-  private cartSubscription!: Subscription;
-  private authSubscription!: Subscription;
+  isAuthenticated = false;
+  currentUser: any = null;
+  isScrolled = false;
+  cartItemCount = 0;
 
   constructor(
-    private authController: AuthController,
-    private mobileFilterService: MobileFilterService,
-    private cartService: CartService,
     private router: Router,
     private toastr: ToastrService,
+    private splashScreenService: SplashScreenService,
+    private authService: AuthService,
     private authStateService: AuthStateService,
-    private splashScreenService: SplashScreenService
-  ) {
-    this.currentUser = this.authController.getCurrentUser();
-  }
+    private cartService: CartService,
+    private mobileFilterService: MobileFilterService
+  ) {}
 
   ngOnInit(): void {
-    this.cartSubscription = this.cartService.getCartObservable().subscribe(cart => {
+    // Subscribe to authentication state changes
+    this.authStateService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+      this.isAuthenticated = !!user;
+      console.log('Navbar - Authentication state changed:', {
+        isAuthenticated: this.isAuthenticated,
+        user: user ? user.username : null
+      });
+    });
+
+    // Subscribe to cart changes
+    this.cartService.getCartObservable().subscribe(cart => {
       this.cartItemCount = cart.totalItems;
     });
-    
-    // Subscribe to auth state changes
-    this.authSubscription = this.authStateService.currentUser$.subscribe(user => {
-      this.currentUser = user;
-    });
-  }
 
-  ngOnDestroy(): void {
-    if (this.cartSubscription) {
-      this.cartSubscription.unsubscribe();
-    }
-    if (this.authSubscription) {
-      this.authSubscription.unsubscribe();
-    }
+    // Log initial authentication state
+    this.logAuthStatus();
   }
 
   @HostListener('window:scroll', [])
-  onWindowScroll() {
+  onWindowScroll(): void {
     this.isScrolled = window.scrollY > 0;
   }
 
+  private logAuthStatus(): void {
+    const isAuth = this.authService.isAuthenticated();
+    const user = this.authService.getCurrentUser();
+    const token = this.authService.getToken();
+    
+    console.log('Navbar - Initial Auth Status:', {
+      isAuthenticated: isAuth,
+      currentUser: user ? user.username : null,
+      hasToken: !!token,
+      tokenLength: token ? token.length : 0
+    });
+  }
+
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    // Close menus when clicking outside
+  onDocumentClick(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('.user-menu-container') && !target.closest('.mobile-user-menu')) {
+    
+    // Close user menu if clicking outside
+    if (!target.closest('.user-menu-container')) {
       this.showUserMenu = false;
+    }
+    
+    // Close mobile user menu if clicking outside
+    if (!target.closest('.mobile-user-dropdown')) {
       this.showMobileUserMenu = false;
     }
   }
 
-  isAuthenticated(): boolean {
-    return this.authController.isAuthenticated();
-  }
-
-  hasRole(role: string): boolean {
-    return this.authController.hasRole(role);
-  }
-
-  getUserInitials(): string {
-    if (this.currentUser) {
-      return this.currentUser.username.substring(0, 2).toUpperCase();
-    }
-    return 'GU';
-  }
-
   toggleUserMenu(): void {
     this.showUserMenu = !this.showUserMenu;
-    this.showMobileUserMenu = false; // Close mobile menu if open
+    this.showMobileUserMenu = false; // Close mobile menu when opening desktop menu
   }
 
   toggleMobileUserMenu(): void {
     this.showMobileUserMenu = !this.showMobileUserMenu;
-    this.showUserMenu = false; // Close desktop menu if open
+    this.showUserMenu = false; // Close desktop menu when opening mobile menu
+  }
+
+  showSplashScreen(): void {
+    this.splashScreenService.showSplash();
+    this.toastr.info('Splash screen activated!', 'Info');
   }
 
   logout(): void {
-    const username = this.currentUser?.username || 'User';
-    
-    // Close menus
+    this.authService.logout();
     this.showUserMenu = false;
     this.showMobileUserMenu = false;
     
-    // Show logout confirmation
-    this.toastr.info('Logging you out...', 'Please Wait', {
-      timeOut: 0,
-      extendedTimeOut: 0,
-      closeButton: false,
-      progressBar: true
-    });
-    
-    // Perform logout
-    this.authController.logout();
-    
-    // Clear loading toast and show success message
-    setTimeout(() => {
-      this.toastr.clear();
-      this.toastr.success(
-        `Goodbye, ${username}! You have been successfully logged out.`, 
-        'Logout Successful',
-        {
-          timeOut: 4000,
-          progressBar: true,
-          closeButton: true,
-          enableHtml: true
-        }
-      );
-      
-      // Navigate to products page
-      this.router.navigate(['/products']);
-    }, 1000);
+    this.toastr.success('You have been logged out successfully.', 'Logout Successful');
+    this.router.navigate(['/auth/login']);
+  }
+
+  getUserInitials(): string {
+    if (this.currentUser && this.currentUser.username) {
+      return this.currentUser.username.substring(0, 2).toUpperCase();
+    }
+    return 'U';
+  }
+
+  getUserDisplayName(): string {
+    if (this.currentUser && this.currentUser.username) {
+      return this.currentUser.username;
+    }
+    return 'User';
+  }
+
+  hasRole(role: string): boolean {
+    return this.authService.hasRole(role);
   }
 
   onMobileFilterToggle(): void {
     this.mobileFilterService.toggleMobileFilter();
   }
 
-  showSplashScreen(): void {
-    this.splashScreenService.showSplash();
-    this.toastr.info('Splash screen activated!', 'Splash Screen', {
-      timeOut: 2000
-    });
+  navigateToLogin(): void {
+    this.router.navigate(['/auth/login']);
+  }
+
+  navigateToRegister(): void {
+    this.router.navigate(['/auth/register']);
+  }
+
+  navigateToAdmin(): void {
+    this.router.navigate(['/admin']);
+  }
+
+  navigateToCart(): void {
+    this.router.navigate(['/cart']);
+  }
+
+  navigateToProducts(): void {
+    this.router.navigate(['/products']);
   }
 }

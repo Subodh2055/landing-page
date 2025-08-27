@@ -1,0 +1,425 @@
+<div class="seller-panel">
+  <!-- Header Section -->
+  <div class="panel-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="panel-title">
+          <i class="fas fa-store me-3"></i>
+          Seller Panel
+        </h1>
+        <p class="panel-subtitle">
+          Manage your inventory, upload products, and track your sales performance.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-primary me-2" (click)="openAddProductModal()">
+          <i class="fas fa-plus me-1"></i>
+          Add Product
+        </button>
+        <button class="btn btn-outline-primary" (click)="exportInventory()">
+          <i class="fas fa-download me-1"></i>
+          Export Inventory
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seller Stats Overview -->
+  <div class="stats-overview">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="stat-card primary">
+          <div class="stat-icon">
+            <i class="fas fa-box"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ sellerStats.totalProducts }}</h3>
+            <p class="stat-label">Total Products</p>
+            <div class="stat-trend positive">
+              <i class="fas fa-arrow-up"></i>
+              <span>+5 this week</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ sellerStats.totalSales }}</h3>
+            <p class="stat-label">Total Sales</p>
+            <div class="stat-trend positive">
+              <i class="fas fa-arrow-up"></i>
+              <span>+12% this month</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ formatCurrency(sellerStats.totalRevenue) }}</h3>
+            <p class="stat-label">Total Revenue</p>
+            <div class="stat-trend positive">
+              <i class="fas fa-arrow-up"></i>
+              <span>+18% this month</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="stat-card info">
+          <div class="stat-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ sellerStats.avgRating }}/5</h3>
+            <p class="stat-label">Average Rating</p>
+            <div class="stat-trend positive">
+              <i class="fas fa-arrow-up"></i>
+              <span>+0.2 this week</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Tabs -->
+  <div class="panel-content">
+    <ul class="nav nav-tabs" id="sellerTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab">
+          <i class="fas fa-boxes me-2"></i>Inventory Management
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
+          <i class="fas fa-shopping-cart me-2"></i>Orders
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="analytics-tab" data-bs-toggle="tab" data-bs-target="#analytics" type="button" role="tab">
+          <i class="fas fa-chart-bar me-2"></i>Performance Analytics
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button" role="tab">
+          <i class="fas fa-cog me-2"></i>Store Settings
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content" id="sellerTabContent">
+      <!-- Inventory Management Tab -->
+      <div class="tab-pane fade show active" id="inventory" role="tabpanel">
+        <div class="inventory-section">
+          <div class="section-header">
+            <h3>Product Inventory</h3>
+            <div class="inventory-actions">
+              <div class="search-box">
+                <input type="text" class="form-control" placeholder="Search products..." [(ngModel)]="searchTerm">
+              </div>
+              <select class="form-select" [(ngModel)]="filterStatus">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="out-of-stock">Out of Stock</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inventory-table">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Sales</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of filteredProducts">
+                  <td>
+                    <div class="product-info">
+                      <img [src]="product.imageUrl" [alt]="product.name" class="product-thumb">
+                      <div>
+                        <h6>{{ product.name }}</h6>
+                        <small class="text-muted">{{ product.sku }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ product.category }}</td>
+                  <td>{{ formatCurrency(product.price) }}</td>
+                  <td>
+                    <span [class]="getStockClass(product.stock)">{{ product.stock }}</span>
+                  </td>
+                  <td>
+                    <span class="badge" [class]="getStatusClass(product.status)">
+                      {{ product.status }}
+                    </span>
+                  </td>
+                  <td>{{ product.sales }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="btn btn-sm btn-outline-primary" (click)="editProduct(product)">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-success" (click)="updateStock(product)">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteProduct(product)">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders Tab -->
+      <div class="tab-pane fade" id="orders" role="tabpanel">
+        <div class="orders-section">
+          <div class="section-header">
+            <h3>Recent Orders</h3>
+            <div class="order-filters">
+              <select class="form-select" [(ngModel)]="orderFilter">
+                <option value="">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="orders-list">
+            <div class="order-card" *ngFor="let order of filteredOrders">
+              <div class="order-header">
+                <div class="order-info">
+                  <h6>Order #{{ order.orderId }}</h6>
+                  <small>{{ order.orderDate | date:'medium' }}</small>
+                </div>
+                <div class="order-status">
+                  <span class="badge" [class]="getOrderStatusClass(order.status)">
+                    {{ order.status }}
+                  </span>
+                </div>
+              </div>
+              <div class="order-details">
+                <div class="customer-info">
+                  <strong>{{ order.customerName }}</strong>
+                  <small>{{ order.customerEmail }}</small>
+                </div>
+                <div class="order-items">
+                  <div class="item" *ngFor="let item of order.items">
+                    <img [src]="item.imageUrl" [alt]="item.name" class="item-thumb">
+                    <div class="item-details">
+                      <h6>{{ item.name }}</h6>
+                      <small>Qty: {{ item.quantity }} × {{ formatCurrency(item.price) }}</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="order-total">
+                  <strong>Total: {{ formatCurrency(order.total) }}</strong>
+                </div>
+              </div>
+              <div class="order-actions">
+                <button class="btn btn-sm btn-outline-primary" (click)="viewOrderDetails(order)">
+                  View Details
+                </button>
+                <button class="btn btn-sm btn-outline-success" (click)="updateOrderStatus(order)" *ngIf="order.status === 'pending'">
+                  Process Order
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Tab -->
+      <div class="tab-pane fade" id="analytics" role="tabpanel">
+        <div class="analytics-section">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="chart-card">
+                <h5>Sales Performance</h5>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <i class="fas fa-chart-line fa-3x text-muted"></i>
+                    <p>Sales chart will be displayed here</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="chart-card">
+                <h5>Top Selling Products</h5>
+                <div class="top-products">
+                  <div class="product-item" *ngFor="let product of topSellingProducts; let i = index">
+                    <div class="rank">{{ i + 1 }}</div>
+                    <img [src]="product.imageUrl" [alt]="product.name" class="product-thumb">
+                    <div class="product-info">
+                      <h6>{{ product.name }}</h6>
+                      <small>{{ product.sales }} units sold</small>
+                    </div>
+                    <div class="product-revenue">
+                      {{ formatCurrency(product.revenue) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-12">
+              <div class="chart-card">
+                <h5>Revenue Trends</h5>
+                <div class="chart-container">
+                  <div class="chart-placeholder">
+                    <i class="fas fa-chart-area fa-3x text-muted"></i>
+                    <p>Revenue trends chart will be displayed here</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Tab -->
+      <div class="tab-pane fade" id="settings" role="tabpanel">
+        <div class="settings-section">
+          <div class="row g-4">
+            <div class="col-md-6">
+              <div class="settings-card">
+                <h5>Store Information</h5>
+                <form [formGroup]="storeForm" (ngSubmit)="updateStoreInfo()">
+                  <div class="mb-3">
+                    <label class="form-label">Store Name</label>
+                    <input type="text" class="form-control" formControlName="storeName">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Store Description</label>
+                    <textarea class="form-control" rows="3" formControlName="description"></textarea>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Contact Email</label>
+                    <input type="email" class="form-control" formControlName="contactEmail">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" formControlName="phoneNumber">
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Store Info</button>
+                </form>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <div class="settings-card">
+                <h5>Notification Settings</h5>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="emailNotifications" [(ngModel)]="settings.emailNotifications">
+                  <label class="form-check-label" for="emailNotifications">
+                    Email notifications for new orders
+                  </label>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="lowStockAlerts" [(ngModel)]="settings.lowStockAlerts">
+                  <label class="form-check-label" for="lowStockAlerts">
+                    Low stock alerts
+                  </label>
+                </div>
+                <div class="form-check mb-3">
+                  <input class="form-check-input" type="checkbox" id="salesReports" [(ngModel)]="settings.salesReports">
+                  <label class="form-check-label" for="salesReports">
+                    Weekly sales reports
+                  </label>
+                </div>
+                <button class="btn btn-primary" (click)="saveSettings()">Save Settings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" [class.show]="showAddProductModal" [style.display]="showAddProductModal ? 'block' : 'none'">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Product</h5>
+        <button type="button" class="btn-close" (click)="closeAddProductModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="productForm" (ngSubmit)="addProduct()">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Product Name</label>
+                <input type="text" class="form-control" formControlName="name">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Category</label>
+                <select class="form-select" formControlName="category">
+                  <option value="">Select Category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Clothing">Clothing</option>
+                  <option value="Books">Books</option>
+                  <option value="Home & Garden">Home & Garden</option>
+                  <option value="Sports">Sports</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Price</label>
+                <input type="number" class="form-control" formControlName="price" step="0.01">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Stock Quantity</label>
+                <input type="number" class="form-control" formControlName="stock">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">SKU</label>
+                <input type="text" class="form-control" formControlName="sku">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Product Image URL</label>
+                <input type="url" class="form-control" formControlName="imageUrl">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="3" formControlName="description"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeAddProductModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="productForm.invalid">Add Product</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
