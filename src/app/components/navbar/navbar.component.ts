@@ -1,33 +1,74 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { Subscription } from 'rxjs';
 import { AuthController } from '../../controllers/auth.controller';
 import { User } from '../../models/user.model';
 import { MobileFilterService } from '../../services/mobile-filter.service';
+import { CartService } from '../../services/cart.service';
+import { AuthStateService } from '../../services/auth-state.service';
+import { SplashScreenService } from '../../services/splash-screen.service';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit, OnDestroy {
   isScrolled = false;
   currentUser: User | null = null;
-  isDesktopDropdownOpen = false;
-  isMobileDropdownOpen = false;
+  cartItemCount = 0;
+  showUserMenu = false;
+  showMobileUserMenu = false;
+  
+  private cartSubscription!: Subscription;
+  private authSubscription!: Subscription;
 
   constructor(
     private authController: AuthController,
     private mobileFilterService: MobileFilterService,
+    private cartService: CartService,
     private router: Router,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private authStateService: AuthStateService,
+    private splashScreenService: SplashScreenService
   ) {
     this.currentUser = this.authController.getCurrentUser();
+  }
+
+  ngOnInit(): void {
+    this.cartSubscription = this.cartService.getCartObservable().subscribe(cart => {
+      this.cartItemCount = cart.totalItems;
+    });
+    
+    // Subscribe to auth state changes
+    this.authSubscription = this.authStateService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.cartSubscription) {
+      this.cartSubscription.unsubscribe();
+    }
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   @HostListener('window:scroll', [])
   onWindowScroll() {
     this.isScrolled = window.scrollY > 0;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    // Close menus when clicking outside
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-menu-container') && !target.closest('.mobile-user-menu')) {
+      this.showUserMenu = false;
+      this.showMobileUserMenu = false;
+    }
   }
 
   isAuthenticated(): boolean {
@@ -45,8 +86,22 @@ export class NavbarComponent {
     return 'GU';
   }
 
+  toggleUserMenu(): void {
+    this.showUserMenu = !this.showUserMenu;
+    this.showMobileUserMenu = false; // Close mobile menu if open
+  }
+
+  toggleMobileUserMenu(): void {
+    this.showMobileUserMenu = !this.showMobileUserMenu;
+    this.showUserMenu = false; // Close desktop menu if open
+  }
+
   logout(): void {
     const username = this.currentUser?.username || 'User';
+    
+    // Close menus
+    this.showUserMenu = false;
+    this.showMobileUserMenu = false;
     
     // Show logout confirmation
     this.toastr.info('Logging you out...', 'Please Wait', {
@@ -58,8 +113,6 @@ export class NavbarComponent {
     
     // Perform logout
     this.authController.logout();
-    this.currentUser = null;
-    this.closeAllDropdowns();
     
     // Clear loading toast and show success message
     setTimeout(() => {
@@ -84,45 +137,10 @@ export class NavbarComponent {
     this.mobileFilterService.toggleMobileFilter();
   }
 
-  // Desktop dropdown methods
-  toggleDesktopDropdown(): void {
-    this.isDesktopDropdownOpen = !this.isDesktopDropdownOpen;
-    this.isMobileDropdownOpen = false; // Close mobile dropdown
-  }
-
-  closeDesktopDropdown(): void {
-    this.isDesktopDropdownOpen = false;
-  }
-
-  // Mobile dropdown methods
-  toggleMobileDropdown(): void {
-    this.isMobileDropdownOpen = !this.isMobileDropdownOpen;
-    this.isDesktopDropdownOpen = false; // Close desktop dropdown
-  }
-
-  closeMobileDropdown(): void {
-    this.isMobileDropdownOpen = false;
-  }
-
-  // Close all dropdowns
-  closeAllDropdowns(): void {
-    this.isDesktopDropdownOpen = false;
-    this.isMobileDropdownOpen = false;
-  }
-
-  // Handle mobile dropdown close when clicking outside
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: Event) {
-    const target = event.target as HTMLElement;
-    
-    // Close desktop dropdown if clicking outside
-    if (!target.closest('.user-menu')) {
-      this.closeDesktopDropdown();
-    }
-    
-    // Close mobile dropdown if clicking outside
-    if (!target.closest('.mobile-actions .dropdown')) {
-      this.closeMobileDropdown();
-    }
+  showSplashScreen(): void {
+    this.splashScreenService.showSplash();
+    this.toastr.info('Splash screen activated!', 'Splash Screen', {
+      timeOut: 2000
+    });
   }
 }

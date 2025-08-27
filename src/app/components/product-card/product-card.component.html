@@ -1,100 +1,114 @@
-<div class="product-card">
-  <!-- Product Image Section -->
+<div class="product-card" [class.out-of-stock]="!product.isInStock()">
+  <!-- Product Image -->
   <div class="product-image">
     <img [src]="product.getImageUrl()" [alt]="product.name" class="img-fluid" (error)="onImageError($event)">
-    <div class="product-overlay">
-      <!-- Stock Badge -->
-      <div class="stock-badge" [class.in-stock]="product.isInStock()" [class.out-of-stock]="!product.isInStock()">
-        <i class="fas" [class.fa-check-circle]="product.isInStock()" [class.fa-times-circle]="!product.isInStock()"></i>
-        {{ product.getStockStatus() }}
-      </div>
-      
-      <!-- Role Badge for Admin Products -->
-      <div class="role-badge" *ngIf="product.role === 'admin'">
-        <i class="fas fa-crown"></i>
-        Admin
-      </div>
-      
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <button class="action-btn wishlist-btn" (click)="toggleWishlist()" [class.active]="isInWishlist">
+    
+    <!-- Action Buttons Overlay -->
+    <div class="action-overlay">
+      <div class="action-buttons">
+        <button class="action-btn wishlist-btn" (click)="onAddToWishlist($event)" [class.active]="false">
           <i class="fas fa-heart"></i>
         </button>
-        <button class="action-btn quick-view-btn" (click)="quickView()">
+        <button class="action-btn quick-view-btn" (click)="onQuickView($event)">
           <i class="fas fa-eye"></i>
         </button>
       </div>
     </div>
+
+    <!-- Discount Badge -->
+    <div class="discount-badge" *ngIf="hasDiscount()">
+      -{{ getDiscountPercentage() }}%
+    </div>
+
+    <!-- Role Badge -->
+    <div class="role-badge" [class]="getRoleBadgeClass()">
+      <i class="fas fa-crown" *ngIf="product.role === 'admin'"></i>
+      {{ getRoleBadgeText() }}
+    </div>
+
+    <!-- Stock Status Badge -->
+    <div class="stock-badge" [class]="getStockStatusClass()">
+      {{ getStockStatus() }}
+    </div>
   </div>
-  
-  <!-- Product Content -->
-  <div class="product-content">
-    <!-- Product Header -->
-    <div class="product-header">
-      <h5 class="product-title">{{ product.name }}</h5>
-      <div class="product-rating" *ngIf="product.rating > 0">
-        <div class="stars">
-          <span class="star" *ngFor="let star of getStars()" [class.filled]="star.filled">
-            <i class="fas fa-star"></i>
-          </span>
-        </div>
-        <span class="rating-text">({{ product.getFormattedRating() }})</span>
-        <span class="reviews-count">({{ product.reviews }} reviews)</span>
-      </div>
+
+  <!-- Product Info -->
+  <div class="product-info">
+    <!-- Category -->
+    <div class="product-category">
+      {{ product.category }}
     </div>
-    
-    <!-- Product Description -->
-    <p class="product-description">{{ product.description }}</p>
-    
-    <!-- Product Meta -->
-    <div class="product-meta">
-      <div class="category-badge">
-        <i class="fas fa-tag"></i>
-        {{ product.category }}
-      </div>
-      <div class="stock-info">
-        <i class="fas fa-boxes"></i>
-        {{ product.stock }} units
-      </div>
-    </div>
-    
-    <!-- Product Price -->
-    <div class="product-price-section">
-      <div class="price-main">{{ product.getFormattedPrice() }}</div>
-      <div class="price-original" *ngIf="product.originalPrice && product.originalPrice > product.price">
-        <span class="original-price">${{ product.originalPrice.toFixed(2) }}</span>
-        <span class="discount-badge">
-          {{ getDiscountPercentage() }}% OFF
+
+    <!-- Product Name -->
+    <h3 class="product-name">{{ product.name }}</h3>
+
+    <!-- Rating -->
+    <div class="product-rating">
+      <div class="stars">
+        <span class="star" *ngFor="let star of getRatingStars().split('')" [class.filled]="star === '★'">
+          {{ star }}
         </span>
       </div>
+      <span class="rating-text">({{ getFormattedRating() }})</span>
+      <span class="reviews-count">({{ product.reviews }} reviews)</span>
     </div>
-    
-    <!-- Product Actions -->
+
+    <!-- Price -->
+    <div class="product-price">
+      <span class="current-price">{{ getFormattedPrice() }}</span>
+      <span class="original-price" *ngIf="hasDiscount()">{{ getOriginalPrice() }}</span>
+    </div>
+
+    <!-- Description -->
+    <p class="product-description">{{ product.description }}</p>
+
+    <!-- Action Buttons -->
     <div class="product-actions">
+      <!-- Add to Cart Button -->
       <button class="btn btn-primary add-to-cart-btn" 
-              [disabled]="!product.isInStock()" 
-              (click)="addToCart()">
-        <i class="fas fa-shopping-cart"></i>
-        {{ product.isInStock() ? 'Add to Cart' : 'Out of Stock' }}
+              [disabled]="!product.isInStock() || loading"
+              [class.in-cart]="isInCart"
+              (click)="onAddToCart($event)">
+        <i class="fas fa-shopping-cart" *ngIf="!isInCart"></i>
+        <i class="fas fa-check" *ngIf="isInCart"></i>
+        <span>{{ getCartButtonText() }}</span>
       </button>
-      
-      <button class="btn btn-outline-secondary buy-now-btn" 
-              [disabled]="!product.isInStock()" 
-              (click)="buyNow()">
+
+      <!-- Buy Now Button -->
+      <button class="btn btn-success buy-now-btn" 
+              [disabled]="!product.isInStock() || loading"
+              (click)="onBuyNow($event)">
         <i class="fas fa-bolt"></i>
-        Buy Now
+        <span>{{ getBuyNowButtonText() }}</span>
       </button>
+
+      <!-- Quantity Controls (if in cart) -->
+      <div class="quantity-controls" *ngIf="isInCart">
+        <button class="btn btn-sm btn-outline-secondary" 
+                (click)="onUpdateQuantity($event, cartQuantity - 1)"
+                [disabled]="cartQuantity <= 1">
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="quantity-display">{{ cartQuantity }}</span>
+        <button class="btn btn-sm btn-outline-secondary" 
+                (click)="onUpdateQuantity($event, cartQuantity + 1)"
+                [disabled]="cartQuantity >= product.stock">
+          <i class="fas fa-plus"></i>
+        </button>
+        <button class="btn btn-sm btn-outline-danger remove-btn" 
+                (click)="onRemoveFromCart($event)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
     </div>
-    
-    <!-- Admin Actions (if user is admin) -->
-    <div class="admin-actions" *ngIf="isAdmin">
-      <button class="btn btn-sm btn-warning edit-btn" (click)="editProduct()">
-        <i class="fas fa-edit"></i>
-        Edit
+
+    <!-- Admin Actions -->
+    <div class="admin-actions" *ngIf="isAdmin()">
+      <button class="btn btn-sm btn-warning edit-btn" (click)="onEditProduct($event)">
+        <i class="fas fa-edit"></i> Edit
       </button>
-      <button class="btn btn-sm btn-danger delete-btn" (click)="deleteProduct()">
-        <i class="fas fa-trash"></i>
-        Delete
+      <button class="btn btn-sm btn-danger delete-btn" (click)="onDeleteProduct($event)">
+        <i class="fas fa-trash"></i> Delete
       </button>
     </div>
   </div>

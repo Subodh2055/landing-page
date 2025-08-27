@@ -1,49 +1,88 @@
 /* Global Responsive Layout */
 .app-wrapper {
-  min-height: 100vh;
-  background: #f1f3f6;
-  display: flex;
-  flex-direction: column;
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  position: relative !important;
+  overflow-x: hidden !important;
+
+  /* Animated Background */
+  &::before {
+    content: '' !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.3) 0%, transparent 50%) !important;
+    z-index: -1 !important;
+    animation: backgroundShift 20s ease-in-out infinite !important;
+  }
+
+  @keyframes backgroundShift {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-10px, -10px) rotate(1deg); }
+    50% { transform: translate(10px, -5px) rotate(-1deg); }
+    75% { transform: translate(-5px, 10px) rotate(0.5deg); }
+  }
 }
 
 /* Main Layout */
 .main-layout {
-  display: flex;
-  flex: 1;
-  min-height: calc(100vh - 80px);
-  margin-top: 80px; /* Account for fixed navbar */
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 100vh !important;
+  padding-top: 70px !important; /* Account for fixed navbar */
+  width: 100% !important;
   
   @media (max-width: 768px) {
-    flex-direction: column;
-    margin-top: 70px; /* Smaller margin for mobile */
+    flex-direction: column !important;
+    margin-top: 70px !important; /* Smaller margin for mobile */
   }
   
   @media (max-width: 576px) {
-    margin-top: 65px; /* Even smaller for very small screens */
+    margin-top: 65px !important; /* Even smaller for very small screens */
   }
 }
 
-/* Content Container */
+/* Content Container - Full Width with Side Gaps */
 .content-container {
-  flex: 1;
-  width: 100%;
-  padding: 0;
-  
-  @media (max-width: 768px) {
-    padding: 0;
+  flex: 1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 1.5rem !important; /* px-4 py-4 equivalent */
+  position: relative !important;
+  z-index: 1 !important;
+  overflow-x: hidden !important;
+}
+
+/* Override any Bootstrap container constraints */
+.container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .content-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem !important; /* Reduced padding for mobile */
   }
 }
 
-/* Responsive Container Adjustments */
-.container {
-  @media (max-width: 576px) {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  
-  @media (max-width: 480px) {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+@media (max-width: 480px) {
+  .content-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0.75rem !important; /* Further reduced for small screens */
   }
 }
 
@@ -64,6 +103,48 @@
   h4 { font-size: 1rem !important; }
   h5 { font-size: 0.9rem !important; }
   h6 { font-size: 0.8rem !important; }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.25rem !important; }
+  h2 { font-size: 1.1rem !important; }
+  h3 { font-size: 1rem !important; }
+  h4 { font-size: 0.9rem !important; }
+  h5 { font-size: 0.8rem !important; }
+  h6 { font-size: 0.75rem !important; }
+}
+
+/* Utility Classes for Full Width */
+.full-width {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.no-margin {
+  margin: 0 !important;
+}
+
+.no-padding {
+  padding: 0 !important;
+}
+
+/* Ensure all content uses full width */
+* {
+  box-sizing: border-box !important;
+}
+
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+html {
+  width: 100% !important;
+  overflow-x: hidden !important;
 }
 
 /* Responsive Button Adjustments */

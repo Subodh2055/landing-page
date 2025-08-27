@@ -11,6 +11,7 @@ export class Product {
     public reviews: number = 0,
     public role: 'public' | 'user' | 'admin' = 'public',
     public originalPrice?: number,
+    public brand?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()
   ) {}
@@ -28,6 +29,7 @@ export class Product {
       json.reviews || 0,
       json.role || 'public',
       json.originalPrice,
+      json.brand,
       new Date(json.createdAt),
       new Date(json.updatedAt || json.createdAt)
     );
@@ -46,6 +48,7 @@ export class Product {
       reviews: this.reviews,
       role: this.role,
       originalPrice: this.originalPrice,
+      brand: this.brand,
       createdAt: this.createdAt.toISOString(),
       updatedAt: this.updatedAt.toISOString()
     };
@@ -68,7 +71,7 @@ export class Product {
   }
 
   getFormattedPrice(): string {
-    return `$${this.price.toFixed(2)}`;
+    return `₹${this.price.toFixed(2)}`;
   }
 
   getStockStatus(): string {

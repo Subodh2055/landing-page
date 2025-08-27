@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="full-width mt-4 px-4 py-4">
   <!-- Mobile Header -->
   <div class="mobile-header d-lg-none">
     <div class="mobile-title">
@@ -17,19 +17,32 @@
     </div>
   </div>
 
-  <!-- Mobile Search Bar -->
+  <!-- Mobile Search and Filter Bar -->
   <div class="d-lg-none mb-3">
-    <div class="search-container">
-      <div class="input-group">
-        <span class="input-group-text">
-          <i class="fas fa-search"></i>
-        </span>
-        <input 
-          type="text" 
-          class="form-control" 
-          placeholder="Search products by name..."
-          [(ngModel)]="searchTerm"
-          (input)="onSearchChange()">
+    <div class="row g-2">
+      <div class="col-8">
+        <div class="search-container">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search products..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()">
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <button 
+          class="btn btn-outline-primary w-100" 
+          (click)="toggleMobileFilters()"
+          [class.active]="showMobileFilters">
+          <i class="fas fa-filter me-1"></i>
+          Filters
+        </button>
       </div>
     </div>
   </div>
@@ -114,6 +127,14 @@
         </div>
       </div>
 
+      <!-- Product Grid -->
+      <div class="row g-3" *ngIf="!loading && paginatedProducts.length > 0">
+        <div class="col-6 col-md-4 col-lg-3" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+          <app-product-card [product]="product"></app-product-card>
+        </div>
+      </div>
+
+      <!-- Loading State -->
       <div class="row" *ngIf="loading">
         <div class="col-12 text-center">
           <div class="spinner mx-auto"></div>
@@ -121,6 +142,7 @@
         </div>
       </div>
 
+      <!-- Empty State -->
       <div class="row" *ngIf="!loading && filteredProducts.length === 0">
         <div class="col-12 text-center">
           <div class="text-dark">
@@ -129,13 +151,6 @@
             <p *ngIf="searchTerm">No products match your search for "{{ searchTerm }}"</p>
             <p *ngIf="!searchTerm">Check back later for new products!</p>
           </div>
-        </div>
-      </div>
-
-      <!-- Product Grid -->
-      <div class="row g-3" *ngIf="!loading && paginatedProducts.length > 0">
-        <div class="col-6 col-md-4 col-lg-3" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
-          <app-product-card [product]="product"></app-product-card>
         </div>
       </div>
 
@@ -191,10 +206,24 @@
     </div>
   </div>
 
+  <!-- Mobile Sidebar Overlay -->
+  <div class="mobile-sidebar-overlay" 
+       [class.active]="showMobileFilters" 
+       (click)="closeMobileFilters()">
+  </div>
+
   <!-- Mobile Sidebar -->
-  <div class="mobile-sidebar" [class.active]="showMobileFilters" (click)="$event.stopPropagation()">
-    <div class="sidebar-overlay" (click)="closeMobileFilters()"></div>
-    <div class="sidebar-content" (click)="$event.stopPropagation()">
+  <div class="mobile-sidebar" [class.active]="showMobileFilters">
+    <div class="mobile-sidebar-header">
+      <h5 class="mb-0">
+        <i class="fas fa-filter me-2"></i>
+        Filters
+      </h5>
+      <button class="btn-close" (click)="closeMobileFilters()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="mobile-sidebar-content">
       <app-sidebar
         [availableCategories]="availableCategories"
         [selectedCategories]="selectedCategories"
@@ -217,9 +246,9 @@
     </div>
   </div>
   
-  <!-- Mobile Product Grid -->
-  <div class="product-grid-mobile d-lg-none" *ngIf="!loading && paginatedProducts.length > 0">
-    <div class="product-card" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
+  <!-- Mobile Product Grid - 4 items per row -->
+  <div class="row g-2 d-lg-none" *ngIf="!loading && paginatedProducts.length > 0">
+    <div class="col-3" *ngFor="let product of paginatedProducts; trackBy: trackByProduct">
       <app-product-card [product]="product"></app-product-card>
     </div>
   </div>

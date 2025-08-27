@@ -1,0 +1,66 @@
+<div class="splash-screen" *ngIf="showSplash">
+  <!-- Background with animated particles -->
+  <div class="splash-background">
+    <div class="particles">
+      <div class="particle" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"></div>
+    </div>
+  </div>
+
+  <!-- Main splash content -->
+  <div class="splash-content">
+    <!-- Logo/Brand Section -->
+    <div class="brand-section">
+      <div class="logo-container">
+        <div class="logo-icon">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <h1 class="brand-name">ShopHub</h1>
+        <p class="brand-tagline">Your Premium Shopping Experience</p>
+      </div>
+    </div>
+
+    <!-- Loading Section -->
+    <div class="loading-section">
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="loadingProgress"></div>
+        </div>
+        <div class="progress-text">{{ loadingProgress }}%</div>
+      </div>
+
+      <!-- Loading Text -->
+      <div class="loading-text">
+        <p>{{ loadingText }}</p>
+      </div>
+
+      <!-- Loading Spinner -->
+      <div class="loading-spinner">
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+        <div class="spinner-ring"></div>
+      </div>
+    </div>
+
+    <!-- Features Preview -->
+    <div class="features-preview">
+      <div class="feature-item">
+        <i class="fas fa-mobile-alt"></i>
+        <span>Responsive Design</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure Shopping</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-shipping-fast"></i>
+        <span>Fast Delivery</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom credits -->
+  <div class="splash-footer">
+    <p>&copy; 2024 ShopHub. All rights reserved.</p>
+  </div>
+</div>

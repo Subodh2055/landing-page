@@ -1,0 +1,251 @@
+<div class="cart-container">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <div class="cart-header">
+          <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+          <p class="cart-subtitle">{{ cartItems.length }} item(s) in your cart</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty Cart Message -->
+    <div class="row" *ngIf="cartItems.length === 0">
+      <div class="col-12">
+        <div class="empty-cart">
+          <div class="empty-cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+          </div>
+          <h3>Your cart is empty</h3>
+          <p>Looks like you haven't added any items to your cart yet.</p>
+          <button class="btn btn-primary btn-lg" routerLink="/products">
+            <i class="fas fa-shopping-bag"></i> Start Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cart Content -->
+    <div class="row" *ngIf="cartItems.length > 0">
+      <!-- Cart Items -->
+      <div class="col-lg-8">
+        <div class="cart-items">
+          <div class="cart-item" *ngFor="let item of cartItems; trackBy: trackByItem">
+            <div class="item-image">
+              <img [src]="item.product.getImageUrl()" [alt]="item.product.name" class="img-fluid">
+            </div>
+            
+            <div class="item-details">
+              <h4 class="item-name">{{ item.product.name }}</h4>
+              <p class="item-category">{{ item.product.category }}</p>
+              <div class="item-price">
+                <span class="current-price">{{ item.getFormattedPrice() }}</span>
+                <span class="item-total">Total: {{ item.getFormattedTotalPrice() }}</span>
+              </div>
+              
+              <!-- Quantity Controls -->
+              <div class="quantity-controls">
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="updateQuantity(item, item.quantity - 1)"
+                        [disabled]="item.quantity <= 1">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="quantity">{{ item.quantity }}</span>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="updateQuantity(item, item.quantity + 1)"
+                        [disabled]="!item.canIncreaseQuantity()">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              
+              <!-- Stock Status -->
+              <div class="stock-status" [class]="item.isInStock() ? 'in-stock' : 'out-of-stock'">
+                <i class="fas" [class.fa-check-circle]="item.isInStock()" [class.fa-times-circle]="!item.isInStock()"></i>
+                {{ item.getStockStatus() }}
+              </div>
+            </div>
+            
+            <div class="item-actions">
+              <button class="btn btn-sm btn-outline-warning" (click)="saveForLater(item)">
+                <i class="fas fa-bookmark"></i> Save
+              </button>
+              <button class="btn btn-sm btn-outline-danger" (click)="removeFromCart(item)">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved for Later Section -->
+        <div class="saved-for-later" *ngIf="savedForLater.length > 0">
+          <h4><i class="fas fa-bookmark"></i> Saved for Later ({{ savedForLater.length }})</h4>
+          <div class="saved-items">
+            <div class="saved-item" *ngFor="let item of savedForLater">
+              <div class="item-image">
+                <img [src]="item.product.getImageUrl()" [alt]="item.product.name" class="img-fluid">
+              </div>
+              <div class="item-details">
+                <h5>{{ item.product.name }}</h5>
+                <p>{{ item.getFormattedPrice() }}</p>
+              </div>
+              <div class="item-actions">
+                <button class="btn btn-sm btn-primary" (click)="moveToCart(item)">
+                  <i class="fas fa-cart-plus"></i> Move to Cart
+                </button>
+                <button class="btn btn-sm btn-outline-danger" (click)="removeFromSaved(item)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="col-lg-4">
+        <div class="cart-summary">
+          <h3>Order Summary</h3>
+          
+          <!-- Delivery Address -->
+          <div class="delivery-address" *ngIf="selectedAddress">
+            <h5><i class="fas fa-map-marker-alt"></i> Delivery Address</h5>
+            <div class="address-card">
+              <p><strong>{{ selectedAddress.name }}</strong></p>
+              <p>{{ selectedAddress.getFullAddress() }}</p>
+              <p>{{ selectedAddress.getFormattedPhone() }}</p>
+              <button class="btn btn-sm btn-outline-primary" (click)="addNewAddress()">
+                <i class="fas fa-edit"></i> Change
+              </button>
+            </div>
+          </div>
+
+          <!-- Delivery Estimate -->
+          <div class="delivery-estimate">
+            <h5><i class="fas fa-truck"></i> Delivery Estimate</h5>
+            <p>{{ deliveryEstimate }}</p>
+          </div>
+
+          <!-- Coupon Section -->
+          <div class="coupon-section">
+            <h5><i class="fas fa-tag"></i> Apply Coupon</h5>
+            <div class="input-group mb-3" *ngIf="!appliedCoupon">
+              <input type="text" 
+                     class="form-control" 
+                     placeholder="Enter coupon code" 
+                     [(ngModel)]="couponCode">
+              <button class="btn btn-outline-primary" 
+                      type="button" 
+                      (click)="applyCoupon()">
+                Apply
+              </button>
+            </div>
+            <div class="applied-coupon" *ngIf="appliedCoupon">
+              <div class="coupon-badge">
+                <i class="fas fa-check-circle"></i>
+                {{ appliedCoupon.name }} - {{ getCouponDiscountText() }}
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" (click)="removeCoupon()">
+                Remove
+              </button>
+            </div>
+          </div>
+
+          <!-- Payment Methods -->
+          <div class="payment-methods">
+            <h5><i class="fas fa-credit-card"></i> Payment Method</h5>
+            <div class="payment-options">
+              <div class="payment-option" 
+                   *ngFor="let method of paymentMethods"
+                   [class.selected]="selectedPaymentMethod?.id === method.id"
+                   (click)="selectPaymentMethod(method)">
+                <div class="payment-icon">
+                  <i [class]="method.icon"></i>
+                </div>
+                <div class="payment-details">
+                  <h6>{{ method.name }}</h6>
+                  <p>{{ method.description }}</p>
+                </div>
+                <div class="payment-check">
+                  <i class="fas fa-check" *ngIf="selectedPaymentMethod?.id === method.id"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Details -->
+          <div class="order-details">
+            <div class="detail-row">
+              <span>Subtotal ({{ cartItems.length }} items)</span>
+              <span>₹{{ subtotal.toFixed(2) }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span>Tax (18% GST)</span>
+              <span>₹{{ tax.toFixed(2) }}</span>
+            </div>
+            
+            <div class="detail-row">
+              <span>Shipping</span>
+              <span [class.free-shipping]="isEligibleForFreeShipping()">
+                {{ getShippingText() }}
+              </span>
+            </div>
+            
+            <div class="detail-row discount-row" *ngIf="discount > 0">
+              <span>Discount</span>
+              <span class="discount-amount">-₹{{ discount.toFixed(2) }}</span>
+            </div>
+            
+            <div class="detail-row total-row">
+              <span><strong>Total</strong></span>
+              <span><strong>₹{{ total.toFixed(2) }}</strong></span>
+            </div>
+          </div>
+
+          <!-- Free Shipping Progress -->
+          <div class="free-shipping-progress" *ngIf="!isEligibleForFreeShipping()">
+            <div class="progress">
+              <div class="progress-bar" 
+                   [style.width.%]="(subtotal / 1000) * 100">
+              </div>
+            </div>
+            <p class="free-shipping-text">
+              Add ₹{{ (1000 - subtotal).toFixed(2) }} more for FREE shipping!
+            </p>
+          </div>
+
+          <!-- Checkout Button -->
+          <button class="btn btn-success btn-lg checkout-btn" 
+                  (click)="proceedToCheckout()"
+                  [disabled]="!selectedAddress || !selectedPaymentMethod">
+            <i class="fas fa-lock"></i>
+            <span>Proceed to Checkout</span>
+          </button>
+
+          <!-- Security Notice -->
+          <div class="security-notice">
+            <i class="fas fa-shield-alt"></i>
+            <span>Secure checkout powered by SSL encryption</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Address Modal -->
+<div class="modal fade" [class.show]="showAddressModal" [style.display]="showAddressModal ? 'block' : 'none'">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Address</h5>
+        <button type="button" class="btn-close" (click)="closeAddressModal()"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Address form would go here -->
+        <p>Address form implementation would go here.</p>
+      </div>
+    </div>
+  </div>
+</div>
+

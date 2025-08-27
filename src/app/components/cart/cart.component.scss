@@ -1,0 +1,359 @@
+.cart-container {
+  padding: 2rem 0;
+  min-height: 70vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.cart-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  
+  h1 {
+    color: #2c3e50;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    
+    i {
+      color: #3498db;
+      margin-right: 0.5rem;
+    }
+  }
+  
+  .cart-subtitle {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    margin: 0;
+  }
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  
+  .empty-cart-icon {
+    font-size: 4rem;
+    color: #bdc3c7;
+    margin-bottom: 1rem;
+  }
+  
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #7f8c8d;
+    margin-bottom: 2rem;
+  }
+}
+
+.cart-items {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #ecf0f1;
+  transition: all 0.3s ease;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background: #f8f9fa;
+  }
+  
+  .item-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 1.5rem;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+  
+  .item-details {
+    flex: 1;
+    
+    .item-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
+    
+    .item-category {
+      color: #7f8c8d;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .item-price {
+      margin-bottom: 1rem;
+      
+      .current-price {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #e74c3c;
+        margin-right: 1rem;
+      }
+      
+      .item-total {
+        font-weight: 500;
+        color: #2c3e50;
+      }
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      
+      .quantity {
+        font-weight: 600;
+        color: #2c3e50;
+        min-width: 30px;
+        text-align: center;
+      }
+    }
+    
+    .stock-status {
+      font-size: 0.9rem;
+      
+      &.in-stock {
+        color: #27ae60;
+      }
+      
+      &.out-of-stock {
+        color: #e74c3c;
+      }
+    }
+  }
+  
+  .item-actions {
+    margin-left: 1rem;
+  }
+}
+
+.cart-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.cart-summary {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  position: sticky;
+  top: 2rem;
+  
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .discount-section {
+    margin-bottom: 1.5rem;
+    
+    .input-group {
+      .form-control {
+        border-radius: 8px 0 0 8px;
+        border: 2px solid #ecf0f1;
+        
+        &:focus {
+          border-color: #3498db;
+          box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+      }
+      
+      .btn {
+        border-radius: 0 8px 8px 0;
+        border: 2px solid #3498db;
+        background: #3498db;
+        color: white;
+        
+        &:hover {
+          background: #2980b9;
+          border-color: #2980b9;
+        }
+      }
+    }
+  }
+  
+  .order-details {
+    margin-bottom: 1.5rem;
+    
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #ecf0f1;
+      
+      &:last-child {
+        border-bottom: none;
+      }
+      
+      &.total-row {
+        border-top: 2px solid #ecf0f1;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        font-size: 1.1rem;
+      }
+      
+      &.discount-row {
+        color: #27ae60;
+        font-weight: 500;
+        
+        .discount-amount {
+          color: #27ae60;
+        }
+      }
+      
+      .free-shipping {
+        color: #27ae60;
+        font-weight: 600;
+      }
+    }
+  }
+  
+  .free-shipping-progress {
+    margin-bottom: 1.5rem;
+    
+    .progress {
+      height: 8px;
+      border-radius: 4px;
+      background: #ecf0f1;
+      margin-bottom: 0.5rem;
+      
+      .progress-bar {
+        background: linear-gradient(90deg, #3498db, #2980b9);
+        border-radius: 4px;
+      }
+    }
+    
+    .free-shipping-text {
+      font-size: 0.9rem;
+      color: #7f8c8d;
+      margin: 0;
+      text-align: center;
+    }
+  }
+  
+  .checkout-btn {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border: none;
+    transition: all 0.3s ease;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+    }
+    
+    &:disabled {
+      opacity: 0.7;
+    }
+    
+    .btn-content {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+  }
+  
+  .security-notice {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    
+    i {
+      color: #27ae60;
+    }
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .cart-item {
+    flex-direction: column;
+    text-align: center;
+    
+    .item-image {
+      margin-right: 0;
+      margin-bottom: 1rem;
+    }
+    
+    .item-actions {
+      margin-left: 0;
+      margin-top: 1rem;
+    }
+  }
+  
+  .cart-actions {
+    justify-content: center;
+  }
+  
+  .cart-summary {
+    position: static;
+    margin-top: 2rem;
+  }
+}
+
+// Animation for cart items
+.cart-item {
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Loading states
+.checkout-btn:disabled {
+  cursor: not-allowed;
+  
+  .spinner-border {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+// Track by function for performance
+// Note: This is a TypeScript function, not SCSS

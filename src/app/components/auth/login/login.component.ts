@@ -14,6 +14,7 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   loading = false;
   showSuccess = false;
+  showPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -31,6 +32,10 @@ export class LoginComponent implements OnInit {
       identifier: ['', [Validators.required]], // Can be username or email
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
@@ -80,7 +85,13 @@ export class LoginComponent implements OnInit {
                 enableHtml: true
               }
             );
-            this.router.navigate(['/products']);
+            
+            // Navigate based on user role
+            if (user.role === 'admin') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/products']);
+            }
           }, 2000);
         },
         error: (error) => {
@@ -149,5 +160,14 @@ export class LoginComponent implements OnInit {
     }
 
     return errors;
+  }
+
+  // OAuth2 Methods
+  loginWithGoogle(): void {
+    this.authController.loginWithGoogle();
+  }
+
+  loginWithGitHub(): void {
+    this.authController.loginWithGitHub();
   }
 }

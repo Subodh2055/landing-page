@@ -2,17 +2,21 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { map, catchError, timeout } from 'rxjs/operators';
+import { AuthStateService } from './auth-state.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000'; // JSON Server URL
+  private apiUrl = 'http://localhost:8080/api'; // Spring Boot Backend URL
   private currentUser: any = null;
   private useLocalStorage = false;
   private readonly USERS_STORAGE_KEY = 'users_data';
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private authStateService: AuthStateService
+  ) {
     this.initializeData();
     // Check for existing token on service initialization
     const token = localStorage.getItem('auth_token');
@@ -20,9 +24,11 @@ export class AuthService {
       this.validateToken(token).subscribe({
         next: (user) => {
           this.currentUser = user;
+          this.authStateService.setCurrentUser(user);
         },
         error: () => {
           localStorage.removeItem('auth_token');
+          this.authStateService.clearCurrentUser();
         }
       });
     }
@@ -95,17 +101,18 @@ export class AuthService {
         u.password === password
       );
 
-      if (user) {
-        const { password, ...userWithoutPassword } = user;
-        const token = this.generateToken(user);
-        const response = {
-          ...userWithoutPassword,
-          token
-        };
-        
-        this.currentUser = response;
-        localStorage.setItem('auth_token', token);
-        return of(response);
+              if (user) {
+          const { password, ...userWithoutPassword } = user;
+          const token = this.generateToken(user);
+          const response = {
+            ...userWithoutPassword,
+            token
+          };
+          
+          this.currentUser = response;
+          localStorage.setItem('auth_token', token);
+          this.authStateService.setCurrentUser(response);
+          return of(response);
       } else {
         // Check if user exists but password is wrong
         const userExists = users.find(u => 
@@ -138,6 +145,7 @@ export class AuthService {
           
           this.currentUser = response;
           localStorage.setItem('auth_token', token);
+          this.authStateService.setCurrentUser(response);
           return response;
         } else {
           // Check if user exists but password is wrong
@@ -243,6 +251,34 @@ export class AuthService {
   logout(): void {
     this.currentUser = null;
     localStorage.removeItem('auth_token');
+    this.authStateService.clearCurrentUser();
+  }
+
+  // OAuth2 Methods
+  getOAuth2Providers(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/oauth2/providers`);
+  }
+
+  initiateOAuth2Login(provider: string): void {
+    // Redirect to OAuth2 authorization URL
+    const authUrl = `${this.apiUrl}/auth/oauth2/authorization/${provider}`;
+    window.location.href = authUrl;
+  }
+
+  handleOAuth2Callback(): Observable<any> {
+    // This method will be called after OAuth2 callback
+    // The backend will handle the OAuth2 flow and return a JWT token
+    return this.http.get(`${this.apiUrl}/auth/oauth2/callback`);
+  }
+
+  // Google OAuth2
+  loginWithGoogle(): void {
+    this.initiateOAuth2Login('google');
+  }
+
+  // GitHub OAuth2
+  loginWithGitHub(): void {
+    this.initiateOAuth2Login('github');
   }
 
   isAuthenticated(): boolean {

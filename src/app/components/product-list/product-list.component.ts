@@ -4,6 +4,7 @@ import { Product } from '../../models/product.model';
 import { AuthController } from '../../controllers/auth.controller';
 import { User } from '../../models/user.model';
 import { MobileFilterService } from '../../services/mobile-filter.service';
+import { AuthStateService } from '../../services/auth-state.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -37,12 +38,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
   sortBy = 'name';
   showMobileFilters = false;
 
-  private mobileFilterSubscription: Subscription;
+  private mobileFilterSubscription!: Subscription;
+  private authSubscription!: Subscription;
 
   constructor(
     private productController: ProductController,
     private authController: AuthController,
-    private mobileFilterService: MobileFilterService
+    private mobileFilterService: MobileFilterService,
+    private authStateService: AuthStateService
   ) {
     // Subscribe to mobile filter toggle events
     this.mobileFilterSubscription = this.mobileFilterService.filterToggle$.subscribe(() => {
@@ -54,6 +57,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authController.getCurrentUser();
     this.loadProducts();
+    
+    // Subscribe to auth state changes
+    this.authSubscription = this.authStateService.currentUser$.subscribe(user => {
+      this.currentUser = user;
+    });
   }
 
   ngOnDestroy(): void {
@@ -64,13 +72,18 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (this.mobileFilterSubscription) {
       this.mobileFilterSubscription.unsubscribe();
     }
+    
+    // Unsubscribe from auth state service
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   private loadProducts(): void {
     this.loading = true;
     const role = this.currentUser?.role;
     
-    this.productController.getProducts(role).subscribe({
+    this.productController.getProducts().subscribe({
       next: (products: Product[]) => {
         this.products = products;
         this.initializeFilters();

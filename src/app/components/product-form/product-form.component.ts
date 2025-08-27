@@ -24,6 +24,9 @@ export class ProductFormComponent implements OnInit {
   errorMessage = '';
   selectedImage: string | null = null;
   today: string;
+  isEditing = false;
+  editingProductId: number | null = null;
+  showForm = false;
 
   constructor(
     private fb: FormBuilder,
@@ -39,7 +42,10 @@ export class ProductFormComponent implements OnInit {
     this.buildForm();
     this.loadProducts();
     this.updateStorageInfo();
-    this.categories = this.productController.getProductCategories();
+    this.categories = [
+      'Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 
+      'Automotive', 'Health & Beauty', 'Toys & Games', 'Food & Beverages', 'Jewelry'
+    ];
   }
 
   private buildForm(): void {
@@ -176,7 +182,11 @@ export class ProductFormComponent implements OnInit {
   }
 
   private updateStorageInfo(): void {
-    this.storageInfo = this.productController.getStorageInfo();
+    const info = this.productController.getStorageInfo();
+    this.storageInfo = {
+      totalProducts: info.products,
+      storageSize: info.totalSize
+    };
   }
 
   onSubmit(): void {
@@ -195,13 +205,7 @@ export class ProductFormComponent implements OnInit {
       productData.stock = productData.inStock ? Math.floor(Math.random() * 100) + 1 : 0;
       delete productData.inStock; // Remove the boolean field
       
-      // Validate product using controller
-      const controllerValidation = this.productController.validateProduct(productData);
-      if (!controllerValidation.isValid) {
-        this.toastr.error(controllerValidation.errors.join(', '), 'Validation Error');
-        this.loading = false;
-        return;
-      }
+      // Additional validation is already done in validateForm() above
       
       if (this.editingProduct) {
         this.productController.updateProduct(this.editingProduct.id, productData).subscribe({
@@ -249,15 +253,22 @@ export class ProductFormComponent implements OnInit {
   }
 
   editProduct(product: Product): void {
-    this.editingProduct = product;
-    const formData = {
-      ...product,
-      inStock: product.stock > 0, // Convert stock count to boolean
-      createdAt: new Date(product.createdAt).toISOString().split('T')[0] // Format date for input
-    };
-    this.productForm.patchValue(formData);
-    this.selectedImage = product.imageUrl; // Set the image preview
-    this.toastr.info(`Editing product: ${product.name}`, 'Edit Mode');
+    this.isEditing = true;
+    this.editingProductId = product.id;
+    this.productForm.patchValue({
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      category: product.category,
+      image: product.image,
+      stock: product.stock,
+      rating: product.rating,
+      reviews: product.reviews,
+      role: product.role,
+      originalPrice: product.originalPrice
+    });
+    this.selectedImage = product.image; // Set the image preview
+    this.showForm = true;
   }
 
   deleteProduct(productId: number): void {
@@ -371,5 +382,42 @@ export class ProductFormComponent implements OnInit {
         this.toastr.error('Failed to clear data.', 'Clear Error');
       }
     });
+  }
+
+  loadSampleData(): void {
+    if (confirm('This will load sample products. Continue?')) {
+      const sampleProducts = this.productController.service.getSampleProducts();
+      if (sampleProducts.length > 0) {
+        this.productController.service.saveProductsToStorage();
+        this.loadProducts();
+        this.toastr.success('Sample products loaded successfully!', 'Success');
+      } else {
+        this.toastr.error('No sample products available.', 'Error');
+      }
+    }
+  }
+
+  importFromFile(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        try {
+          const jsonData = JSON.parse(e.target.result);
+          this.productController.service.importFromJson(jsonData).subscribe({
+            next: (success: any) => {
+              this.loadProducts();
+              this.toastr.success('Products imported successfully!', 'Success');
+            },
+            error: (error: any) => {
+              this.toastr.error('Failed to import products: ' + error.message, 'Error');
+            }
+          });
+        } catch (error) {
+          this.toastr.error('Invalid JSON file', 'Error');
+        }
+      };
+      reader.readAsText(file);
+    }
   }
 }

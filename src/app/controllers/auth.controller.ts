@@ -127,4 +127,13 @@ export class AuthController {
     const mobileRegex = /^[+]?[1-9]\d{1,14}$/;
     return mobileRegex.test(mobileNumber);
   }
+
+  // OAuth2 Methods
+  loginWithGoogle(): void {
+    this.authService.loginWithGoogle();
+  }
+
+  loginWithGitHub(): void {
+    this.authService.loginWithGitHub();
+  }
 }

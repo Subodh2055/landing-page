@@ -151,11 +151,12 @@ export class ProductService {
   }
 
   // Delete product
-  deleteProduct(id: number): Observable<void> {
+  deleteProduct(id: number): Observable<boolean> {
     if (this.useLocalStorage) {
+      const initialLength = this.products.length;
       this.products = this.products.filter(p => p.id !== id);
       this.saveToLocalStorage();
-      return of(void 0);
+      return of(this.products.length < initialLength);
     }
 
     return this.http.delete<void>(`${this.apiUrl}/products/${id}`).pipe(
@@ -163,6 +164,7 @@ export class ProductService {
       map(() => {
         this.products = this.products.filter(p => p.id !== id);
         this.saveToLocalStorage();
+        return true;
       }),
       catchError(error => this.handleApiError(error))
     );
@@ -210,6 +212,23 @@ export class ProductService {
       timeout(5000),
       catchError(error => this.handleApiError(error))
     );
+  }
+
+  // Get category count
+  getCategoryCount(category: string, role?: string): number {
+    let filteredProducts = this.products.filter(p => p.category === category);
+    
+    if (role) {
+      if (role === 'admin') {
+        filteredProducts = filteredProducts.filter(p => p.role === 'admin');
+      } else if (role === 'user') {
+        filteredProducts = filteredProducts.filter(p => p.role === 'public' || p.role === 'user');
+      } else {
+        filteredProducts = filteredProducts.filter(p => p.role === 'public');
+      }
+    }
+    
+    return filteredProducts.length;
   }
 
   // Export products to JSON
@@ -265,6 +284,28 @@ export class ProductService {
         observer.error(new Error('Failed to read file'));
       };
       reader.readAsText(file);
+    });
+  }
+
+  // Import from JSON data
+  importFromJson(jsonData: any[]): Observable<string> {
+    return new Observable(observer => {
+      if (Array.isArray(jsonData)) {
+        const importPromises = jsonData.map(product => 
+          this.addProduct(product).toPromise()
+        );
+        
+        Promise.all(importPromises)
+          .then(() => {
+            observer.next('Products imported successfully');
+            observer.complete();
+          })
+          .catch(error => {
+            observer.error(new Error('Failed to import products'));
+          });
+      } else {
+        observer.error(new Error('Invalid data format'));
+      }
     });
   }
 
@@ -366,6 +407,64 @@ export class ProductService {
       }),
       catchError(error => this.handleApiError(error))
     );
+  }
+
+  // Get sample products
+  getSampleProducts(): Product[] {
+    return this.products.slice(0, 5); // Return first 5 products as samples
+  }
+
+  // Save products to storage
+  saveProductsToStorage(): void {
+    this.saveToLocalStorage();
+  }
+
+  // Get storage info
+  getStorageInfo(): { products: number; totalSize: number } {
+    const productsJson = JSON.stringify(this.products);
+    return {
+      products: this.products.length,
+      totalSize: productsJson.length
+    };
+  }
+
+  // Clear all products
+  clearAllProducts(): Observable<boolean> {
+    if (this.useLocalStorage) {
+      this.products = [];
+      this.saveToLocalStorage();
+      return of(true);
+    }
+
+    return this.http.delete<void>(`${this.apiUrl}/products`).pipe(
+      timeout(5000),
+      map(() => {
+        this.products = [];
+        this.saveToLocalStorage();
+        return true;
+      }),
+      catchError(error => this.handleApiError(error))
+    );
+  }
+
+  // Auto save to file
+  autoSaveToFile(): Observable<string> {
+    return this.exportProducts();
+  }
+
+  // Save to specific file
+  saveToSpecificFile(): Observable<string> {
+    return this.exportProducts();
+  }
+
+  // Create product (alias for addProduct)
+  createProduct(productData: Omit<Product, 'id'>): Observable<Product> {
+    return this.addProduct(productData);
+  }
+
+  // Get product (alias for getProductById)
+  getProduct(id: number): Observable<Product> {
+    return this.getProductById(id);
   }
 
   private getNextId(): number {

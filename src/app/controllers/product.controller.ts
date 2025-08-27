@@ -13,60 +13,56 @@ export class ProductController {
     return this.productService.getCategoryCount(category, role);
   }
 
-  getProducts(role?: string): Observable<Product[]> {
+  getProducts(): Observable<Product[]> {
     return new Observable(observer => {
-      this.productService.getProducts(role).subscribe({
-        next: (products: any[]) => {
-          const productModels = products.map(product => Product.fromJson(product));
-          observer.next(productModels);
+      this.productService.getProducts().subscribe({
+        next: (products: Product[]) => {
+          observer.next(products);
           observer.complete();
         },
-        error: (error) => {
+        error: (error: any) => {
           observer.error(error);
         }
       });
     });
   }
 
-  getProduct(id: number): Observable<Product | undefined> {
+  getProductById(id: number): Observable<Product> {
     return new Observable(observer => {
-      this.productService.getProduct(id).subscribe({
-        next: (product: any) => {
-          const productModel = product ? Product.fromJson(product) : undefined;
-          observer.next(productModel);
+      this.productService.getProductById(id).subscribe({
+        next: (product: Product) => {
+          observer.next(product);
           observer.complete();
         },
-        error: (error) => {
+        error: (error: any) => {
           observer.error(error);
         }
       });
     });
   }
 
-  createProduct(productData: any): Observable<Product> {
+  createProduct(productData: Omit<Product, 'id'>): Observable<Product> {
     return new Observable(observer => {
       this.productService.createProduct(productData).subscribe({
-        next: (product: any) => {
-          const productModel = Product.fromJson(product);
-          observer.next(productModel);
+        next: (product: Product) => {
+          observer.next(product);
           observer.complete();
         },
-        error: (error) => {
+        error: (error: any) => {
           observer.error(error);
         }
       });
     });
   }
 
-  updateProduct(id: number, productData: any): Observable<Product> {
+  updateProduct(id: number, productData: Partial<Product>): Observable<Product> {
     return new Observable(observer => {
       this.productService.updateProduct(id, productData).subscribe({
-        next: (product: any) => {
-          const productModel = Product.fromJson(product);
-          observer.next(productModel);
+        next: (product: Product) => {
+          observer.next(product);
           observer.complete();
         },
-        error: (error) => {
+        error: (error: any) => {
           observer.error(error);
         }
       });
@@ -77,7 +73,35 @@ export class ProductController {
     return this.productService.deleteProduct(id);
   }
 
-  getStorageInfo(): { totalProducts: number; storageSize: number } {
+  searchProducts(query: string): Observable<Product[]> {
+    return this.productService.searchProducts(query);
+  }
+
+  getProductsByCategory(category: string): Observable<Product[]> {
+    return this.productService.getProductsByCategory(category);
+  }
+
+  getCategories(): Observable<any[]> {
+    return this.productService.getCategories();
+  }
+
+  getFilteredProducts(filters: any): Observable<Product[]> {
+    return this.productService.getFilteredProducts(filters);
+  }
+
+  getPaginatedProducts(page: number = 1, limit: number = 50): Observable<{products: Product[], total: number, totalPages: number}> {
+    return this.productService.getPaginatedProducts(page, limit);
+  }
+
+  exportProducts(): Observable<string> {
+    return this.productService.exportProducts();
+  }
+
+  importProducts(file: File): Observable<string> {
+    return this.productService.importProducts(file);
+  }
+
+  getStorageInfo(): { products: number; totalSize: number } {
     return this.productService.getStorageInfo();
   }
 
@@ -85,113 +109,16 @@ export class ProductController {
     return this.productService.clearAllProducts();
   }
 
-  autoSaveToFile(): Observable<boolean> {
+  autoSaveToFile(): Observable<string> {
     return this.productService.autoSaveToFile();
   }
 
-  saveToSpecificFile(): Observable<boolean> {
+  saveToSpecificFile(): Observable<string> {
     return this.productService.saveToSpecificFile();
   }
 
-  validateProduct(productData: any): { isValid: boolean; errors: string[] } {
-    const errors: string[] = [];
-
-    if (!productData.name || productData.name.trim() === '') {
-      errors.push('Product name is required');
-    } else if (productData.name.length < 2) {
-      errors.push('Product name must be at least 2 characters long');
-    }
-
-    if (!productData.description || productData.description.trim() === '') {
-      errors.push('Product description is required');
-    } else if (productData.description.length < 10) {
-      errors.push('Product description must be at least 10 characters long');
-    }
-
-    if (!productData.price || productData.price <= 0) {
-      errors.push('Product price must be greater than 0');
-    }
-
-    if (!productData.category || productData.category.trim() === '') {
-      errors.push('Product category is required');
-    }
-
-    if (!productData.imageUrl || productData.imageUrl.trim() === '') {
-      errors.push('Product image URL is required');
-    } else if (!this.isValidUrl(productData.imageUrl)) {
-      errors.push('Please enter a valid image URL');
-    }
-
-    if (productData.stock === undefined || productData.stock < 0) {
-      errors.push('Product stock must be 0 or greater');
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors
-    };
-  }
-
-  getProductCategories(): string[] {
-    return [
-      'Electronics', 'Clothing', 'Home & Garden', 'Sports', 'Books', 
-      'Automotive', 'Health & Beauty', 'Toys & Games', 'Food & Beverages', 'Jewelry'
-    ];
-  }
-
-  getProductsByCategory(category: string, role?: string): Observable<Product[]> {
-    return new Observable(observer => {
-      this.getProducts(role).subscribe({
-        next: (products: Product[]) => {
-          const filteredProducts = products.filter(product => product.category === category);
-          observer.next(filteredProducts);
-          observer.complete();
-        },
-        error: (error) => {
-          observer.error(error);
-        }
-      });
-    });
-  }
-
-  getProductsByPriceRange(minPrice: number, maxPrice: number, role?: string): Observable<Product[]> {
-    return new Observable(observer => {
-      this.getProducts(role).subscribe({
-        next: (products: Product[]) => {
-          const filteredProducts = products.filter(product => 
-            product.price >= minPrice && product.price <= maxPrice
-          );
-          observer.next(filteredProducts);
-          observer.complete();
-        },
-        error: (error) => {
-          observer.error(error);
-        }
-      });
-    });
-  }
-
-  getInStockProducts(role?: string): Observable<Product[]> {
-    return new Observable(observer => {
-      this.getProducts(role).subscribe({
-        next: (products: Product[]) => {
-          const inStockProducts = products.filter(product => product.isInStock());
-          observer.next(inStockProducts);
-          observer.complete();
-        },
-        error: (error) => {
-          observer.error(error);
-        }
-      });
-    });
-  }
-
-  private isValidUrl(url: string): boolean {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
+  // Expose the product service for direct access when needed
+  get service(): ProductService {
+    return this.productService;
   }
 }

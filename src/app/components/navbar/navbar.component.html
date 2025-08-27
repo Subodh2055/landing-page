@@ -1,13 +1,9 @@
-<nav class="navbar navbar-expand-lg" [class.scrolled]="isScrolled">
+<!-- Modern Glassmorphism Navbar with FontAwesome Icons -->
+<nav class="navbar-modern" [class.scrolled]="isScrolled"> 
   <div class="container">
-    <!-- Mobile Filter Button -->
-    <button class="navbar-toggler d-lg-none" type="button" (click)="onMobileFilterToggle()" aria-label="Toggle filters">
-      <i class="fas fa-bars"></i>
-    </button>
-
-    <!-- Brand - Left Side -->
-    <div class="navbar-brand-container">
-      <a class="navbar-brand" routerLink="/products">
+    <!-- Brand Logo -->
+    <div class="brand-container">
+      <a routerLink="/products" class="brand-link">
         <div class="brand-icon">
           <i class="fas fa-shopping-bag"></i>
         </div>
@@ -15,64 +11,160 @@
       </a>
     </div>
 
-    <!-- Desktop Actions - Right Side -->
-    <div class="navbar-actions d-none d-lg-flex">
+    <!-- Desktop Navigation -->
+    <div class="desktop-nav d-none d-lg-flex">
+      <!-- Cart Icon with Badge -->
+      <button 
+        class="cart-btn" 
+        routerLink="/cart" 
+        title="Shopping Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
+      </button>
+      
       <!-- Guest Actions -->
       <div *ngIf="!isAuthenticated()" class="guest-actions">
-        <a routerLink="/login" class="btn btn-outline-light me-2">
-          <i class="fas fa-sign-in-alt me-1"></i>Login
-        </a>
-        <a routerLink="/register" class="btn btn-primary">
-          <i class="fas fa-user-plus me-1"></i>Register
-        </a>
+        <button 
+          class="login-btn"
+          routerLink="/login">
+          <i class="fas fa-sign-in-alt"></i>
+          <span>Login</span>
+        </button>
+        <button 
+          class="register-btn"
+          routerLink="/register">
+          <i class="fas fa-user-plus"></i>
+          <span>Register</span>
+        </button>
       </div>
       
       <!-- User Actions -->
       <div *ngIf="isAuthenticated()" class="user-actions">
-        <a routerLink="/admin" class="btn btn-outline-light me-2" *ngIf="hasRole('admin')">
-          <i class="fas fa-cog me-1"></i>Admin
-        </a>
-        <div class="user-menu dropdown">
-          <button class="btn btn-link dropdown-toggle" type="button" (click)="toggleDesktopDropdown()" [attr.aria-expanded]="isDesktopDropdownOpen">
+        <!-- Splash Screen Button -->
+        <button 
+          class="splash-btn"
+          (click)="showSplashScreen()"
+          title="Show Splash Screen">
+          <i class="fas fa-play"></i>
+          <span>Splash</span>
+        </button>
+        
+        <!-- Admin Button -->
+        <button 
+          *ngIf="hasRole('admin')"
+          class="admin-btn"
+          routerLink="/admin">
+          <i class="fas fa-cog"></i>
+          <span>Admin</span>
+        </button>
+        
+        <!-- User Menu -->
+        <div class="user-menu-container">
+          <button 
+            class="user-menu-btn"
+            (click)="toggleUserMenu()">
             <div class="user-avatar">
               <span>{{ getUserInitials() }}</span>
             </div>
             <span class="user-name">{{ currentUser?.username }}</span>
+            <i class="fas fa-chevron-down"></i>
           </button>
-          <ul class="dropdown-menu" [class.show]="isDesktopDropdownOpen" aria-labelledby="userDropdown">
-            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-          </ul>
+          
+          <!-- User Dropdown Menu -->
+          <div class="user-dropdown-menu" *ngIf="showUserMenu">
+            <div class="dropdown-item">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </div>
+            <div class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Mobile Actions -->
     <div class="mobile-actions d-lg-none">
-      <div class="action-buttons">
-        <a routerLink="/login" class="btn btn-link" title="Login" *ngIf="!isAuthenticated()">
-          <i class="fas fa-sign-in-alt"></i>
-        </a>
-        <a routerLink="/register" class="btn btn-link" title="Register" *ngIf="!isAuthenticated()">
-          <i class="fas fa-user-plus"></i>
-        </a>
-        <div class="dropdown" *ngIf="isAuthenticated()">
-          <button class="btn btn-link dropdown-toggle" type="button" (click)="toggleMobileDropdown()" [attr.aria-expanded]="isMobileDropdownOpen" title="User Menu">
+      <!-- Cart Icon -->
+      <button 
+        class="mobile-cart-btn"
+        routerLink="/cart"
+        title="Shopping Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
+      </button>
+      
+      <!-- Guest Mobile Actions -->
+      <button 
+        *ngIf="!isAuthenticated()"
+        class="mobile-login-btn"
+        routerLink="/login"
+        title="Login">
+        <i class="fas fa-sign-in-alt"></i>
+      </button>
+      
+      <!-- User Mobile Actions -->
+      <button 
+        *ngIf="isAuthenticated() && hasRole('admin')"
+        class="mobile-admin-btn"
+        routerLink="/admin"
+        title="Admin Panel">
+        <i class="fas fa-cog"></i>
+      </button>
+      
+      <!-- Mobile User Menu -->
+      <div *ngIf="isAuthenticated()" class="mobile-user-menu">
+        <button 
+          class="mobile-user-btn"
+          (click)="toggleMobileUserMenu()"
+          title="User Menu">
+          <div class="mobile-user-avatar">
+            <span>{{ getUserInitials() }}</span>
+          </div>
+        </button>
+        
+        <!-- Mobile User Dropdown -->
+        <div class="mobile-user-dropdown" *ngIf="showMobileUserMenu">
+          <div class="mobile-user-header">
+            <div class="mobile-user-info">
+              <div class="mobile-user-name">{{ currentUser?.username }}</div>
+              <div class="mobile-user-role">{{ currentUser?.role }}</div>
+            </div>
+            <button class="mobile-close-btn" (click)="toggleMobileUserMenu()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item">
             <i class="fas fa-user"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end" [class.show]="isMobileDropdownOpen" aria-labelledby="mobileUserDropdown">
-            <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Profile</a></li>
-            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Settings</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#" (click)="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
-          </ul>
+            <span>Profile</span>
+          </div>
+          <div class="dropdown-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </div>
         </div>
-        <a routerLink="/admin" class="btn btn-link" title="Admin" *ngIf="isAuthenticated() && hasRole('admin')">
-          <i class="fas fa-cog"></i>
-        </a>
       </div>
+      
+      <!-- Mobile Menu Button -->
+      <button 
+        class="mobile-menu-btn"
+        (click)="onMobileFilterToggle()" 
+        title="Toggle mobile menu">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
   </div>
 </nav>

@@ -14,6 +14,8 @@ export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
   loading = false;
   showSuccess = false;
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +38,7 @@ export class RegisterComponent implements OnInit {
       ]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
+      acceptTerms: [false, [Validators.requiredTrue]],
       role: ['user', Validators.required]
     }, { validators: this.passwordMatchValidator });
   }
@@ -48,6 +51,14 @@ export class RegisterComponent implements OnInit {
       return { passwordMismatch: true };
     }
     return null;
+  }
+
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
   }
 
   onSubmit(): void {
@@ -149,6 +160,22 @@ export class RegisterComponent implements OnInit {
     }
   }
 
+  registerWithGoogle(): void {
+    this.toastr.info('Google registration feature coming soon!', 'Feature Preview', {
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true
+    });
+  }
+
+  registerWithGitHub(): void {
+    this.toastr.info('GitHub registration feature coming soon!', 'Feature Preview', {
+      timeOut: 3000,
+      progressBar: true,
+      closeButton: true
+    });
+  }
+
   private getFormErrors(): string[] {
     const errors: string[] = [];
     const controls = this.registerForm.controls;
@@ -193,6 +220,13 @@ export class RegisterComponent implements OnInit {
     if (controls['confirmPassword']?.errors) {
       if (controls['confirmPassword'].errors['required']) {
         errors.push('Please confirm your password');
+      }
+    }
+
+    // Check terms acceptance
+    if (controls['acceptTerms']?.errors) {
+      if (controls['acceptTerms'].errors['required']) {
+        errors.push('Please accept the Terms & Conditions');
       }
     }
 
