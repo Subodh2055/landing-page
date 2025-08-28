@@ -13,14 +13,23 @@
 
     <!-- Desktop Navigation -->
     <div class="desktop-nav d-none d-lg-flex">
+      <!-- Wishlist Icon with Badge -->
+      <button 
+        class="wishlist-btn"
+        (click)="navigateToWishlist()"
+        title="Wishlist">
+        <i class="fas fa-heart"></i>
+        <span *ngIf="wishlistCount > 0" class="wishlist-badge">{{ wishlistCount }}</span>
+      </button>
+      
       <!-- Cart Icon with Badge -->
-              <button 
-          class="cart-btn"
-          (click)="navigateToCart()"
-          title="Shopping Cart">
-          <i class="fas fa-shopping-cart"></i>
-          <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
-        </button>
+      <button 
+        class="cart-btn"
+        (click)="navigateToCart()"
+        title="Shopping Cart">
+        <i class="fas fa-shopping-cart"></i>
+        <span *ngIf="cartItemCount > 0" class="cart-badge">{{ cartItemCount }}</span>
+      </button>
       
       <!-- Guest Actions -->
       <div *ngIf="!isAuthenticated" class="guest-actions">
@@ -38,16 +47,33 @@
         </button>
       </div>
       
-      <!-- User Actions -->
-      <div *ngIf="isAuthenticated" class="user-actions">
-        <!-- Splash Screen Button -->
-        <button 
-          class="splash-btn"
-          (click)="showSplashScreen()"
-          title="Show Splash Screen">
-          <i class="fas fa-play"></i>
-          <span>Splash</span>
-        </button>
+              <!-- User Actions -->
+        <div *ngIf="isAuthenticated" class="user-actions">
+                          <!-- Orders Button -->
+                <button
+                  class="orders-btn"
+                  (click)="navigateToOrders()"
+                  title="My Orders">
+                  <i class="fas fa-list-alt"></i>
+                  <span>Orders</span>
+                </button>
+                <!-- Profile Button -->
+                <button
+                  class="profile-btn"
+                  (click)="navigateToProfile()"
+                  title="My Profile">
+                  <i class="fas fa-user"></i>
+                  <span>Profile</span>
+                </button>
+          
+          <!-- Splash Screen Button -->
+          <button 
+            class="splash-btn"
+            (click)="showSplashScreen()"
+            title="Show Splash Screen">
+            <i class="fas fa-play"></i>
+            <span>Splash</span>
+          </button>
         
         <!-- Admin Button -->
         <button 
@@ -92,6 +118,15 @@
 
     <!-- Mobile Actions -->
     <div class="mobile-actions d-lg-none">
+      <!-- Wishlist Icon -->
+      <button 
+        class="mobile-wishlist-btn"
+        (click)="navigateToWishlist()"
+        title="Wishlist">
+        <i class="fas fa-heart"></i>
+        <span *ngIf="wishlistCount > 0" class="wishlist-badge">{{ wishlistCount }}</span>
+      </button>
+      
       <!-- Cart Icon -->
       <button 
         class="mobile-cart-btn"

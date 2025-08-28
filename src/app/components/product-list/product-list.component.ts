@@ -6,6 +6,10 @@ import { AuthController } from '../../controllers/auth.controller';
 import { User } from '../../models/user.model';
 import { MobileFilterService } from '../../services/mobile-filter.service';
 import { AuthStateService } from '../../services/auth-state.service';
+import { FlashSalesService, FlashSale } from '../../services/flash-sales.service';
+import { RecommendationsService } from '../../services/recommendations.service';
+import { RecentlyViewedService } from '../../services/recently-viewed.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -39,14 +43,26 @@ export class ProductListComponent implements OnInit, OnDestroy {
   sortBy = 'name';
   showMobileFilters = false;
 
+  // Extra Engagement features
+  activeFlashSales: FlashSale[] = [];
+  personalizedRecommendations: Product[] = [];
+  recentlyViewedProducts: Product[] = [];
+
   private mobileFilterSubscription!: Subscription;
   private authSubscription!: Subscription;
+  private flashSalesSubscription!: Subscription;
+  private recommendationsSubscription!: Subscription;
+  private recentlyViewedSubscription!: Subscription;
 
   constructor(
     private productController: ProductController,
     private authController: AuthController,
     private mobileFilterService: MobileFilterService,
     private authStateService: AuthStateService,
+    private flashSalesService: FlashSalesService,
+    private recommendationsService: RecommendationsService,
+    private recentlyViewedService: RecentlyViewedService,
+    private wishlistService: WishlistService,
     private router: Router
   ) {
     // Subscribe to mobile filter toggle events
@@ -59,6 +75,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.currentUser = this.authController.getCurrentUser();
     this.loadProducts();
+    this.loadExtraEngagementFeatures();
     
     // Subscribe to auth state changes
     this.authSubscription = this.authStateService.currentUser$.subscribe(user => {
@@ -70,14 +87,25 @@ export class ProductListComponent implements OnInit, OnDestroy {
     // Restore body scrolling when component is destroyed
     document.body.style.overflow = '';
     
-    // Unsubscribe from mobile filter service
+    // Unsubscribe from all services
     if (this.mobileFilterSubscription) {
       this.mobileFilterSubscription.unsubscribe();
     }
     
-    // Unsubscribe from auth state service
     if (this.authSubscription) {
       this.authSubscription.unsubscribe();
+    }
+
+    if (this.flashSalesSubscription) {
+      this.flashSalesSubscription.unsubscribe();
+    }
+
+    if (this.recommendationsSubscription) {
+      this.recommendationsSubscription.unsubscribe();
+    }
+
+    if (this.recentlyViewedSubscription) {
+      this.recentlyViewedSubscription.unsubscribe();
     }
   }
 
@@ -361,5 +389,40 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   navigateToAdmin(): void {
     this.router.navigate(['/admin']);
+  }
+
+  // Extra Engagement Features
+  private loadExtraEngagementFeatures(): void {
+    // Load flash sales
+    this.flashSalesSubscription = this.flashSalesService.activeFlashSales$.subscribe(sales => {
+      this.activeFlashSales = sales;
+    });
+
+    // Load personalized recommendations
+    this.recommendationsSubscription = this.recommendationsService
+      .getPersonalizedRecommendations(this.products, 8)
+      .subscribe(recommendations => {
+        this.personalizedRecommendations = recommendations;
+      });
+
+    // Load recently viewed products
+    this.recentlyViewedSubscription = this.recentlyViewedService.recentlyViewed$.subscribe(products => {
+      this.recentlyViewedProducts = products;
+    });
+  }
+
+  // Add product to recently viewed when clicked
+  onProductClick(product: Product): void {
+    this.recentlyViewedService.addToRecentlyViewed(product);
+  }
+
+  // Add product to wishlist
+  addToWishlist(product: Product): void {
+    this.wishlistService.addToWishlist(product);
+  }
+
+  // Check if product is in wishlist
+  isInWishlist(productId: number): boolean {
+    return this.wishlistService.isInWishlist(productId);
   }
 }

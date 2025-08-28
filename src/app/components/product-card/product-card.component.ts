@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { Product } from '../../models/product.model';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
 
@@ -9,9 +10,10 @@ import { Router } from '@angular/router';
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss']
 })
-export class ProductCardComponent {
+export class ProductCardComponent implements OnInit {
   @Input() product!: Product;
   @Input() showAdminActions: boolean = false;
+  @Input() showWishlistButton: boolean = false;
   @Output() editProduct = new EventEmitter<Product>();
   @Output() deleteProduct = new EventEmitter<Product>();
   @Output() addToWishlist = new EventEmitter<Product>();
@@ -19,9 +21,11 @@ export class ProductCardComponent {
   isInCart = false;
   cartQuantity = 0;
   loading = false;
+  isInWishlist = false;
 
   constructor(
     private cartService: CartService,
+    private wishlistService: WishlistService,
     private toastr: ToastrService,
     private router: Router
   ) {
@@ -33,12 +37,17 @@ export class ProductCardComponent {
 
   ngOnInit(): void {
     this.updateCartStatus();
+    this.updateWishlistStatus();
   }
 
   private updateCartStatus(): void {
     const cartItem = this.cartService.getCartItem(this.product.id);
     this.isInCart = cartItem !== undefined;
     this.cartQuantity = cartItem?.quantity || 0;
+  }
+
+  private updateWishlistStatus(): void {
+    this.isInWishlist = this.wishlistService.isInWishlist(this.product.id);
   }
 
   onAddToCart(event: Event): void {
@@ -100,6 +109,12 @@ export class ProductCardComponent {
     }, 200);
   }
 
+  onQuickView(event: Event): void {
+    event.stopPropagation();
+    // Navigate to product detail page
+    this.router.navigate(['/products', this.product.id]);
+  }
+
   onUpdateQuantity(event: Event, newQuantity: number): void {
     event.stopPropagation();
     
@@ -115,18 +130,6 @@ export class ProductCardComponent {
       this.loading = false;
       this.toastr.success(`Quantity updated to ${newQuantity}`, 'Cart Updated');
     }, 200);
-  }
-
-  onQuickView(event: Event): void {
-    event.stopPropagation();
-    // Implement quick view modal functionality
-    this.toastr.info('Quick view feature coming soon!', 'Feature Preview');
-  }
-
-  onAddToWishlist(event: Event): void {
-    event.stopPropagation();
-    this.addToWishlist.emit(this.product);
-    this.toastr.success('Added to wishlist!', 'Wishlist');
   }
 
   onEditProduct(event: Event): void {
@@ -229,5 +232,32 @@ export class ProductCardComponent {
   // Handle image error
   onImageError(event: any): void {
     event.target.src = 'https://via.placeholder.com/300x200?text=No+Image';
+  }
+
+  // Wishlist methods
+  onToggleWishlist(event: Event): void {
+    event.stopPropagation();
+    
+    if (this.isInWishlist) {
+      this.wishlistService.removeFromWishlist(this.product.id);
+      this.toastr.info('Removed from wishlist', 'Wishlist Updated');
+    } else {
+      this.wishlistService.addToWishlist(this.product);
+      this.toastr.success('Added to wishlist', 'Wishlist Updated');
+    }
+    
+    this.updateWishlistStatus();
+  }
+
+  getWishlistButtonText(): string {
+    return this.isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist';
+  }
+
+  getWishlistButtonClass(): string {
+    return this.isInWishlist ? 'btn-outline-danger' : 'btn-outline-primary';
+  }
+
+  getWishlistIcon(): string {
+    return this.isInWishlist ? 'fas fa-heart' : 'far fa-heart';
   }
 }

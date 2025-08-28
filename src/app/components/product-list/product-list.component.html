@@ -99,33 +99,82 @@
       </app-sidebar>
     </div>
 
-    <!-- Desktop Content -->
-    <div class="col-md-9">
-      <!-- Search and Filter Section -->
-      <div class="row mb-4" *ngIf="!loading && products.length > 0">
-        <div class="col-md-6">
-          <div class="search-container">
-            <div class="input-group">
-              <span class="input-group-text">
-                <i class="fas fa-search"></i>
-              </span>
-              <input 
-                type="text" 
-                class="form-control" 
-                placeholder="Search products by name..."
-                [(ngModel)]="searchTerm"
-                (input)="onSearchChange()">
+      <!-- Desktop Content -->
+  <div class="col-md-9">
+    <!-- Flash Sales Banner -->
+    <div class="flash-sales-banner mb-4" *ngIf="activeFlashSales.length > 0">
+      <div class="flash-sale-card" *ngFor="let sale of activeFlashSales">
+        <div class="flash-sale-content">
+          <div class="flash-sale-info">
+            <h5 class="flash-sale-title">{{ sale.title }}</h5>
+            <p class="flash-sale-description">{{ sale.description }}</p>
+            <div class="flash-sale-countdown">
+              <span class="countdown-label">Ends in:</span>
+              <span class="countdown-time">{{ sale.countdown?.hours }}h {{ sale.countdown?.minutes }}m {{ sale.countdown?.seconds }}s</span>
             </div>
           </div>
-        </div>
-        <div class="col-md-6 text-end">
-          <div class="filter-info">
-            <span class="text-muted">
-              Showing {{ startIndex + 1 }}-{{ endIndex }} of {{ filteredProducts.length }} products
-            </span>
+          <div class="flash-sale-discount">
+            <span class="discount-percentage">-{{ sale.discountPercentage }}%</span>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- Personalized Recommendations -->
+    <div class="recommendations-section mb-4" *ngIf="personalizedRecommendations.length > 0">
+      <h4 class="section-title">
+        <i class="fas fa-star me-2"></i>
+        Recommended for You
+      </h4>
+      <div class="recommendations-carousel">
+        <div class="row g-2">
+          <div class="col-6 col-md-3" *ngFor="let product of personalizedRecommendations.slice(0, 4)">
+            <app-product-card [product]="product" [showWishlistButton]="true"></app-product-card>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recently Viewed Products -->
+    <div class="recently-viewed-section mb-4" *ngIf="recentlyViewedProducts.length > 0">
+      <h4 class="section-title">
+        <i class="fas fa-clock me-2"></i>
+        Recently Viewed
+      </h4>
+      <div class="recently-viewed-carousel">
+        <div class="row g-2">
+          <div class="col-6 col-md-3" *ngFor="let product of recentlyViewedProducts.slice(0, 4)">
+            <app-product-card [product]="product" [showWishlistButton]="true"></app-product-card>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search and Filter Section -->
+    <div class="row mb-4" *ngIf="!loading && products.length > 0">
+      <div class="col-md-6">
+        <div class="search-container">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search products by name..."
+              [(ngModel)]="searchTerm"
+              (input)="onSearchChange()">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 text-end">
+        <div class="filter-info">
+          <span class="text-muted">
+            Showing {{ startIndex + 1 }}-{{ endIndex }} of {{ filteredProducts.length }} products
+          </span>
+        </div>
+      </div>
+    </div>
 
       <!-- Product Grid -->
       <div class="row g-3" *ngIf="!loading && paginatedProducts.length > 0">

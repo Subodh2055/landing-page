@@ -1,0 +1,670 @@
+<div class="user-profile-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading profile...</p>
+    </div>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && profile" class="profile-content">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar-section">
+        <div class="profile-avatar">
+          <img *ngIf="profile.personalDetails.profilePicture" 
+               [src]="getProfilePictureUrl()" 
+               [alt]="getFullName()"
+               class="avatar-image">
+          <div *ngIf="!profile.personalDetails.profilePicture" 
+               class="avatar-placeholder">
+            {{ getInitials() }}
+          </div>
+          <div class="avatar-upload-overlay">
+            <label for="profile-picture-upload" class="upload-btn">
+              <i class="fas fa-camera"></i>
+            </label>
+            <input type="file" 
+                   id="profile-picture-upload" 
+                   accept="image/*" 
+                   (change)="onFileSelected($event)"
+                   style="display: none;">
+          </div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">{{ getFullName() }}</h1>
+          <p class="profile-email">{{ profile.personalDetails.email }}</p>
+          <p class="profile-phone">{{ profile.personalDetails.phone }}</p>
+          <button *ngIf="selectedFile" 
+                  class="upload-profile-btn"
+                  (click)="uploadProfilePicture()">
+            <i class="fas fa-upload"></i>
+            Upload Picture
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="profile-tabs">
+      <button class="tab-btn" 
+              [class.active]="activeTab === 'personal'"
+              (click)="setActiveTab('personal')">
+        <i class="fas fa-user"></i>
+        Personal Details
+      </button>
+      <button class="tab-btn" 
+              [class.active]="activeTab === 'addresses'"
+              (click)="setActiveTab('addresses')">
+        <i class="fas fa-map-marker-alt"></i>
+        Addresses
+        <span *ngIf="profile.addresses.length > 0" class="tab-badge">{{ profile.addresses.length }}</span>
+      </button>
+      <button class="tab-btn" 
+              [class.active]="activeTab === 'wishlist'"
+              (click)="setActiveTab('wishlist')">
+        <i class="fas fa-heart"></i>
+        Wishlist
+        <span *ngIf="wishlistCount > 0" class="tab-badge">{{ wishlistCount }}</span>
+      </button>
+      <button class="tab-btn" 
+              [class.active]="activeTab === 'orders'"
+              (click)="setActiveTab('orders')">
+        <i class="fas fa-shopping-bag"></i>
+        Orders
+        <span *ngIf="ordersCount > 0" class="tab-badge">{{ ordersCount }}</span>
+      </button>
+      <button class="tab-btn" 
+              [class.active]="activeTab === 'preferences'"
+              (click)="setActiveTab('preferences')">
+        <i class="fas fa-cog"></i>
+        Preferences
+      </button>
+      <button class="tab-btn" 
+              [class.active]="activeTab === 'security'"
+              (click)="setActiveTab('security')">
+        <i class="fas fa-shield-alt"></i>
+        Security
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Personal Details Tab -->
+      <div *ngIf="activeTab === 'personal'" class="tab-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-user"></i> Personal Details</h2>
+          <p>Update your personal information and profile details</p>
+        </div>
+        
+        <form [formGroup]="personalDetailsForm" (ngSubmit)="onPersonalDetailsSubmit()" class="profile-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name *</label>
+              <input type="text" 
+                     id="firstName" 
+                     formControlName="firstName"
+                     class="form-control"
+                     [class.invalid]="personalDetailsForm.get('firstName')?.invalid && personalDetailsForm.get('firstName')?.touched">
+              <div *ngIf="personalDetailsForm.get('firstName')?.invalid && personalDetailsForm.get('firstName')?.touched" 
+                   class="error-message">
+                First name is required and must be at least 2 characters
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="lastName">Last Name *</label>
+              <input type="text" 
+                     id="lastName" 
+                     formControlName="lastName"
+                     class="form-control"
+                     [class.invalid]="personalDetailsForm.get('lastName')?.invalid && personalDetailsForm.get('lastName')?.touched">
+              <div *ngIf="personalDetailsForm.get('lastName')?.invalid && personalDetailsForm.get('lastName')?.touched" 
+                   class="error-message">
+                Last name is required and must be at least 2 characters
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input type="email" 
+                     id="email" 
+                     formControlName="email"
+                     class="form-control"
+                     [class.invalid]="personalDetailsForm.get('email')?.invalid && personalDetailsForm.get('email')?.touched">
+              <div *ngIf="personalDetailsForm.get('email')?.invalid && personalDetailsForm.get('email')?.touched" 
+                   class="error-message">
+                Please enter a valid email address
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">Phone Number *</label>
+              <input type="tel" 
+                     id="phone" 
+                     formControlName="phone"
+                     class="form-control"
+                     [class.invalid]="personalDetailsForm.get('phone')?.invalid && personalDetailsForm.get('phone')?.touched">
+              <div *ngIf="personalDetailsForm.get('phone')?.invalid && personalDetailsForm.get('phone')?.touched" 
+                   class="error-message">
+                Please enter a valid phone number
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dateOfBirth">Date of Birth</label>
+              <input type="date" 
+                     id="dateOfBirth" 
+                     formControlName="dateOfBirth"
+                     class="form-control">
+            </div>
+            
+            <div class="form-group">
+              <label for="gender">Gender</label>
+              <select id="gender" formControlName="gender" class="form-control">
+                <option value="">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio" 
+                      formControlName="bio"
+                      class="form-control"
+                      rows="4"
+                      placeholder="Tell us a bit about yourself..."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" 
+                    class="btn btn-primary"
+                    [disabled]="personalDetailsForm.invalid">
+              <i class="fas fa-save"></i>
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Addresses Tab -->
+      <div *ngIf="activeTab === 'addresses'" class="tab-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-map-marker-alt"></i> Address Book</h2>
+          <p>Manage your shipping and billing addresses</p>
+        </div>
+
+        <!-- Address List -->
+        <div *ngIf="!showAddressForm" class="address-list">
+          <div *ngIf="profile.addresses.length === 0" class="empty-state">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>No addresses yet</h3>
+            <p>Add your first address to get started</p>
+            <button class="btn btn-primary" (click)="addNewAddress()">
+              <i class="fas fa-plus"></i>
+              Add Address
+            </button>
+          </div>
+
+          <div *ngIf="profile.addresses.length > 0" class="addresses-grid">
+            <div *ngFor="let address of profile.addresses" class="address-card">
+              <div class="address-header">
+                <div class="address-type">
+                  <i [class]="getAddressTypeIcon(address.type)"></i>
+                  <span>{{ getAddressTypeLabel(address.type) }}</span>
+                  <span *ngIf="address.isDefault" class="default-badge">Default</span>
+                </div>
+                <div class="address-actions">
+                  <button class="action-btn" (click)="editAddress(address)" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="action-btn delete" (click)="deleteAddress(address.id)" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="address-content">
+                <p class="address-name">{{ address.firstName }} {{ address.lastName }}</p>
+                <p *ngIf="address.company" class="address-company">{{ address.company }}</p>
+                <p class="address-street">{{ address.addressLine1 }}</p>
+                <p *ngIf="address.addressLine2" class="address-street">{{ address.addressLine2 }}</p>
+                <p class="address-city">{{ address.city }}, {{ address.state }} {{ address.postalCode }}</p>
+                <p class="address-country">{{ address.country }}</p>
+                <p class="address-phone">{{ address.phone }}</p>
+                <p *ngIf="address.instructions" class="address-instructions">
+                  <strong>Instructions:</strong> {{ address.instructions }}
+                </p>
+              </div>
+
+              <div class="address-footer">
+                <button *ngIf="!address.isDefault" 
+                        class="btn btn-secondary btn-sm"
+                        (click)="setDefaultAddress(address.id)">
+                  <i class="fas fa-star"></i>
+                  Set as Default
+                </button>
+              </div>
+            </div>
+
+            <div class="add-address-card" (click)="addNewAddress()">
+              <i class="fas fa-plus"></i>
+              <h3>Add New Address</h3>
+              <p>Add a new shipping or billing address</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Form -->
+        <div *ngIf="showAddressForm" class="address-form-container">
+          <div class="form-header">
+            <h3>{{ editingAddress ? 'Edit Address' : 'Add New Address' }}</h3>
+            <button class="close-btn" (click)="cancelAddressForm()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <form [formGroup]="addressForm" (ngSubmit)="onAddressSubmit()" class="address-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="addressType">Address Type *</label>
+                <select id="addressType" formControlName="type" class="form-control">
+                  <option value="home">Home</option>
+                  <option value="work">Work</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="isDefault">
+                  <span class="checkmark"></span>
+                  Set as default address
+                </label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="addressFirstName">First Name *</label>
+                <input type="text" 
+                       id="addressFirstName" 
+                       formControlName="firstName"
+                       class="form-control">
+              </div>
+              
+              <div class="form-group">
+                <label for="addressLastName">Last Name *</label>
+                <input type="text" 
+                       id="addressLastName" 
+                       formControlName="lastName"
+                       class="form-control">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="addressCompany">Company (Optional)</label>
+              <input type="text" 
+                     id="addressCompany" 
+                     formControlName="company"
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="addressLine1">Address Line 1 *</label>
+              <input type="text" 
+                     id="addressLine1" 
+                     formControlName="addressLine1"
+                     class="form-control"
+                     placeholder="Street address, P.O. box, company name">
+            </div>
+
+            <div class="form-group">
+              <label for="addressLine2">Address Line 2 (Optional)</label>
+              <input type="text" 
+                     id="addressLine2" 
+                     formControlName="addressLine2"
+                     class="form-control"
+                     placeholder="Apartment, suite, unit, building, floor, etc.">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="addressCity">City *</label>
+                <input type="text" 
+                       id="addressCity" 
+                       formControlName="city"
+                       class="form-control">
+              </div>
+              
+              <div class="form-group">
+                <label for="addressState">State/Province *</label>
+                <input type="text" 
+                       id="addressState" 
+                       formControlName="state"
+                       class="form-control">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="addressPostalCode">Postal Code *</label>
+                <input type="text" 
+                       id="addressPostalCode" 
+                       formControlName="postalCode"
+                       class="form-control">
+              </div>
+              
+              <div class="form-group">
+                <label for="addressCountry">Country *</label>
+                <select id="addressCountry" formControlName="country" class="form-control">
+                  <option *ngFor="let country of countries" [value]="country.code">
+                    {{ country.name }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="addressPhone">Phone Number *</label>
+              <input type="tel" 
+                     id="addressPhone" 
+                     formControlName="phone"
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="addressInstructions">Delivery Instructions (Optional)</label>
+              <textarea id="addressInstructions" 
+                        formControlName="instructions"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Special instructions for delivery..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" 
+                      class="btn btn-secondary"
+                      (click)="cancelAddressForm()">
+                Cancel
+              </button>
+              <button type="submit" 
+                      class="btn btn-primary"
+                      [disabled]="addressForm.invalid">
+                {{ editingAddress ? 'Update Address' : 'Add Address' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Wishlist Tab -->
+      <div *ngIf="activeTab === 'wishlist'" class="tab-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-heart"></i> My Wishlist</h2>
+          <p>Your saved items and favorites</p>
+        </div>
+
+        <div class="wishlist-summary">
+          <div class="summary-card">
+            <i class="fas fa-heart"></i>
+            <div class="summary-content">
+              <h3>{{ wishlistCount }}</h3>
+              <p>Items in Wishlist</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="wishlist-actions">
+          <button class="btn btn-primary" (click)="navigateToWishlist()">
+            <i class="fas fa-eye"></i>
+            View Full Wishlist
+          </button>
+        </div>
+      </div>
+
+      <!-- Orders Tab -->
+      <div *ngIf="activeTab === 'orders'" class="tab-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-shopping-bag"></i> My Orders</h2>
+          <p>Track your orders and view order history</p>
+        </div>
+
+        <div class="orders-summary">
+          <div class="summary-card">
+            <i class="fas fa-shopping-bag"></i>
+            <div class="summary-content">
+              <h3>{{ ordersCount }}</h3>
+              <p>Total Orders</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="orders-actions">
+          <button class="btn btn-primary" (click)="navigateToOrders()">
+            <i class="fas fa-eye"></i>
+            View All Orders
+          </button>
+        </div>
+      </div>
+
+      <!-- Preferences Tab -->
+      <div *ngIf="activeTab === 'preferences'" class="tab-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-cog"></i> Preferences</h2>
+          <p>Customize your account settings and preferences</p>
+        </div>
+
+        <form [formGroup]="preferencesForm" (ngSubmit)="onPreferencesSubmit()" class="preferences-form">
+          <div class="preferences-section">
+            <h3>Notifications</h3>
+            <div class="preferences-grid">
+              <div class="preference-item">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="emailNotifications">
+                  <span class="checkmark"></span>
+                  Email Notifications
+                </label>
+                <p>Receive order updates and important information via email</p>
+              </div>
+
+              <div class="preference-item">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="smsNotifications">
+                  <span class="checkmark"></span>
+                  SMS Notifications
+                </label>
+                <p>Receive order updates and delivery notifications via SMS</p>
+              </div>
+
+              <div class="preference-item">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="pushNotifications">
+                  <span class="checkmark"></span>
+                  Push Notifications
+                </label>
+                <p>Receive notifications in your browser</p>
+              </div>
+
+              <div class="preference-item">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="marketingEmails">
+                  <span class="checkmark"></span>
+                  Marketing Emails
+                </label>
+                <p>Receive promotional offers and newsletters</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="preferences-section">
+            <h3>Display Settings</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="language">Language</label>
+                <select id="language" formControlName="language" class="form-control">
+                  <option value="en">English</option>
+                  <option value="es">Spanish</option>
+                  <option value="fr">French</option>
+                  <option value="de">German</option>
+                  <option value="it">Italian</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="currency">Currency</label>
+                <select id="currency" formControlName="currency" class="form-control">
+                  <option value="USD">USD ($)</option>
+                  <option value="EUR">EUR (€)</option>
+                  <option value="GBP">GBP (£)</option>
+                  <option value="CAD">CAD (C$)</option>
+                  <option value="AUD">AUD (A$)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="timezone">Timezone</label>
+                <select id="timezone" formControlName="timezone" class="form-control">
+                  <option value="UTC">UTC</option>
+                  <option value="EST">Eastern Time</option>
+                  <option value="CST">Central Time</option>
+                  <option value="MST">Mountain Time</option>
+                  <option value="PST">Pacific Time</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="theme">Theme</label>
+                <select id="theme" formControlName="theme" class="form-control">
+                  <option value="auto">Auto (System)</option>
+                  <option value="light">Light</option>
+                  <option value="dark">Dark</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i>
+              Save Preferences
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Security Tab -->
+      <div *ngIf="activeTab === 'security'" class="tab-panel">
+        <div class="panel-header">
+          <h2><i class="fas fa-shield-alt"></i> Security</h2>
+          <p>Manage your account security and privacy</p>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="security-section">
+          <h3>Change Password</h3>
+          <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()" class="security-form">
+            <div class="form-group">
+              <label for="currentPassword">Current Password *</label>
+              <input type="password" 
+                     id="currentPassword" 
+                     formControlName="currentPassword"
+                     class="form-control">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="newPassword">New Password *</label>
+                <input type="password" 
+                       id="newPassword" 
+                       formControlName="newPassword"
+                       class="form-control">
+                <small>Password must be at least 8 characters long</small>
+              </div>
+              
+              <div class="form-group">
+                <label for="confirmPassword">Confirm New Password *</label>
+                <input type="password" 
+                       id="confirmPassword" 
+                       formControlName="confirmPassword"
+                       class="form-control">
+                <div *ngIf="changePasswordForm.errors?.['passwordMismatch'] && changePasswordForm.get('confirmPassword')?.touched" 
+                     class="error-message">
+                  Passwords do not match
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" 
+                      class="btn btn-primary"
+                      [disabled]="changePasswordForm.invalid">
+                <i class="fas fa-key"></i>
+                Change Password
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Delete Account Section -->
+        <div class="security-section danger-zone">
+          <h3>Delete Account</h3>
+          <p class="warning-text">
+            <i class="fas fa-exclamation-triangle"></i>
+            This action cannot be undone. All your data will be permanently deleted.
+          </p>
+          
+          <form [formGroup]="deleteAccountForm" (ngSubmit)="onDeleteAccountSubmit()" class="security-form">
+            <div class="form-group">
+              <label for="deletePassword">Confirm Password *</label>
+              <input type="password" 
+                     id="deletePassword" 
+                     formControlName="password"
+                     class="form-control">
+            </div>
+
+            <div class="form-group">
+              <label for="deleteReason">Reason for Deletion (Optional)</label>
+              <select id="deleteReason" formControlName="reason" class="form-control">
+                <option value="">Select a reason</option>
+                <option value="no-longer-needed">No longer needed</option>
+                <option value="privacy-concerns">Privacy concerns</option>
+                <option value="unsatisfactory-service">Unsatisfactory service</option>
+                <option value="created-new-account">Created new account</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="deleteFeedback">Additional Feedback (Optional)</label>
+              <textarea id="deleteFeedback" 
+                        formControlName="feedback"
+                        class="form-control"
+                        rows="3"
+                        placeholder="Help us improve our service..."></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" 
+                      class="btn btn-danger"
+                      [disabled]="deleteAccountForm.invalid">
+                <i class="fas fa-trash"></i>
+                Delete Account
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

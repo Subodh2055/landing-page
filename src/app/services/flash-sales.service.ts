@@ -14,6 +14,11 @@ export interface FlashSale {
   imageUrl?: string;
   originalPrice: number;
   salePrice: number;
+  countdown?: {
+    hours: number;
+    minutes: number;
+    seconds: number;
+  };
 }
 
 @Injectable({
@@ -90,10 +95,27 @@ export class FlashSalesService {
     const now = new Date();
     const allFlashSales = this.flashSalesSubject.value;
     
-    const activeFlashSales = allFlashSales.map(sale => ({
-      ...sale,
-      isActive: now >= sale.startTime && now <= sale.endTime
-    }));
+    const activeFlashSales = allFlashSales.map(sale => {
+      const isActive = now >= sale.startTime && now <= sale.endTime;
+      let countdown = undefined;
+      
+      if (isActive) {
+        const timeLeft = sale.endTime.getTime() - now.getTime();
+        if (timeLeft > 0) {
+          countdown = {
+            hours: Math.floor(timeLeft / (1000 * 60 * 60)),
+            minutes: Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60)),
+            seconds: Math.floor((timeLeft % (1000 * 60)) / 1000)
+          };
+        }
+      }
+      
+      return {
+        ...sale,
+        isActive,
+        countdown
+      };
+    });
 
     this.flashSalesSubject.next(activeFlashSales);
     this.activeFlashSalesSubject.next(activeFlashSales.filter(sale => sale.isActive));

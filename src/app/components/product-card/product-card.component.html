@@ -6,8 +6,11 @@
     <!-- Action Buttons Overlay -->
     <div class="action-overlay">
       <div class="action-buttons">
-        <button class="action-btn wishlist-btn" (click)="onAddToWishlist($event)" [class.active]="false">
-          <i class="fas fa-heart"></i>
+        <button class="action-btn wishlist-btn" 
+                (click)="onToggleWishlist($event)" 
+                [class.active]="isInWishlist"
+                *ngIf="showWishlistButton">
+          <i [class]="getWishlistIcon()"></i>
         </button>
         <button class="action-btn quick-view-btn" (click)="onQuickView($event)">
           <i class="fas fa-eye"></i>

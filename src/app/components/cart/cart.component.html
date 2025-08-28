@@ -1,231 +1,283 @@
 <div class="cart-container">
-  <div class="container">
-    <div class="row">
-      <div class="col-12">
-        <div class="cart-header">
-          <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
-          <p class="cart-subtitle">{{ cartItems.length }} item(s) in your cart</p>
-        </div>
-      </div>
-    </div>
+  <div class="cart-header">
+    <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
+    <p *ngIf="cartItems.length > 0">{{ cartItems.length }} items in your cart</p>
+  </div>
 
-    <!-- Empty Cart Message -->
-    <div class="row" *ngIf="cartItems.length === 0">
-      <div class="col-12">
-        <div class="empty-cart">
-          <div class="empty-cart-icon">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-          <h3>Your cart is empty</h3>
-          <p>Looks like you haven't added any items to your cart yet.</p>
-          <button class="btn btn-primary btn-lg" (click)="navigateToProducts()">
-            <i class="fas fa-shopping-bag"></i> Start Shopping
-          </button>
-        </div>
-      </div>
+  <!-- Empty Cart State -->
+  <div *ngIf="cartItems.length === 0 && savedForLater.length === 0" class="empty-cart">
+    <div class="empty-cart-content">
+      <i class="fas fa-shopping-cart"></i>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven't added any items to your cart yet.</p>
+      <button class="btn btn-primary" (click)="navigateToProducts()">
+        <i class="fas fa-shopping-bag"></i>
+        Start Shopping
+      </button>
     </div>
+  </div>
 
-    <!-- Cart Content -->
-    <div class="row" *ngIf="cartItems.length > 0">
+  <!-- Cart Content -->
+  <div *ngIf="cartItems.length > 0 || savedForLater.length > 0" class="cart-content">
+    <div class="cart-main">
       <!-- Cart Items -->
-      <div class="col-lg-8">
+      <div *ngIf="cartItems.length > 0" class="cart-items-section">
+        <h2>Cart Items ({{ cartItems.length }})</h2>
+        
         <div class="cart-items">
-          <div class="cart-item" *ngFor="let item of cartItems; trackBy: trackByItem">
+          <div *ngFor="let item of cartItems; trackBy: trackByItem" class="cart-item">
             <div class="item-image">
-              <img [src]="item.product.getImageUrl()" [alt]="item.product.name" class="img-fluid">
+              <img [src]="item.product.image" [alt]="item.product.name">
             </div>
             
             <div class="item-details">
-              <h4 class="item-name">{{ item.product.name }}</h4>
+              <h3>{{ item.product.name }}</h3>
               <p class="item-category">{{ item.product.category }}</p>
-              <div class="item-price">
-                <span class="current-price">{{ item.getFormattedPrice() }}</span>
-                <span class="item-total">Total: {{ item.getFormattedTotalPrice() }}</span>
-              </div>
+              <p class="item-price">₹{{ item.product.price }}</p>
               
-              <!-- Quantity Controls -->
-              <div class="quantity-controls">
-                <button class="btn btn-sm btn-outline-secondary" 
-                        (click)="updateQuantity(item, item.quantity - 1)"
-                        [disabled]="item.quantity <= 1">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <span class="quantity">{{ item.quantity }}</span>
-                <button class="btn btn-sm btn-outline-secondary" 
-                        (click)="updateQuantity(item, item.quantity + 1)"
-                        [disabled]="!item.canIncreaseQuantity()">
-                  <i class="fas fa-plus"></i>
-                </button>
-              </div>
-              
-              <!-- Stock Status -->
-              <div class="stock-status" [class]="item.isInStock() ? 'in-stock' : 'out-of-stock'">
-                <i class="fas" [class.fa-check-circle]="item.isInStock()" [class.fa-times-circle]="!item.isInStock()"></i>
-                {{ item.getStockStatus() }}
+              <div class="item-actions">
+                <div class="quantity-controls">
+                  <button class="qty-btn" (click)="updateQuantity(item, item.quantity - 1)">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <span class="quantity">{{ item.quantity }}</span>
+                  <button class="qty-btn" (click)="updateQuantity(item, item.quantity + 1)">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+                
+                <div class="item-total">
+                  <span>Total: ₹{{ item.product.price * item.quantity }}</span>
+                </div>
               </div>
             </div>
             
-            <div class="item-actions">
-              <button class="btn btn-sm btn-outline-warning" (click)="saveForLater(item)">
-                <i class="fas fa-bookmark"></i> Save
+            <div class="item-actions-main">
+              <button class="action-btn save-later" (click)="saveForLater(item)">
+                <i class="fas fa-bookmark"></i>
+                Save for Later
               </button>
-              <button class="btn btn-sm btn-outline-danger" (click)="removeFromCart(item)">
-                <i class="fas fa-trash"></i> Remove
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Saved for Later Section -->
-        <div class="saved-for-later" *ngIf="savedForLater.length > 0">
-          <h4><i class="fas fa-bookmark"></i> Saved for Later ({{ savedForLater.length }})</h4>
-          <div class="saved-items">
-            <div class="saved-item" *ngFor="let item of savedForLater">
-              <div class="item-image">
-                <img [src]="item.product.getImageUrl()" [alt]="item.product.name" class="img-fluid">
-              </div>
-              <div class="item-details">
-                <h5>{{ item.product.name }}</h5>
-                <p>{{ item.getFormattedPrice() }}</p>
-              </div>
-              <div class="item-actions">
-                <button class="btn btn-sm btn-primary" (click)="moveToCart(item)">
-                  <i class="fas fa-cart-plus"></i> Move to Cart
-                </button>
-                <button class="btn btn-sm btn-outline-danger" (click)="removeFromSaved(item)">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cart Summary -->
-      <div class="col-lg-4">
-        <div class="cart-summary">
-          <h3>Order Summary</h3>
-          
-          <!-- Delivery Address -->
-          <div class="delivery-address" *ngIf="selectedAddress">
-            <h5><i class="fas fa-map-marker-alt"></i> Delivery Address</h5>
-            <div class="address-card">
-              <p><strong>{{ selectedAddress.name }}</strong></p>
-              <p>{{ selectedAddress.getFullAddress() }}</p>
-              <p>{{ selectedAddress.getFormattedPhone() }}</p>
-              <button class="btn btn-sm btn-outline-primary" (click)="addNewAddress()">
-                <i class="fas fa-edit"></i> Change
-              </button>
-            </div>
-          </div>
-
-          <!-- Delivery Estimate -->
-          <div class="delivery-estimate">
-            <h5><i class="fas fa-truck"></i> Delivery Estimate</h5>
-            <p>{{ deliveryEstimate }}</p>
-          </div>
-
-          <!-- Coupon Section -->
-          <div class="coupon-section">
-            <h5><i class="fas fa-tag"></i> Apply Coupon</h5>
-            <div class="input-group mb-3" *ngIf="!appliedCoupon">
-              <input type="text" 
-                     class="form-control" 
-                     placeholder="Enter coupon code" 
-                     [(ngModel)]="couponCode">
-              <button class="btn btn-outline-primary" 
-                      type="button" 
-                      (click)="applyCoupon()">
-                Apply
-              </button>
-            </div>
-            <div class="applied-coupon" *ngIf="appliedCoupon">
-              <div class="coupon-badge">
-                <i class="fas fa-check-circle"></i>
-                {{ appliedCoupon.name }} - {{ getCouponDiscountText() }}
-              </div>
-              <button class="btn btn-sm btn-outline-secondary" (click)="removeCoupon()">
+              <button class="action-btn remove" (click)="removeFromCart(item)">
+                <i class="fas fa-trash"></i>
                 Remove
               </button>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Payment Methods -->
-          <div class="payment-methods">
-            <h5><i class="fas fa-credit-card"></i> Payment Method</h5>
-            <div class="payment-options">
-              <div class="payment-option" 
-                   *ngFor="let method of paymentMethods"
-                   [class.selected]="selectedPaymentMethod?.id === method.id"
-                   (click)="selectPaymentMethod(method)">
-                <div class="payment-icon">
-                  <i [class]="method.icon"></i>
-                </div>
-                <div class="payment-details">
-                  <h6>{{ method.name }}</h6>
-                  <p>{{ method.description }}</p>
-                </div>
-                <div class="payment-check">
-                  <i class="fas fa-check" *ngIf="selectedPaymentMethod?.id === method.id"></i>
-                </div>
-              </div>
+      <!-- Saved for Later -->
+      <div *ngIf="savedForLater.length > 0" class="saved-for-later-section">
+        <h2>Saved for Later ({{ savedForLater.length }})</h2>
+        
+        <div class="saved-items">
+          <div *ngFor="let item of savedForLater; trackBy: trackByItem" class="saved-item">
+            <div class="item-image">
+              <img [src]="item.product.image" [alt]="item.product.name">
+            </div>
+            
+            <div class="item-details">
+              <h3>{{ item.product.name }}</h3>
+              <p class="item-category">{{ item.product.category }}</p>
+              <p class="item-price">₹{{ item.product.price }}</p>
+            </div>
+            
+            <div class="item-actions-main">
+              <button class="action-btn move-to-cart" (click)="moveToCart(item)">
+                <i class="fas fa-shopping-cart"></i>
+                Move to Cart
+              </button>
+              <button class="action-btn remove" (click)="removeFromSaved(item)">
+                <i class="fas fa-trash"></i>
+                Remove
+              </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <!-- Order Details -->
-          <div class="order-details">
-            <div class="detail-row">
-              <span>Subtotal ({{ cartItems.length }} items)</span>
-              <span>₹{{ subtotal.toFixed(2) }}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span>Tax (18% GST)</span>
-              <span>₹{{ tax.toFixed(2) }}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span>Shipping</span>
-              <span [class.free-shipping]="isEligibleForFreeShipping()">
-                {{ getShippingText() }}
-              </span>
-            </div>
-            
-            <div class="detail-row discount-row" *ngIf="discount > 0">
-              <span>Discount</span>
-              <span class="discount-amount">-₹{{ discount.toFixed(2) }}</span>
-            </div>
-            
-            <div class="detail-row total-row">
-              <span><strong>Total</strong></span>
-              <span><strong>₹{{ total.toFixed(2) }}</strong></span>
-            </div>
+    <!-- Cart Summary -->
+    <div class="cart-summary">
+      <div class="summary-card">
+        <h2>Order Summary</h2>
+        
+        <!-- Delivery Address -->
+        <div class="summary-section">
+          <h3><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
+          <div *ngIf="selectedAddress" class="selected-address">
+            <p><strong>{{ selectedAddress.name }}</strong></p>
+            <p>{{ selectedAddress.getFullAddress() }}</p>
+            <p>Phone: {{ selectedAddress.getFormattedPhone() }}</p>
           </div>
+          <button class="btn btn-secondary" (click)="addNewAddress()">
+            <i class="fas fa-plus"></i>
+            Add New Address
+          </button>
+        </div>
 
-          <!-- Free Shipping Progress -->
-          <div class="free-shipping-progress" *ngIf="!isEligibleForFreeShipping()">
-            <div class="progress">
-              <div class="progress-bar" 
-                   [style.width.%]="(subtotal / 1000) * 100">
-              </div>
-            </div>
-            <p class="free-shipping-text">
-              Add ₹{{ (1000 - subtotal).toFixed(2) }} more for FREE shipping!
+        <!-- Delivery Estimate -->
+        <div class="summary-section">
+          <h3><i class="fas fa-truck"></i> Delivery Estimate</h3>
+          <div class="delivery-info">
+            <p><strong>Estimated Delivery:</strong> {{ deliveryEstimate }}</p>
+            <p><strong>Delivery Time:</strong> 3-5 business days</p>
+            <p *ngIf="isEligibleForFreeShipping()" class="free-shipping">
+              <i class="fas fa-check-circle"></i> Free Shipping
+            </p>
+            <p *ngIf="!isEligibleForFreeShipping()" class="shipping-info">
+              Add ₹{{ 1000 - subtotal | number:'1.0-0' }} more for free shipping
             </p>
           </div>
+        </div>
 
-          <!-- Checkout Button -->
-          <button class="btn btn-success btn-lg checkout-btn" 
-                  (click)="proceedToCheckout()"
-                  [disabled]="!selectedAddress || !selectedPaymentMethod">
-            <i class="fas fa-lock"></i>
-            <span>Proceed to Checkout</span>
+        <!-- Coupon Section -->
+        <div class="summary-section">
+          <h3><i class="fas fa-tag"></i> Coupons & Offers</h3>
+          
+          <div *ngIf="appliedCoupon" class="applied-coupon">
+            <div class="coupon-info">
+              <span class="coupon-code">{{ appliedCoupon.code }}</span>
+              <span class="coupon-discount">{{ getCouponDiscountText() }}</span>
+            </div>
+            <button class="btn btn-sm btn-danger" (click)="removeCoupon()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          
+          <button *ngIf="!appliedCoupon" class="btn btn-secondary" (click)="showCouponModal = true">
+            <i class="fas fa-plus"></i>
+            Apply Coupon
           </button>
+        </div>
 
-          <!-- Security Notice -->
-          <div class="security-notice">
+        <!-- Payment Methods -->
+        <div class="summary-section">
+          <h3><i class="fas fa-credit-card"></i> Payment Method</h3>
+          
+          <div class="payment-methods">
+            <!-- Traditional Payment Methods -->
+            <div class="payment-category">
+              <h4>Traditional Methods</h4>
+              <div class="payment-options">
+                <div *ngFor="let method of paymentMethods | slice:0:4" 
+                     class="payment-option"
+                     [class.selected]="selectedPaymentMethod?.id === method.id"
+                     (click)="selectPaymentMethod(method)">
+                  <i [class]="method.icon"></i>
+                  <div class="method-info">
+                    <span class="method-name">{{ method.name }}</span>
+                    <span class="method-desc">{{ method.description }}</span>
+                  </div>
+                  <div class="method-badge" *ngIf="method.isRecommended()">Recommended</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nepali Payment Methods -->
+            <div class="payment-category">
+              <h4>Nepali Payment Methods</h4>
+              <div class="payment-options">
+                <div *ngFor="let method of paymentMethods | slice:4:10" 
+                     class="payment-option nepali-method"
+                     [class.selected]="selectedPaymentMethod?.id === method.id"
+                     (click)="selectPaymentMethod(method)">
+                  <i [class]="method.icon"></i>
+                  <div class="method-info">
+                    <span class="method-name">{{ method.name }}</span>
+                    <span class="method-desc">{{ method.description }}</span>
+                  </div>
+                  <div class="method-badge" *ngIf="method.isRecommended()">Recommended</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="summary-section">
+          <h3><i class="fas fa-receipt"></i> Price Details</h3>
+          
+          <div class="price-breakdown">
+            <div class="price-row">
+              <span>Subtotal ({{ cartItems.length }} items)</span>
+              <span>₹{{ subtotal | number:'1.0-2' }}</span>
+            </div>
+            
+            <div class="price-row">
+              <span>Tax (18% GST)</span>
+              <span>₹{{ tax | number:'1.0-2' }}</span>
+            </div>
+            
+            <div class="price-row">
+              <span>Shipping</span>
+              <span *ngIf="shipping === 0" class="free">Free</span>
+              <span *ngIf="shipping > 0">₹{{ shipping | number:'1.0-2' }}</span>
+            </div>
+            
+            <div *ngIf="discount > 0" class="price-row discount">
+              <span>Discount</span>
+              <span>-₹{{ discount | number:'1.0-2' }}</span>
+            </div>
+            
+            <div class="price-row total">
+              <span><strong>Total</strong></span>
+              <span><strong>₹{{ total | number:'1.0-2' }}</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkout Button -->
+        <div class="checkout-section">
+          <button class="btn btn-primary btn-large" (click)="proceedToCheckout()">
+            <i class="fas fa-lock"></i>
+            Proceed to Checkout
+          </button>
+          <p class="secure-checkout">
             <i class="fas fa-shield-alt"></i>
-            <span>Secure checkout powered by SSL encryption</span>
+            Secure checkout with SSL encryption
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coupon Modal -->
+  <div *ngIf="showCouponModal" class="modal-overlay" (click)="closeCouponModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Apply Coupon</h3>
+        <button class="close-btn" (click)="closeCouponModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="coupon-input">
+          <input type="text" 
+                 [(ngModel)]="couponCode" 
+                 placeholder="Enter coupon code"
+                 (keyup.enter)="applyCoupon()">
+          <button class="btn btn-primary" (click)="applyCoupon()">
+            Apply
+          </button>
+        </div>
+        
+        <div class="available-coupons">
+          <h4>Available Coupons</h4>
+          <div class="coupon-list">
+            <div *ngFor="let coupon of availableCoupons" class="coupon-item">
+              <div class="coupon-header">
+                <span class="coupon-code">{{ coupon.code }}</span>
+                <span class="coupon-value">{{ coupon.getFormattedValue() }} OFF</span>
+              </div>
+              <p class="coupon-name">{{ coupon.name }}</p>
+              <p class="coupon-desc">{{ coupon.description }}</p>
+              <div class="coupon-conditions">
+                <span class="min-order">{{ coupon.getMinOrderText() }}</span>
+                <span class="validity">{{ coupon.getValidityText() }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,10 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { CartService } from '../../services/cart.service';
-import { CartItem } from '../../models/cart-item.model';
+import { CartService, CartItem, DeliveryEstimate } from '../../services/cart.service';
 import { Address } from '../../models/address.model';
 import { Coupon } from '../../models/coupon.model';
 import { PaymentMethod } from '../../models/payment-method.model';
+import { CouponService } from '../../services/coupon.service';
+import { PaymentMethodsService } from '../../services/payment-methods.service';
+import { UserProfileService } from '../../services/user-profile.service';
+import { ToastrService } from 'ngx-toastr';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -36,16 +39,21 @@ export class CartComponent implements OnInit, OnDestroy {
   
   private destroy$ = new Subject<void>();
 
-  constructor(private cartService: CartService, private router: Router) {}
+  constructor(
+    private cartService: CartService,
+    private router: Router,
+    private couponService: CouponService,
+    private paymentMethodsService: PaymentMethodsService,
+    private userProfileService: UserProfileService,
+    private toastr: ToastrService
+  ) {}
 
   ngOnInit(): void {
     this.loadCartItems();
-    this.loadSavedForLater();
     this.loadAddresses();
     this.loadCoupons();
     this.loadPaymentMethods();
-    this.calculateDeliveryEstimate();
-    this.updateCartSummary();
+    this.subscribeToServices();
   }
 
   ngOnDestroy(): void {
@@ -54,121 +62,147 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   private loadCartItems(): void {
-    // For now, we'll create some mock cart items
-    this.cartItems = [];
-    this.updateCartSummary();
+    this.cartService.getCartObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cart => {
+        this.cartItems = cart.items;
+        this.savedForLater = cart.savedForLater;
+        this.updateCartSummary();
+        this.calculateDeliveryEstimate();
+      });
   }
 
   private loadSavedForLater(): void {
-    // For now, we'll create some mock saved items
-    this.savedForLater = [];
+    this.savedForLater = this.cartService.getSavedForLater();
+  }
+
+  private subscribeToServices(): void {
+    // Subscribe to coupon service
+    this.couponService.getAppliedCoupon()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(coupon => {
+        this.appliedCoupon = coupon;
+        this.updateCartSummary();
+      });
+
+    // Subscribe to payment methods service
+    this.paymentMethodsService.getAvailablePaymentMethods()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(methods => {
+        this.paymentMethods = methods;
+      });
+
+    this.paymentMethodsService.getSelectedPaymentMethod()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(method => {
+        this.selectedPaymentMethod = method;
+      });
   }
 
   private loadAddresses(): void {
-    // Create mock addresses
-    this.addresses = [
-      new Address(1, 'John Doe', '9876543210', '123 Main Street', 'Apt 4B', 'Mumbai', 'Maharashtra', '400001'),
-      new Address(2, 'Jane Smith', '9876543211', '456 Oak Avenue', '', 'Delhi', 'Delhi', '110001')
-    ];
-    if (this.addresses.length > 0) {
-      this.selectedAddress = this.addresses[0];
-    }
+    // Load addresses from user profile service
+    this.userProfileService.getProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(profile => {
+        if (profile && profile.addresses.length > 0) {
+          this.addresses = profile.addresses.map(addr => new Address(
+            parseInt(addr.id),
+            `${addr.firstName} ${addr.lastName}`,
+            addr.phone,
+            addr.addressLine1,
+            addr.addressLine2,
+            addr.city,
+            addr.state,
+            addr.postalCode,
+            addr.country,
+            addr.isDefault
+          ));
+          this.selectedAddress = this.addresses.find(addr => addr.isDefault) || this.addresses[0];
+        } else {
+          // Create mock addresses if no profile
+          this.addresses = [
+            new Address(1, 'John Doe', '9876543210', '123 Main Street', 'Apt 4B', 'Mumbai', 'Maharashtra', '400001'),
+            new Address(2, 'Jane Smith', '9876543211', '456 Oak Avenue', '', 'Delhi', 'Delhi', '110001')
+          ];
+          this.selectedAddress = this.addresses[0];
+        }
+      });
   }
 
   private loadCoupons(): void {
-    // Create mock coupons
-    this.availableCoupons = [
-      new Coupon(1, 'WELCOME10', 'Welcome Discount', 'Get 10% off on your first order', 'percentage', 10, 500),
-      new Coupon(2, 'SAVE50', 'Flat Discount', 'Save ₹50 on orders above ₹1000', 'fixed', 50, 1000)
-    ];
+    this.couponService.getAvailableCoupons()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(coupons => {
+        this.availableCoupons = coupons.filter(c => c.isValid());
+      });
   }
 
   private loadPaymentMethods(): void {
-    this.paymentMethods = [
-      new PaymentMethod('cod', 'Cash on Delivery', 'fas fa-money-bill-wave', 'Pay when you receive'),
-      new PaymentMethod('card', 'Credit/Debit Card', 'fas fa-credit-card', 'Secure payment'),
-      new PaymentMethod('upi', 'UPI', 'fas fa-mobile-alt', 'Instant payment'),
-      new PaymentMethod('wallet', 'Digital Wallet', 'fas fa-wallet', 'Paytm, PhonePe, etc.')
-    ];
+    // Payment methods are loaded in subscribeToServices
   }
 
   private calculateDeliveryEstimate(): void {
-    const today = new Date();
-    const deliveryDate = new Date(today);
-    deliveryDate.setDate(today.getDate() + 3); // 3 days delivery
-    this.deliveryEstimate = deliveryDate.toLocaleDateString('en-IN', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
+    const deliveryEstimate = this.cartService.getDeliveryEstimate();
+    if (deliveryEstimate) {
+      this.deliveryEstimate = deliveryEstimate.estimatedDate.toLocaleDateString('en-IN', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
   }
 
   private updateCartSummary(): void {
-    this.subtotal = this.cartItems.reduce((sum, item) => sum + item.getTotalPrice(), 0);
+    this.subtotal = this.cartItems.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
     this.tax = this.subtotal * 0.18; // 18% GST
     this.shipping = this.subtotal > 1000 ? 0 : 100; // Free shipping above ₹1000
-    this.discount = this.appliedCoupon ? this.calculateDiscount() : 0;
+    this.discount = this.couponService.calculateDiscount(this.subtotal);
     this.total = this.subtotal + this.tax + this.shipping - this.discount;
-  }
-
-  private calculateDiscount(): number {
-    if (!this.appliedCoupon) return 0;
-    
-    if (this.appliedCoupon.type === 'percentage') {
-      return (this.subtotal * this.appliedCoupon.value) / 100;
-    } else {
-      return this.appliedCoupon.value;
-    }
   }
 
   updateQuantity(item: CartItem, newQuantity: number): void {
     if (newQuantity <= 0) {
       this.removeFromCart(item);
     } else {
-      item.quantity = newQuantity;
-      this.updateCartSummary();
+      this.cartService.updateQuantity(item.product.id, newQuantity);
     }
   }
 
   removeFromCart(item: CartItem): void {
-    this.cartItems = this.cartItems.filter(i => i.id !== item.id);
-    this.updateCartSummary();
+    this.cartService.removeFromCart(item.product.id);
   }
 
   saveForLater(item: CartItem): void {
-    this.cartItems = this.cartItems.filter(i => i.id !== item.id);
-    this.savedForLater.push(item);
-    this.updateCartSummary();
+    this.cartService.saveItemForLater(item.product.id);
   }
 
   moveToCart(item: CartItem): void {
-    this.savedForLater = this.savedForLater.filter(i => i.id !== item.id);
-    this.cartItems.push(item);
-    this.updateCartSummary();
+    this.cartService.moveItemToCart(item.product.id);
   }
 
   removeFromSaved(item: CartItem): void {
-    this.savedForLater = this.savedForLater.filter(i => i.id !== item.id);
+    this.cartService.removeFromSavedForLater(item.product.id);
   }
 
   applyCoupon(): void {
     if (!this.couponCode.trim()) return;
     
-    const coupon = this.availableCoupons.find(c => c.code.toLowerCase() === this.couponCode.toLowerCase());
-    if (coupon) {
-      this.appliedCoupon = coupon;
-      this.updateCartSummary();
-      this.couponCode = '';
-      this.showCouponModal = false;
-    } else {
-      alert('Invalid coupon code');
-    }
+    const categories = this.cartItems.map(item => item.product.category);
+    const productIds = this.cartItems.map(item => item.product.id);
+    
+    this.couponService.applyCoupon(this.couponCode, this.subtotal, categories, productIds)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        if (result.isValid) {
+          this.couponCode = '';
+          this.showCouponModal = false;
+        }
+      });
   }
 
   removeCoupon(): void {
-    this.appliedCoupon = null;
-    this.updateCartSummary();
+    this.couponService.removeCoupon();
   }
 
   selectAddress(address: Address): void {
@@ -176,31 +210,28 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   selectPaymentMethod(method: PaymentMethod): void {
-    this.selectedPaymentMethod = method;
+    this.paymentMethodsService.selectPaymentMethod(method.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   proceedToCheckout(): void {
     if (!this.selectedAddress) {
-      alert('Please select a delivery address');
+      this.toastr.error('Please select a delivery address', 'Address Required');
       return;
     }
     
     if (!this.selectedPaymentMethod) {
-      alert('Please select a payment method');
+      this.toastr.error('Please select a payment method', 'Payment Method Required');
       return;
     }
     
-    // Navigate to checkout
-    console.log('Proceeding to checkout with:', {
-      items: this.cartItems,
-      address: this.selectedAddress,
-      paymentMethod: this.selectedPaymentMethod,
-      total: this.total
-    });
+    // Navigate to checkout page
+    this.router.navigate(['/checkout']);
   }
 
   addNewAddress(): void {
-    this.showAddressModal = true;
+    this.router.navigate(['/profile'], { queryParams: { tab: 'addresses' } });
   }
 
   closeAddressModal(): void {
@@ -209,16 +240,11 @@ export class CartComponent implements OnInit, OnDestroy {
 
   closeCouponModal(): void {
     this.showCouponModal = false;
+    this.couponCode = '';
   }
 
   getCouponDiscountText(): string {
-    if (!this.appliedCoupon) return '';
-    
-    if (this.appliedCoupon.type === 'percentage') {
-      return `${this.appliedCoupon.value}% OFF`;
-    } else {
-      return `₹${this.appliedCoupon.value} OFF`;
-    }
+    return this.couponService.getDiscountText();
   }
 
   isEligibleForFreeShipping(): boolean {
@@ -235,7 +261,7 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   trackByItem(index: number, item: CartItem): number {
-    return item.id;
+    return item.product.id;
   }
 
   navigateToProducts(): void {

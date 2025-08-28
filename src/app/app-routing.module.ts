@@ -31,6 +31,21 @@ const routes: Routes = [
     loadChildren: () => import('./features/storage-debug/storage-debug.module').then(m => m.StorageDebugModule)
   },
   {
+    path: 'wishlist',
+    loadChildren: () => import('./features/wishlist/wishlist.module').then(m => m.WishlistModule),
+    canActivate: [AuthGuard]
+  },
+      {
+      path: 'orders',
+      loadChildren: () => import('./features/orders/orders.module').then(m => m.OrdersModule),
+      canActivate: [AuthGuard]
+    },
+    {
+      path: 'profile',
+      loadChildren: () => import('./features/user-profile/user-profile.module').then(m => m.UserProfileModule),
+      canActivate: [AuthGuard]
+    },
+  {
     path: '**',
     redirectTo: '/products'
   }

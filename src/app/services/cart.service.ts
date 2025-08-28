@@ -6,15 +6,27 @@ export interface CartItem {
   product: Product;
   quantity: number;
   addedAt: Date;
+  savedForLater?: boolean;
 }
 
 export interface Cart {
   items: CartItem[];
+  savedForLater: CartItem[];
   totalItems: number;
   subtotal: number;
   tax: number;
   shipping: number;
+  discount: number;
   total: number;
+  deliveryEstimate?: DeliveryEstimate;
+}
+
+export interface DeliveryEstimate {
+  estimatedDate: Date;
+  deliveryTime: string;
+  isExpress: boolean;
+  cost: number;
+  isFree: boolean;
 }
 
 @Injectable({
@@ -36,10 +48,12 @@ export class CartService {
   private getInitialCart(): Cart {
     return {
       items: [],
+      savedForLater: [],
       totalItems: 0,
       subtotal: 0,
       tax: 0,
       shipping: 0,
+      discount: 0,
       total: 0
     };
   }
@@ -82,7 +96,11 @@ export class CartService {
 
     const tax = subtotal * this.TAX_RATE;
     const shipping = subtotal >= this.SHIPPING_THRESHOLD ? 0 : this.SHIPPING_COST;
-    const total = subtotal + tax + shipping;
+    const discount = cart.discount || 0;
+    const total = subtotal + tax + shipping - discount;
+
+    // Calculate delivery estimate
+    const deliveryEstimate = this.calculateDeliveryEstimate(subtotal, shipping);
 
     return {
       ...cart,
@@ -90,7 +108,46 @@ export class CartService {
       subtotal,
       tax,
       shipping,
-      total
+      discount,
+      total,
+      deliveryEstimate
+    };
+  }
+
+  private calculateDeliveryEstimate(subtotal: number, shipping: number): DeliveryEstimate {
+    const today = new Date();
+    const estimatedDate = new Date(today);
+    
+    // Standard delivery: 3-5 days
+    let deliveryDays = 4;
+    let deliveryTime = '3-5 business days';
+    let isExpress = false;
+    let cost = shipping;
+    let isFree = shipping === 0;
+
+    // Express delivery available for orders above ₹2000
+    if (subtotal >= 2000) {
+      estimatedDate.setDate(today.getDate() + 2);
+      deliveryDays = 2;
+      deliveryTime = '1-2 business days';
+      isExpress = true;
+      cost = 200; // Express delivery cost
+      isFree = false;
+    } else {
+      estimatedDate.setDate(today.getDate() + deliveryDays);
+    }
+
+    // Skip weekends
+    while (estimatedDate.getDay() === 0 || estimatedDate.getDay() === 6) {
+      estimatedDate.setDate(estimatedDate.getDate() + 1);
+    }
+
+    return {
+      estimatedDate,
+      deliveryTime,
+      isExpress,
+      cost,
+      isFree
     };
   }
 
@@ -204,8 +261,8 @@ export class CartService {
     });
   }
 
-  // Apply discount code
-  applyDiscount(code: string): { success: boolean; discount: number; message: string } {
+  // Apply discount code (legacy method - use CouponService instead)
+  applyDiscountCode(code: string): { success: boolean; discount: number; message: string } {
     const discountCodes: { [key: string]: number } = {
       'SAVE10': 0.10, // 10% off
       'SAVE20': 0.20, // 20% off
@@ -269,8 +326,64 @@ export class CartService {
     // Note: Wishlist functionality would be implemented separately
   }
 
-  // Save cart for later
-  saveForLater(): void {
+  // Save item for later
+  saveItemForLater(productId: number): void {
+    const currentCart = this.cartSubject.value;
+    const itemIndex = currentCart.items.findIndex(item => item.product.id === productId);
+    
+    if (itemIndex >= 0) {
+      const item = currentCart.items[itemIndex];
+      item.savedForLater = true;
+      
+      // Move item from cart to saved for later
+      currentCart.savedForLater.push(item);
+      currentCart.items.splice(itemIndex, 1);
+      
+      this.updateCart(currentCart);
+    }
+  }
+
+  // Move item back to cart
+  moveItemToCart(productId: number): void {
+    const currentCart = this.cartSubject.value;
+    const itemIndex = currentCart.savedForLater.findIndex(item => item.product.id === productId);
+    
+    if (itemIndex >= 0) {
+      const item = currentCart.savedForLater[itemIndex];
+      item.savedForLater = false;
+      
+      // Move item from saved for later to cart
+      currentCart.items.push(item);
+      currentCart.savedForLater.splice(itemIndex, 1);
+      
+      this.updateCart(currentCart);
+    }
+  }
+
+  // Remove item from saved for later
+  removeFromSavedForLater(productId: number): void {
+    const currentCart = this.cartSubject.value;
+    currentCart.savedForLater = currentCart.savedForLater.filter(item => item.product.id !== productId);
+    this.updateCart(currentCart);
+  }
+
+  // Get saved for later items
+  getSavedForLater(): CartItem[] {
+    return this.cartSubject.value.savedForLater;
+  }
+
+  // Get saved for later count
+  getSavedForLaterCount(): number {
+    return this.cartSubject.value.savedForLater.length;
+  }
+
+  // Check if item is saved for later
+  isSavedForLater(productId: number): boolean {
+    return this.cartSubject.value.savedForLater.some(item => item.product.id === productId);
+  }
+
+  // Save entire cart for later
+  saveCartForLater(): void {
     const cart = this.getCart();
     try {
       localStorage.setItem('saved_cart', JSON.stringify(cart));
@@ -290,6 +403,11 @@ export class CartService {
           product: Product.fromJson(item.product),
           addedAt: new Date(item.addedAt)
         }));
+        cartData.savedForLater = cartData.savedForLater.map((item: any) => ({
+          ...item,
+          product: Product.fromJson(item.product),
+          addedAt: new Date(item.addedAt)
+        }));
         this.updateCart(cartData);
         localStorage.removeItem('saved_cart');
         return true;
@@ -298,6 +416,47 @@ export class CartService {
       console.error('Error loading saved cart:', error);
     }
     return false;
+  }
+
+  // Get delivery estimate
+  getDeliveryEstimate(): DeliveryEstimate | undefined {
+    return this.cartSubject.value.deliveryEstimate;
+  }
+
+  // Update delivery estimate
+  updateDeliveryEstimate(isExpress: boolean = false): void {
+    const currentCart = this.cartSubject.value;
+    const deliveryEstimate = this.calculateDeliveryEstimate(currentCart.subtotal, currentCart.shipping);
+    
+    if (isExpress && currentCart.subtotal >= 2000) {
+      deliveryEstimate.isExpress = true;
+      deliveryEstimate.deliveryTime = '1-2 business days';
+      deliveryEstimate.cost = 200;
+      deliveryEstimate.isFree = false;
+      deliveryEstimate.estimatedDate.setDate(deliveryEstimate.estimatedDate.getDate() - 2);
+    }
+    
+    currentCart.deliveryEstimate = deliveryEstimate;
+    this.updateCart(currentCart);
+  }
+
+  // Apply discount
+  applyDiscount(discountAmount: number): void {
+    const currentCart = this.cartSubject.value;
+    currentCart.discount = discountAmount;
+    this.updateCart(currentCart);
+  }
+
+  // Remove discount
+  removeDiscount(): void {
+    const currentCart = this.cartSubject.value;
+    currentCart.discount = 0;
+    this.updateCart(currentCart);
+  }
+
+  // Get discount amount
+  getDiscountAmount(): number {
+    return this.cartSubject.value.discount;
   }
 }
 

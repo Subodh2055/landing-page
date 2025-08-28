@@ -1,0 +1,232 @@
+<div class="orders-list-container">
+  <!-- Header Section -->
+  <div class="orders-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="orders-title">
+          <i class="fas fa-list-alt me-3"></i>
+          My Orders
+        </h1>
+        <p class="orders-subtitle">
+          Track and manage all your orders
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-outline-primary" (click)="clearFilters()">
+          <i class="fas fa-filter me-1"></i>
+          Clear Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="statistics-section">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon total">
+          <i class="fas fa-shopping-bag"></i>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ statistics.total }}</h3>
+          <p class="stat-label">Total Orders</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon delivered">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ statistics.delivered }}</h3>
+          <p class="stat-label">Delivered</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon in-progress">
+          <i class="fas fa-shipping-fast"></i>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ statistics.inProgress }}</h3>
+          <p class="stat-label">In Progress</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon cancelled">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ statistics.cancelled }}</h3>
+          <p class="stat-label">Cancelled</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="filters-content">
+      <div class="search-filter">
+        <div class="input-group">
+          <span class="input-group-text">
+            <i class="fas fa-search"></i>
+          </span>
+          <input 
+            type="text" 
+            class="form-control" 
+            placeholder="Search orders by number, product, or tracking..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearchChange()">
+        </div>
+      </div>
+      <div class="filter-controls">
+        <div class="filter-group">
+          <label class="filter-label">Status:</label>
+          <select class="form-select" [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Date Range:</label>
+          <select class="form-select" [(ngModel)]="dateFilter" (change)="onDateFilterChange()">
+            <option *ngFor="let option of dateOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="spinner-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading your orders...</p>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && filteredOrders.length === 0">
+    <div class="empty-content">
+      <i class="fas fa-box-open fa-4x mb-4"></i>
+      <h3>No orders found</h3>
+      <p *ngIf="searchTerm || statusFilter !== 'all' || dateFilter !== 'all'">
+        No orders match your current filters. Try adjusting your search criteria.
+      </p>
+      <p *ngIf="!searchTerm && statusFilter === 'all' && dateFilter === 'all'">
+        You haven't placed any orders yet. Start shopping to see your orders here!
+      </p>
+      <button class="btn btn-primary" routerLink="/products">
+        <i class="fas fa-shopping-bag me-1"></i>
+        Start Shopping
+      </button>
+    </div>
+  </div>
+
+  <!-- Orders List -->
+  <div class="orders-content" *ngIf="!loading && filteredOrders.length > 0">
+    <div class="orders-grid">
+      <div class="order-card" *ngFor="let order of filteredOrders; trackBy: trackByOrder">
+        <!-- Order Header -->
+        <div class="order-header">
+          <div class="order-info">
+            <h4 class="order-number">{{ order.orderNumber }}</h4>
+            <span class="order-date">{{ getFormattedDate(order.createdAt) }}</span>
+          </div>
+          <div class="order-status">
+            <span class="status-badge" [style.background-color]="getStatusConfig(order.status).color">
+              <i [class]="getStatusConfig(order.status).icon"></i>
+              {{ getStatusConfig(order.status).label }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Order Progress -->
+        <div class="order-progress">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="getOrderProgress(order)"></div>
+          </div>
+          <div class="progress-text">{{ getOrderProgress(order) | number:'1.0-0' }}% Complete</div>
+        </div>
+
+        <!-- Order Items Preview -->
+        <div class="order-items-preview">
+          <div class="items-summary">
+            <span class="items-count">{{ getOrderSummary(order) }}</span>
+            <span class="order-total">{{ getFormattedTotal(order) }}</span>
+          </div>
+          <div class="items-grid">
+            <div class="item-preview" *ngFor="let item of order.items.slice(0, 3); trackBy: trackByOrderItem">
+              <img [src]="item.productImage" [alt]="item.productName">
+              <span class="item-quantity">{{ item.quantity }}x</span>
+            </div>
+            <div class="more-items" *ngIf="order.items.length > 3">
+              <span>+{{ order.items.length - 3 }} more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="order-details">
+          <div class="detail-item">
+            <span class="detail-label">Payment:</span>
+            <span class="detail-value">{{ order.paymentStatus }}</span>
+          </div>
+          <div class="detail-item" *ngIf="order.trackingNumber">
+            <span class="detail-label">Tracking:</span>
+            <span class="detail-value">{{ order.trackingNumber }}</span>
+          </div>
+          <div class="detail-item" *ngIf="getEstimatedDelivery(order)">
+            <span class="detail-label">Est. Delivery:</span>
+            <span class="detail-value">{{ getFormattedDate(getEstimatedDelivery(order)!) }}</span>
+          </div>
+        </div>
+
+        <!-- Order Actions -->
+        <div class="order-actions">
+          <button class="btn btn-primary btn-sm" (click)="viewOrder(order.id)">
+            <i class="fas fa-eye me-1"></i>
+            View Details
+          </button>
+          <button class="btn btn-outline-primary btn-sm" (click)="trackOrder(order.id)">
+            <i class="fas fa-shipping-fast me-1"></i>
+            Track
+          </button>
+          <button class="btn btn-outline-success btn-sm" 
+                  (click)="reorder(order)"
+                  *ngIf="isOrderDelivered(order)">
+            <i class="fas fa-redo me-1"></i>
+            Reorder
+          </button>
+          <button class="btn btn-outline-danger btn-sm" 
+                  (click)="cancelOrder(order)"
+                  *ngIf="order.status !== 'delivered' && order.status !== 'cancelled'">
+            <i class="fas fa-times me-1"></i>
+            Cancel
+          </button>
+          <button class="btn btn-outline-warning btn-sm" 
+                  (click)="requestReturn(order)"
+                  *ngIf="order.status === 'delivered'">
+            <i class="fas fa-undo me-1"></i>
+            Return
+          </button>
+        </div>
+
+        <!-- Order Timeline Preview -->
+        <div class="order-timeline-preview">
+          <div class="timeline-item" *ngFor="let tracking of order.tracking.slice(-2)">
+            <div class="timeline-icon" [style.background-color]="getStatusConfig(tracking.status).color">
+              <i [class]="getStatusConfig(tracking.status).icon"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-title">{{ getStatusConfig(tracking.status).label }}</div>
+              <div class="timeline-time">{{ getTimeAgo(tracking.timestamp) }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

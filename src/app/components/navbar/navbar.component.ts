@@ -5,6 +5,7 @@ import { SplashScreenService } from '../../services/splash-screen.service';
 import { AuthService } from '../../services/auth.service';
 import { AuthStateService } from '../../services/auth-state.service';
 import { CartService } from '../../services/cart.service';
+import { WishlistService } from '../../services/wishlist.service';
 import { MobileFilterService } from '../../services/mobile-filter.service';
 
 @Component({
@@ -19,6 +20,7 @@ export class NavbarComponent implements OnInit {
   currentUser: any = null;
   isScrolled = false;
   cartItemCount = 0;
+  wishlistCount = 0;
 
   constructor(
     private router: Router,
@@ -27,6 +29,7 @@ export class NavbarComponent implements OnInit {
     private authService: AuthService,
     private authStateService: AuthStateService,
     private cartService: CartService,
+    private wishlistService: WishlistService,
     private mobileFilterService: MobileFilterService
   ) {}
 
@@ -44,6 +47,11 @@ export class NavbarComponent implements OnInit {
     // Subscribe to cart changes
     this.cartService.getCartObservable().subscribe(cart => {
       this.cartItemCount = cart.totalItems;
+    });
+
+    // Subscribe to wishlist changes
+    this.wishlistService.wishlist$.subscribe(wishlist => {
+      this.wishlistCount = wishlist.length;
     });
 
     // Log initial authentication state
@@ -147,5 +155,17 @@ export class NavbarComponent implements OnInit {
 
   navigateToProducts(): void {
     this.router.navigate(['/products']);
+  }
+
+  navigateToWishlist(): void {
+    this.router.navigate(['/wishlist']);
+  }
+
+  navigateToOrders(): void {
+    this.router.navigate(['/orders']);
+  }
+
+  navigateToProfile(): void {
+    this.router.navigate(['/profile']);
   }
 }

@@ -70,6 +70,49 @@
     align-items: center !important;
     gap: 1rem !important;
 
+.wishlist-btn {
+      position: relative !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      border-radius: 50% !important;
+      width: 45px !important;
+      height: 45px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: var(--text-primary) !important;
+      transition: all 0.3s ease !important;
+      cursor: pointer !important;
+  
+  &:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+      }
+
+      i {
+        font-size: 1.2rem !important;
+      }
+
+      .wishlist-badge {
+        position: absolute !important;
+        top: -8px !important;
+        right: -8px !important;
+        background: #ff6b6b !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 20px !important;
+        height: 20px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.75rem !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 8px rgba(255, 107, 107, 0.4) !important;
+      }
+    }
+
 .cart-btn {
       position: relative !important;
       background: rgba(255, 255, 255, 0.1) !important;
@@ -165,6 +208,58 @@
       align-items: center !important;
       gap: 0.75rem !important;
 
+                      .orders-btn {
+                  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+                  border: none !important;
+                  color: white !important;
+                  border-radius: 1rem !important;
+                  padding: 0.5rem 1.5rem !important;
+                  font-weight: 600 !important;
+                  transition: all 0.3s ease !important;
+                  display: flex !important;
+                  align-items: center !important;
+                  gap: 0.5rem !important;
+                  cursor: pointer !important;
+                  text-decoration: none !important;
+                  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4) !important;
+
+                  &:hover {
+                    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%) !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.6) !important;
+                  }
+
+                  i {
+                    font-size: 1rem !important;
+                  }
+                }
+
+                .profile-btn {
+                  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                  border: none !important;
+                  color: white !important;
+                  border-radius: 1rem !important;
+                  padding: 0.5rem 1.5rem !important;
+                  font-weight: 600 !important;
+                  transition: all 0.3s ease !important;
+                  display: flex !important;
+                  align-items: center !important;
+                  gap: 0.5rem !important;
+                  cursor: pointer !important;
+                  text-decoration: none !important;
+                  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+
+                  &:hover {
+                    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+                    transform: translateY(-2px) !important;
+                    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+                  }
+
+                  i {
+                    font-size: 1rem !important;
+                  }
+                }
+
       .splash-btn {
         background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%) !important;
         border: none !important;
@@ -189,7 +284,7 @@
         i {
           font-size: 1rem !important;
         }
-}
+      }
 
 .admin-btn {
         background: rgba(255, 255, 255, 0.1) !important;
@@ -320,6 +415,48 @@
     display: flex !important;
     align-items: center !important;
     gap: 0.5rem !important;
+
+    .mobile-wishlist-btn {
+      position: relative !important;
+      background: rgba(255, 255, 255, 0.1) !important;
+      backdrop-filter: blur(10px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      border-radius: 50% !important;
+      width: 40px !important;
+      height: 40px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: var(--text-primary) !important;
+      transition: all 0.3s ease !important;
+      cursor: pointer !important;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2) !important;
+        transform: translateY(-2px) !important;
+      }
+
+      i {
+        font-size: 1.1rem !important;
+      }
+
+      .wishlist-badge {
+        position: absolute !important;
+        top: -6px !important;
+        right: -6px !important;
+        background: #ff6b6b !important;
+        color: white !important;
+        border-radius: 50% !important;
+        width: 18px !important;
+        height: 18px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 0.7rem !important;
+        font-weight: 700 !important;
+        animation: pulse 2s infinite !important;
+      }
+    }
 
     .mobile-cart-btn {
       position: relative !important;
