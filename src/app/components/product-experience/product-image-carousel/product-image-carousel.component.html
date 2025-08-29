@@ -1,0 +1,150 @@
+<div class="product-carousel-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p>Loading product images...</p>
+  </div>
+
+  <!-- Main Carousel -->
+  <div *ngIf="!loading && getTotalItems() > 0" class="carousel-main">
+    <!-- Navigation Arrows -->
+    <button 
+      class="carousel-nav prev" 
+      (click)="previous()"
+      [disabled]="getTotalItems() <= 1">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+
+    <button 
+      class="carousel-nav next" 
+      (click)="next()"
+      [disabled]="getTotalItems() <= 1">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+
+    <!-- Main Image/Video Display -->
+    <div class="carousel-viewport">
+      <!-- Image Display -->
+      <div 
+        *ngIf="isCurrentItemImage() && getCurrentImage()"
+        class="image-container"
+        (mousemove)="onMouseMove($event)"
+        (mouseenter)="onMouseEnter()"
+        (mouseleave)="onMouseLeave()">
+        
+        <img 
+          [src]="getCurrentImage()!.url" 
+          [alt]="getCurrentImage()!.altText"
+          class="main-image"
+          loading="lazy">
+        
+        <!-- Zoom Overlay -->
+        <div 
+          *ngIf="shouldShowZoom()"
+          class="zoom-overlay"
+          [ngStyle]="getZoomStyle()">
+        </div>
+
+        <!-- Image Counter -->
+        <div class="image-counter">
+          {{ currentIndex + 1 }} / {{ getTotalItems() }}
+        </div>
+      </div>
+
+      <!-- Video Display -->
+      <div 
+        *ngIf="isCurrentItemVideo() && getCurrentVideo()"
+        class="video-container">
+        
+        <div class="video-thumbnail" (click)="playVideo(getCurrentVideo()!)">
+          <img 
+            [src]="getCurrentVideo()!.thumbnailUrl" 
+            [alt]="getCurrentVideo()!.title"
+            class="video-thumb">
+          
+          <div class="video-overlay">
+            <div class="play-button">
+              <i class="fas fa-play"></i>
+            </div>
+            <div class="video-info">
+              <h4>{{ getCurrentVideo()!.title }}</h4>
+              <p>{{ getCurrentVideo()!.description }}</p>
+              <span class="duration">{{ getCurrentVideo()!.getFormattedDuration() }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Counter -->
+        <div class="video-counter">
+          {{ currentIndex + 1 }} / {{ getTotalItems() }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Thumbnail Navigation -->
+  <div *ngIf="!loading && getThumbnails().length > 1" class="thumbnail-container">
+    <div class="thumbnail-scroll">
+      <div 
+        *ngFor="let item of getThumbnails(); let i = index"
+        class="thumbnail-item"
+        [class.active]="isThumbnailActive(i)"
+        (click)="goToIndex(i)">
+        
+        <!-- Image Thumbnail -->
+        <img 
+          *ngIf="!isThumbnailVideo(item)"
+          [src]="(item as ProductImage).getThumbnailUrl()" 
+          [alt]="(item as ProductImage).altText"
+          class="thumbnail-image">
+        
+        <!-- Video Thumbnail -->
+        <div *ngIf="isThumbnailVideo(item)" class="video-thumbnail-small">
+          <img 
+            [src]="(item as ProductVideo).thumbnailUrl" 
+            [alt]="(item as ProductVideo).title"
+            class="thumbnail-image">
+          
+          <div class="video-indicator">
+            <i class="fas fa-play"></i>
+            <span class="duration-small">{{ (item as ProductVideo).getFormattedDuration() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Video Modal -->
+  <div *ngIf="isVideoPlaying && currentVideo" class="video-modal" (click)="closeVideo()">
+    <div class="video-modal-content" (click)="$event.stopPropagation()">
+      <button class="close-video" (click)="closeVideo()">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <div class="video-player">
+        <video 
+          [src]="currentVideo.videoUrl" 
+          controls 
+          autoplay
+          class="video-element">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      
+      <div class="video-details">
+        <h3>{{ currentVideo.title }}</h3>
+        <p>{{ currentVideo.description }}</p>
+        <div class="video-meta">
+          <span class="video-type">{{ currentVideo.type.replace('_', ' ').toUpperCase() }}</span>
+          <span class="video-duration">{{ currentVideo.getFormattedDuration() }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && getTotalItems() === 0" class="empty-state">
+    <i class="fas fa-image"></i>
+    <p>No images available for this product</p>
+  </div>
+</div>
