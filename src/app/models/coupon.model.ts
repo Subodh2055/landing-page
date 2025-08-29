@@ -4,37 +4,116 @@ export class Coupon {
     public code: string,
     public name: string,
     public description: string,
-    public type: 'percentage' | 'fixed',
+    public type: 'percentage' | 'fixed' | 'free_shipping',
     public value: number,
-    public minOrderAmount: number = 0,
-    public maxDiscount: number = 0,
-    public validFrom: Date = new Date(),
-    public validUntil: Date = new Date(),
-    public usageLimit: number = 0,
+    public minOrderAmount: number,
+    public maxDiscount?: number,
+    public validFrom?: Date,
+    public validUntil?: Date,
+    public usageLimit?: number,
     public usedCount: number = 0,
     public isActive: boolean = true,
     public applicableCategories: string[] = [],
     public applicableProducts: number[] = []
   ) {}
 
-  static fromJson(json: any): Coupon {
-    return new Coupon(
-      json.id,
-      json.code,
-      json.name,
-      json.description,
-      json.type,
-      json.value,
-      json.minOrderAmount,
-      json.maxDiscount,
-      new Date(json.validFrom),
-      new Date(json.validUntil),
-      json.usageLimit,
-      json.usedCount,
-      json.isActive,
-      json.applicableCategories || [],
-      json.applicableProducts || []
-    );
+  isValid(): boolean {
+    const now = new Date();
+    
+    if (!this.isActive) return false;
+    
+    if (this.validFrom && now < this.validFrom) return false;
+    
+    if (this.validUntil && now > this.validUntil) return false;
+    
+    if (this.usageLimit && this.usedCount >= this.usageLimit) return false;
+    
+    return true;
+  }
+
+  canApplyToOrder(orderAmount: number): boolean {
+    return orderAmount >= this.minOrderAmount;
+  }
+
+  isApplicableToCategory(category: string): boolean {
+    if (this.applicableCategories.length === 0) return true;
+    return this.applicableCategories.includes(category);
+  }
+
+  isApplicableToProduct(productId: number): boolean {
+    if (this.applicableProducts.length === 0) return true;
+    return this.applicableProducts.includes(productId);
+  }
+
+  calculateDiscount(orderAmount: number): number {
+    if (!this.canApplyToOrder(orderAmount)) return 0;
+
+    let discount = 0;
+    
+    if (this.type === 'percentage') {
+      discount = (orderAmount * this.value) / 100;
+    } else if (this.type === 'fixed') {
+      discount = this.value;
+    } else if (this.type === 'free_shipping') {
+      // Free shipping discount (typically around NPR 100-200)
+      discount = Math.min(orderAmount * 0.1, 200); // 10% of order or max NPR 200
+    }
+
+    // Apply max discount limit if set
+    if (this.maxDiscount && discount > this.maxDiscount) {
+      discount = this.maxDiscount;
+    }
+
+    return Math.min(discount, orderAmount); // Can't discount more than order amount
+  }
+
+  getDiscountText(): string {
+    if (this.type === 'percentage') {
+      return `${this.value}% OFF`;
+    } else if (this.type === 'fixed') {
+      return `NPR ${this.value} OFF`;
+    } else if (this.type === 'free_shipping') {
+      return 'FREE SHIPPING';
+    }
+    return 'DISCOUNT';
+  }
+
+  getFormattedValue(): string {
+    if (this.type === 'percentage') {
+      return `${this.value}%`;
+    } else if (this.type === 'fixed') {
+      return `NPR ${this.value}`;
+    } else if (this.type === 'free_shipping') {
+      return 'FREE';
+    }
+    return `${this.value}`;
+  }
+
+  getMinOrderText(): string {
+    return `Min. order NPR ${this.minOrderAmount}`;
+  }
+
+  getValidityText(): string {
+    if (this.validUntil) {
+      const daysLeft = Math.ceil((this.validUntil.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+      if (daysLeft <= 0) return 'Expired';
+      if (daysLeft === 1) return 'Expires today';
+      if (daysLeft <= 7) return `Expires in ${daysLeft} days`;
+      return `Valid until ${this.validUntil.toLocaleDateString()}`;
+    }
+    return 'No expiry';
+  }
+
+  getUsageText(): string {
+    if (this.usageLimit) {
+      const remaining = this.usageLimit - this.usedCount;
+      return `${remaining} uses remaining`;
+    }
+    return 'Unlimited uses';
+  }
+
+  incrementUsage(): void {
+    this.usedCount++;
   }
 
   toJson(): any {
@@ -47,8 +126,8 @@ export class Coupon {
       value: this.value,
       minOrderAmount: this.minOrderAmount,
       maxDiscount: this.maxDiscount,
-      validFrom: this.validFrom.toISOString(),
-      validUntil: this.validUntil.toISOString(),
+      validFrom: this.validFrom?.toISOString(),
+      validUntil: this.validUntil?.toISOString(),
       usageLimit: this.usageLimit,
       usedCount: this.usedCount,
       isActive: this.isActive,
@@ -57,115 +136,54 @@ export class Coupon {
     };
   }
 
-  isValid(): boolean {
-    const now = new Date();
-    return (
-      this.isActive &&
-      now >= this.validFrom &&
-      now <= this.validUntil &&
-      (this.usageLimit === 0 || this.usedCount < this.usageLimit)
+  static fromJson(json: any): Coupon {
+    return new Coupon(
+      json.id,
+      json.code,
+      json.name,
+      json.description,
+      json.type,
+      json.value,
+      json.minOrderAmount,
+      json.maxDiscount,
+      json.validFrom ? new Date(json.validFrom) : undefined,
+      json.validUntil ? new Date(json.validUntil) : undefined,
+      json.usageLimit,
+      json.usedCount || 0,
+      json.isActive !== false,
+      json.applicableCategories || [],
+      json.applicableProducts || []
     );
   }
+}
 
-  canApplyToOrder(orderAmount: number): boolean {
-    return orderAmount >= this.minOrderAmount;
+export class CouponValidationResult {
+  constructor(
+    public isValid: boolean,
+    public coupon?: Coupon,
+    public message: string = '',
+    public discountAmount: number = 0
+  ) {}
+
+  getFormattedDiscountAmount(): string {
+    return `NPR ${this.discountAmount.toFixed(2)}`;
   }
 
-  calculateDiscount(orderAmount: number): number {
-    if (!this.canApplyToOrder(orderAmount)) {
-      return 0;
-    }
-
-    let discount = 0;
-    
-    if (this.type === 'percentage') {
-      discount = (orderAmount * this.value) / 100;
-    } else {
-      discount = this.value;
-    }
-
-    // Apply maximum discount limit
-    if (this.maxDiscount > 0 && discount > this.maxDiscount) {
-      discount = this.maxDiscount;
-    }
-
-    // Don't discount more than order amount
-    if (discount > orderAmount) {
-      discount = orderAmount;
-    }
-
-    return discount;
+  toJson(): any {
+    return {
+      isValid: this.isValid,
+      coupon: this.coupon?.toJson(),
+      message: this.message,
+      discountAmount: this.discountAmount
+    };
   }
 
-  getDiscountText(): string {
-    if (this.type === 'percentage') {
-      return `${this.value}% OFF`;
-    } else {
-      return `₹${this.value} OFF`;
-    }
-  }
-
-  getMinOrderText(): string {
-    if (this.minOrderAmount > 0) {
-      return `Min. order ₹${this.minOrderAmount}`;
-    }
-    return 'No minimum order';
-  }
-
-  getMaxDiscountText(): string {
-    if (this.maxDiscount > 0) {
-      return `Max. discount ₹${this.maxDiscount}`;
-    }
-    return '';
-  }
-
-  getValidityText(): string {
-    const now = new Date();
-    const daysLeft = Math.ceil((this.validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysLeft <= 0) {
-      return 'Expired';
-    } else if (daysLeft === 1) {
-      return 'Expires today';
-    } else if (daysLeft <= 7) {
-      return `Expires in ${daysLeft} days`;
-    } else {
-      return `Valid until ${this.validUntil.toLocaleDateString()}`;
-    }
-  }
-
-  getUsageText(): string {
-    if (this.usageLimit === 0) {
-      return 'Unlimited usage';
-    } else {
-      const remaining = this.usageLimit - this.usedCount;
-      return `${remaining} uses remaining`;
-    }
-  }
-
-  isApplicableToCategory(category: string): boolean {
-    return this.applicableCategories.length === 0 || this.applicableCategories.includes(category);
-  }
-
-  isApplicableToProduct(productId: number): boolean {
-    return this.applicableProducts.length === 0 || this.applicableProducts.includes(productId);
-  }
-
-  getFormattedValue(): string {
-    if (this.type === 'percentage') {
-      return `${this.value}%`;
-    } else {
-      return `₹${this.value}`;
-    }
-  }
-
-  getStatusColor(): string {
-    if (!this.isValid()) {
-      return '#e74c3c'; // Red for invalid
-    } else if (this.usageLimit > 0 && this.usedCount >= this.usageLimit) {
-      return '#f39c12'; // Orange for usage limit reached
-    } else {
-      return '#27ae60'; // Green for valid
-    }
+  static fromJson(json: any): CouponValidationResult {
+    return new CouponValidationResult(
+      json.isValid,
+      json.coupon ? Coupon.fromJson(json.coupon) : undefined,
+      json.message,
+      json.discountAmount || 0
+    );
   }
 }

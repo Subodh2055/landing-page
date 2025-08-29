@@ -11,18 +11,95 @@ export class PaymentMethod {
     public supportedWallets?: string[]
   ) {}
 
-  static fromJson(json: any): PaymentMethod {
-    return new PaymentMethod(
-      json.id,
-      json.name,
-      json.icon,
-      json.description,
-      json.isAvailable,
-      json.processingFee,
-      json.processingTime,
-      json.supportedCards,
-      json.supportedWallets
-    );
+  isInstantPayment(): boolean {
+    return this.processingTime.toLowerCase().includes('instant') || 
+           this.processingTime.toLowerCase().includes('real-time');
+  }
+
+  isRecommended(): boolean {
+    // Recommend free and instant payment methods
+    return this.processingFee === 0 && this.isInstantPayment();
+  }
+
+  getFormattedProcessingFee(): string {
+    if (this.processingFee === 0) return 'Free';
+    if (this.processingFee < 1) {
+      return `${(this.processingFee * 100).toFixed(1)}%`;
+    }
+    return `NPR ${this.processingFee.toFixed(2)}`;
+  }
+
+  getProcessingTimeText(): string {
+    return this.processingTime;
+  }
+
+  getSupportedCardsText(): string {
+    if (!this.supportedCards || this.supportedCards.length === 0) return '';
+    return this.supportedCards.join(', ');
+  }
+
+  getSupportedWalletsText(): string {
+    if (!this.supportedWallets || this.supportedWallets.length === 0) return '';
+    return this.supportedWallets.join(', ');
+  }
+
+  getPaymentAdvantages(): string[] {
+    const advantages: string[] = [];
+    
+    if (this.processingFee === 0) {
+      advantages.push('No processing fee');
+    }
+    
+    if (this.isInstantPayment()) {
+      advantages.push('Instant payment');
+    }
+    
+    if (this.supportedCards && this.supportedCards.length > 0) {
+      advantages.push('Multiple card support');
+    }
+    
+    if (this.supportedWallets && this.supportedWallets.length > 0) {
+      advantages.push('Digital wallet support');
+    }
+    
+    // Nepali payment method specific advantages
+    if (this.id === 'khalti') {
+      advantages.push('Nepal\'s leading payment gateway');
+      advantages.push('Wide merchant network');
+    }
+    
+    if (this.id === 'esewa') {
+      advantages.push('Trusted digital payment platform');
+      advantages.push('Government approved');
+    }
+    
+    if (this.id === 'nepalpay') {
+      advantages.push('National Payment Switch');
+      advantages.push('QR code payments');
+    }
+    
+    return advantages;
+  }
+
+  calculateProcessingFee(amount: number): number {
+    if (this.processingFee === 0) return 0;
+    
+    if (this.processingFee < 1) {
+      // Percentage-based fee
+      return (amount * this.processingFee);
+    }
+    
+    // Fixed fee
+    return this.processingFee;
+  }
+
+  getTotalWithProcessingFee(amount: number): number {
+    return amount + this.calculateProcessingFee(amount);
+  }
+
+  getFormattedTotalWithFee(amount: number): string {
+    const total = this.getTotalWithProcessingFee(amount);
+    return `NPR ${total.toFixed(2)}`;
   }
 
   toJson(): any {
@@ -39,149 +116,46 @@ export class PaymentMethod {
     };
   }
 
+  static fromJson(json: any): PaymentMethod {
+    return new PaymentMethod(
+      json.id,
+      json.name,
+      json.icon,
+      json.description,
+      json.isAvailable !== false,
+      json.processingFee || 0,
+      json.processingTime || 'Instant',
+      json.supportedCards,
+      json.supportedWallets
+    );
+  }
+}
+
+export class PaymentValidationResult {
+  constructor(
+    public isValid: boolean,
+    public message: string = '',
+    public processingFee: number = 0
+  ) {}
+
   getFormattedProcessingFee(): string {
-    if (this.processingFee === 0) {
-      return 'No fee';
-    } else {
-      return `₹${this.processingFee.toFixed(2)}`;
-    }
+    if (this.processingFee === 0) return 'Free';
+    return `NPR ${this.processingFee.toFixed(2)}`;
   }
 
-  getProcessingTimeText(): string {
-    return this.processingTime;
+  toJson(): any {
+    return {
+      isValid: this.isValid,
+      message: this.message,
+      processingFee: this.processingFee
+    };
   }
 
-  getSupportedCardsText(): string {
-    if (!this.supportedCards || this.supportedCards.length === 0) {
-      return '';
-    }
-    return this.supportedCards.join(', ');
-  }
-
-  getSupportedWalletsText(): string {
-    if (!this.supportedWallets || this.supportedWallets.length === 0) {
-      return '';
-    }
-    return this.supportedWallets.join(', ');
-  }
-
-  getMethodType(): 'cod' | 'card' | 'upi' | 'wallet' | 'netbanking' {
-    if (this.id.includes('cod')) return 'cod';
-    if (this.id.includes('card')) return 'card';
-    if (this.id.includes('upi')) return 'upi';
-    if (this.id.includes('wallet')) return 'wallet';
-    return 'netbanking';
-  }
-
-  getMethodColor(): string {
-    switch (this.getMethodType()) {
-      case 'cod':
-        return '#27ae60'; // Green
-      case 'card':
-        return '#3498db'; // Blue
-      case 'upi':
-        return '#9b59b6'; // Purple
-      case 'wallet':
-        return '#f39c12'; // Orange
-      default:
-        return '#34495e'; // Dark gray
-    }
-  }
-
-  getMethodBackgroundColor(): string {
-    switch (this.getMethodType()) {
-      case 'cod':
-        return 'rgba(39, 174, 96, 0.1)';
-      case 'card':
-        return 'rgba(52, 152, 219, 0.1)';
-      case 'upi':
-        return 'rgba(155, 89, 182, 0.1)';
-      case 'wallet':
-        return 'rgba(243, 156, 18, 0.1)';
-      default:
-        return 'rgba(52, 73, 94, 0.1)';
-    }
-  }
-
-  getMethodBorderColor(): string {
-    switch (this.getMethodType()) {
-      case 'cod':
-        return 'rgba(39, 174, 96, 0.3)';
-      case 'card':
-        return 'rgba(52, 152, 219, 0.3)';
-      case 'upi':
-        return 'rgba(155, 89, 182, 0.3)';
-      case 'wallet':
-        return 'rgba(243, 156, 18, 0.3)';
-      default:
-        return 'rgba(52, 73, 94, 0.3)';
-    }
-  }
-
-  isRecommended(): boolean {
-    // COD is recommended for first-time users
-    return this.id === 'cod';
-  }
-
-  getRecommendationText(): string {
-    if (this.isRecommended()) {
-      return 'Recommended';
-    }
-    return '';
-  }
-
-  getSecurityInfo(): string {
-    switch (this.getMethodType()) {
-      case 'cod':
-        return 'Pay securely when you receive your order';
-      case 'card':
-        return 'Your card details are encrypted and secure';
-      case 'upi':
-        return 'Instant and secure UPI payment';
-      case 'wallet':
-        return 'Quick payment from your digital wallet';
-      default:
-        return 'Secure payment processing';
-    }
-  }
-
-  getIconClass(): string {
-    return this.icon;
-  }
-
-  getDisplayName(): string {
-    return this.name;
-  }
-
-  getDisplayDescription(): string {
-    return this.description;
-  }
-
-  isInstantPayment(): boolean {
-    return this.processingTime.toLowerCase().includes('instant');
-  }
-
-  getPaymentAdvantages(): string[] {
-    const advantages: string[] = [];
-    
-    if (this.processingFee === 0) {
-      advantages.push('No processing fee');
-    }
-    
-    if (this.isInstantPayment()) {
-      advantages.push('Instant payment');
-    }
-    
-    if (this.id === 'cod') {
-      advantages.push('Pay on delivery');
-      advantages.push('No upfront payment');
-    }
-    
-    if (this.id === 'upi') {
-      advantages.push('Quick and easy');
-      advantages.push('No card details needed');
-    }
-    
-    return advantages;
+  static fromJson(json: any): PaymentValidationResult {
+    return new PaymentValidationResult(
+      json.isValid,
+      json.message,
+      json.processingFee || 0
+    );
   }
 }

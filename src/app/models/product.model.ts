@@ -71,7 +71,7 @@ export class Product {
   }
 
   getFormattedPrice(): string {
-    return `₹${this.price.toFixed(2)}`;
+    return `NPR ${this.price.toFixed(2)}`;
   }
 
   getStockStatus(): string {
@@ -97,5 +97,31 @@ export class Product {
   getDiscountPercentage(): number {
     if (!this.hasDiscount()) return 0;
     return Math.round(((this.originalPrice! - this.price) / this.originalPrice!) * 100);
+  }
+
+  isOnSale(): boolean {
+    return this.hasDiscount();
+  }
+
+  getSavingsAmount(): number {
+    if (!this.hasDiscount()) return 0;
+    return this.originalPrice! - this.price;
+  }
+
+  getFormattedSavings(): string {
+    const savings = this.getSavingsAmount();
+    if (savings <= 0) return '';
+    return `NPR ${savings.toFixed(2)}`;
+  }
+
+  getFormattedOriginalPrice(): string {
+    if (!this.originalPrice) return '';
+    return `NPR ${this.originalPrice.toFixed(2)}`;
+  }
+
+  getDiscountText(): string {
+    const percentage = this.getDiscountPercentage();
+    if (percentage <= 0) return '';
+    return `${percentage}% OFF`;
   }
 }
